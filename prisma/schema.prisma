@@ -14,15 +14,50 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// model User {
-//   id                 String   @id @default(cuid())
-//   email              String   @unique
-//   name               String?
-//   image              String?
-//   timezone           String?
-//   locale             String?
-//   defaultServings    Int?     @default(2)
-//   dietaryPreferences String?
-//   hasOnboarded       Boolean  @default(false)
-//   createdAt          DateTime @default(now())
-// }
+model Recipe {
+  id            String   @id @default(cuid())
+  userId        String
+
+  title         String
+  description   String?
+  imageUrl      String?
+
+  servings      Int
+  dietaryTags   String[] @default([])
+
+  ingredients   Ingredient[]
+  steps         RecipeStep[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@index([title])
+}
+
+model Ingredient {
+  id        String  @id @default(cuid())
+  recipeId String
+
+  name      String
+  quantity  String   // "2 cups", "1 tsp", "200g"
+
+  recipe    Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
+}
+
+model RecipeStep {
+  id        String  @id @default(cuid())
+  recipeId String
+
+  stepNo    Int
+  content   String
+
+  recipe    Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
+  @@unique([recipeId, stepNo])
+}
+
+

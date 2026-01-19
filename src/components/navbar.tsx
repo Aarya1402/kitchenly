@@ -19,7 +19,7 @@ export function Navbar() {
     <header className="border-b">
        <div className="mx-2 flex h-16 max-w-8xl items-center justify-between px-1">
         {/* Left: App name / logo */}
-        <Link href="/" className="text-lg font-semibold">
+        <Link href="/dashboard" className="text-lg font-semibold">
           Kitchenly
         </Link>
 
