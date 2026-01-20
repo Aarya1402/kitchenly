@@ -5,7 +5,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-
+import Image from "next/image";
 type RecipeDetailsModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -34,11 +34,15 @@ export function RecipeDetailsModal({
           <DialogTitle>{recipe.title}</DialogTitle>
         </DialogHeader>
 
-        <img
-          src={recipe.imageUrl ?? "/images/recipe-placeholder.jpg"}
-          alt={recipe.title}
-          className="mb-4 h-56 w-full rounded-lg object-cover"
-        />
+       <div className="relative mb-4 h-56 w-full overflow-hidden rounded-lg bg-muted">
+  <Image
+    src={recipe.imageUrl ?? "/images/recipe-placeholder.png"}
+    alt={recipe.title}
+    fill
+    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
+    className="object-cover"
+  />
+</div>
 
         {recipe.description && (
           <p className="mb-4 text-sm text-muted-foreground">
@@ -60,7 +64,7 @@ export function RecipeDetailsModal({
           <ul className="list-disc space-y-1 pl-5 text-sm">
             {recipe.ingredients.map((ing, i) => (
               <li key={i}>
-                {ing.quantity} {ing.name}
+                {ing.name}-{ing.quantity}
               </li>
             ))}
           </ul>

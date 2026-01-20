@@ -44,7 +44,7 @@ export function RecipeBasicsCard({
     setDietaryTags(
       dietaryTags.includes(tag)
         ? dietaryTags.filter((t) => t !== tag)
-        : [...dietaryTags, tag]
+        : [...dietaryTags, tag],
     );
   };
 
@@ -97,9 +97,7 @@ export function RecipeBasicsCard({
         <Input
           type="file"
           accept="image/*"
-          onChange={(e) =>
-            setImageFile(e.target.files?.[0] ?? null)
-          }
+          onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
         />
       </CardContent>
     </Card>

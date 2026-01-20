@@ -4,17 +4,30 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, X } from "lucide-react";
+import {Ingredient} from "../../types/ingredient"
 
 type Props = {
-  ingredients: string[];
-  setIngredients: (v: string[]) => void;
+  ingredients: Ingredient[];
+  setIngredients: (v: Ingredient[]) => void;
 };
 
 export function IngredientsCard({ ingredients, setIngredients }: Props) {
-  const update = (i: number, value: string) => {
+  const update = (
+    index: number,
+    field: keyof Ingredient,
+    value: string
+  ) => {
     const next = [...ingredients];
-    next[i] = value;
+    next[index] = { ...next[index], [field]: value };
     setIngredients(next);
+  };
+
+  const addIngredient = () => {
+    setIngredients([...ingredients, { quantity: "", name: "" }]);
+  };
+
+  const removeIngredient = (index: number) => {
+    setIngredients(ingredients.filter((_, i) => i !== index));
   };
 
   return (
@@ -24,20 +37,31 @@ export function IngredientsCard({ ingredients, setIngredients }: Props) {
       </CardHeader>
 
       <CardContent className="space-y-3">
-        {ingredients.map((ing, i) => (
-          <div key={i} className="flex items-center gap-2">
+        {ingredients.map((ingredient, index) => (
+          <div key={index} className="flex items-center gap-2">
             <Input
-              value={ing}
-              onChange={(e) => update(i, e.target.value)}
-              placeholder="e.g. 200g paneer"
+              placeholder="Qty (e.g. 200g)"
+              value={ingredient.quantity}
+              onChange={(e) =>
+                update(index, "quantity", e.target.value)
+              }
+              className="w-32"
             />
+
+            <Input
+              placeholder="Ingredient name"
+              value={ingredient.name}
+              onChange={(e) =>
+                update(index, "name", e.target.value)
+              }
+              className="flex-1"
+            />
+
             {ingredients.length > 1 && (
               <Button
                 size="icon"
                 variant="ghost"
-                onClick={() =>
-                  setIngredients(ingredients.filter((_, x) => x !== i))
-                }
+                onClick={() => removeIngredient(index)}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -48,7 +72,7 @@ export function IngredientsCard({ ingredients, setIngredients }: Props) {
         <Button
           variant="outline"
           className="w-full"
-          onClick={() => setIngredients([...ingredients, ""])}
+          onClick={addIngredient}
         >
           <Plus className="mr-2 h-4 w-4" />
           Add ingredient
