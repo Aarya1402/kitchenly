@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { UserProfile, useUser } from "@clerk/nextjs";
 import { Sliders } from "lucide-react";
 
-import { DIETARY_PREFERENCES } from "@/lib/dietary-preferences";
+import { DIETARY_PREFERENCES } from "@/constants/dietary-preferences";
 import {
   Card,
   CardHeader,
@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import axios from "axios";
 
 export default function SettingsPage() {
   const { user, isLoaded } = useUser();
@@ -30,12 +31,14 @@ useEffect(() => {
   if (!isLoaded) return;
 
   const loadPreferences = async () => {
-    const res = await fetch("/api/user/preferences");
-    if (!res.ok) return;
-
-    const data = await res.json();
-    setDefaultServings(data.defaultServings);
-    setDietaryPreferences(data.dietaryPreferences);
+    try {
+      const response = await axios.get("/api/user/preferences");
+      const data = response.data;
+      setDefaultServings(data.defaultServings);
+      setDietaryPreferences(data.dietaryPreferences);
+    } catch (e) {
+      // Handle error if needed
+    }
   };
 
   loadPreferences();
@@ -54,18 +57,10 @@ useEffect(() => {
     setError(null);
 
     try {
-      const res = await fetch("/api/user/preferences", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          defaultServings,
-          dietaryPreferences,
-        }),
+      await axios.post("/api/user/preferences", {
+        defaultServings,
+        dietaryPreferences,
       });
-
-      if (!res.ok) {
-        throw new Error("Failed to save preferences");
-      }
 
       setSaved(true);
     } catch (e) {

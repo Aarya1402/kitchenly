@@ -8,6 +8,7 @@ import { IngredientsCard } from "@/components/recipes/ingredients-card";
 import { StepsCard } from "@/components/recipes/steps-card";
 import { Ingredient } from "../../../types/ingredient";
 import { RecipePreview } from "@/components/recipes/recipe-preview";
+import axios from "axios";
 
 export default function NewRecipePage() {
   const [step, setStep] = useState(1);
@@ -45,27 +46,20 @@ export default function NewRecipePage() {
       const formData = new FormData();
       formData.append("file", imageFile);
 
-      const uploadRes = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
+      const uploadResponse = await axios.post("/api/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
-      if (!uploadRes.ok) {
-        alert("Image upload failed");
-        setUploading(false);
-        return;
-      }
-
-      const uploadJson = await uploadRes.json();
+      const uploadJson = uploadResponse.data;
       uploadedImageUrl = uploadJson.imageUrl;
       setImageUrl(uploadedImageUrl);
       setUploading(false);
     }
 
-    const res = await fetch("/api/recipes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    try {
+      await axios.post("/api/recipes", {
         title,
         description,
         servings,
@@ -75,15 +69,12 @@ export default function NewRecipePage() {
           (i) => i.quantity.trim() && i.name.trim(),
         ),
         steps: steps.filter((s) => s.trim()),
-      }),
-    });
+      });
 
-    if (!res.ok) {
+      window.location.href = "/my-recipes";
+    } catch (e) {
       alert("Failed to save recipe");
-      return;
     }
-
-    window.location.href = "/my-recipes";
   };
 
   return (

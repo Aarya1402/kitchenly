@@ -3,7 +3,9 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Navbar } from "@/components/navbar";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 import AuthProvider from "@/components/providers/session-provider";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -29,7 +31,10 @@ export default function RootLayout({
       <html lang="en">
         <body>
           <Navbar />
-          <main>{children}</main>
+          <main>
+            {children}
+             <Toaster position="top-right" richColors />
+          </main>
         </body>
       </html>
     </ClerkProvider>

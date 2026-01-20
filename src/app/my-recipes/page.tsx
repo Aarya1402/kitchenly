@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import type { Recipe } from "@/types/recipe";
 import { MyRecipesGrid } from "@/components/recipes/my-recipes-grid";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import axios from "axios";
 
 export default function MyRecipesPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -14,10 +16,8 @@ export default function MyRecipesPage() {
   const loadRecipes = async (pageToLoad: number) => {
     setLoading(true);
 
-    const res = await fetch(
-      `/api/recipes?page=${pageToLoad}&limit=9`
-    );
-    const json = await res.json();
+    const response = await axios.get(`/api/recipes?page=${pageToLoad}&limit=9`);
+    const json = response.data;
 
     setRecipes((prev) =>
       pageToLoad === 1 ? json.data : [...prev, ...json.data]
@@ -32,11 +32,36 @@ export default function MyRecipesPage() {
     loadRecipes(1);
   }, []);
 
+  // ✅ OPTIMISTIC DELETE WITH ROLLBACK
+  const optimisticDelete = async (recipe: Recipe) => {
+    const previousRecipes = recipes;
+
+    // Optimistic UI update
+    setRecipes((prev) => prev.filter((r) => r.id !== recipe.id));
+
+    toast("Recipe deleted", {
+      description: `"${recipe.title}" removed`,
+    });
+
+    try {
+      await axios.delete(`/api/recipes/${recipe.id}`);
+    } catch (error) {
+      // Rollback
+      setRecipes(previousRecipes);
+
+      toast.error("Failed to delete recipe", {
+        description: "Something went wrong. Recipe restored.",
+      });
+    }
+  };
+
   return (
     <div className="mx-auto max-w-6xl p-6 space-y-6">
-      {/* <h1 className="text-2xl font-semibold">My Recipes</h1> */}
-
-      <MyRecipesGrid recipes={recipes} />
+      <MyRecipesGrid
+        recipes={recipes}
+        loadRecipes={loadRecipes}
+        onDelete={optimisticDelete}
+      />
 
       {hasMore && (
         <div className="flex justify-center">

@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { RecipeCard } from "./recipe-card";
 import { RecipeDetailsModal } from "./recipe-details-modal";
 import { useRouter } from "next/navigation";
+
 type Recipe = {
   id: string;
   title: string;
@@ -19,11 +20,15 @@ type Recipe = {
 
 type Props = {
   recipes: Recipe[];
+  loadRecipes: (page: number) => void;
+  onDelete: (recipe: Recipe) => void;
 };
 
-export function MyRecipesGrid({ recipes }: Props) {
+export function MyRecipesGrid({ recipes, loadRecipes, onDelete }: Props) {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
-    const router= useRouter();
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+
   return (
     <section className="space-y-6">
       {/* Header */}
@@ -49,18 +54,31 @@ export function MyRecipesGrid({ recipes }: Props) {
             <RecipeCard
               key={recipe.id}
               recipe={recipe}
-              onClick={() => setSelectedRecipe(recipe)}
+              onClick={() => {
+                setSelectedRecipe(recipe);
+                setOpen(true);
+              }}
             />
           ))}
         </div>
       )}
 
       {/* Details Modal */}
-      <RecipeDetailsModal
-        open={!!selectedRecipe}
-        recipe={selectedRecipe}
-        onOpenChange={() => setSelectedRecipe(null)}
-      />
+      {selectedRecipe && (
+        <RecipeDetailsModal
+          recipe={selectedRecipe}
+          open={open}
+          onClose={() => {
+            setOpen(false);
+            setSelectedRecipe(null);
+          }}
+          onDeleted={async (recipe) => {
+            await onDelete(recipe); // ✅ delete FIRST
+            setOpen(false); // ✅ then close modal
+            setSelectedRecipe(null);
+          }}
+        />
+      )}
     </section>
   );
 }
