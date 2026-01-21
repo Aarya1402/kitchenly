@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { parseRecipeFromUrl } from "@/services/recipe-parser";
+import { parseRecipeFromUrl } from "@/lib/recipe-parser";
 
 export async function POST(req: NextRequest) {
   try {

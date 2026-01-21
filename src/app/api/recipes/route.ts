@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
 import axios from "axios";
 import { uploadImageBuffer } from "@/services/cloudinary-upload";
-
+import { normalizeIngredient } from "@/lib/ingredient-normalizer";
 
 export async function GET(req: Request) {
   const { userId } = await auth();
@@ -96,8 +96,8 @@ export async function POST(req: Request) {
       imageUrl: finalImageUrl,
 
       ingredients: {
-        create: body.ingredients,
-      },
+  create: body.ingredients.map(normalizeIngredient),
+},
 
       steps: {
         create: body.steps.map((content: string, i: number) => ({

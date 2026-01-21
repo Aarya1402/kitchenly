@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import axios from "axios";
 
 type Props = {
   onManual: () => void;
@@ -21,22 +22,20 @@ export function StepSource({ onManual, onFetched }: Props) {
     setError("");
 
     try {
-      const res = await fetch("/api/recipes/parse-url", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
-      });
-
-      const json = await res.json();
-
-      if (!json.success) throw new Error();
-
-      onFetched(json.recipe);
-    } catch {
-      setError("Failed to fetch recipe from URL");
-    } finally {
-      setLoading(false);
+  const { data } = await axios.post('/api/recipes/parse-url', { url }, {
+    headers: {
+      "Content-Type": "application/json"
     }
+  });
+
+  if (!data.success) throw new Error('Failed to fetch recipe');
+
+  onFetched(data.recipe);
+} catch (error) {
+  setError('Failed to fetch recipe from URL');
+} finally {
+  setLoading(false);
+}
   };
 
   return (

@@ -10,7 +10,8 @@ import { RecipePreview } from "@/components/recipes/steps/recipe-preview";
 import { Button } from "@/components/ui/button";
 import { Ingredient } from "@/types/ingredient";
 import { StepFooter } from "@/components/recipes/steps/steps-footer";
-
+import { RecipeProgress } from "@/components/recipes/recipe-progress";
+import axios from "axios";
 
 export default function NewRecipePage() {
   const [step, setStep] = useState(1);
@@ -43,13 +44,11 @@ export default function NewRecipePage() {
     setIngredients(
       recipe.ingredients?.length
         ? recipe.ingredients
-        : [{ name: "", quantity: "" }]
+        : [{ name: "", quantity: "" }],
     );
 
     setStepsData(
-      recipe.steps?.length
-        ? recipe.steps.map((s: any) => s.content)
-        : [""]
+      recipe.steps?.length ? recipe.steps.map((s: any) => s.content) : [""],
     );
 
     setStep(2);
@@ -61,10 +60,9 @@ export default function NewRecipePage() {
     setSaving(true);
 
     try {
-      const res = await fetch("/api/recipes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const res = await axios.post(
+        "/api/recipes",
+        {
           title,
           description,
           servings,
@@ -72,10 +70,13 @@ export default function NewRecipePage() {
           ingredients,
           steps: stepsData,
           imageUrl,
-        }),
-      });
-
-      if (!res.ok) throw new Error();
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
 
       // redirect to recipes list
       window.location.href = "/my-recipes";
@@ -90,6 +91,7 @@ export default function NewRecipePage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
+      <RecipeProgress total={5} step={step} />
       {/* STEP 1 */}
       {step === 1 && (
         <StepSource
@@ -113,10 +115,7 @@ export default function NewRecipePage() {
             setImageFile={setImageFile}
           />
 
-          <StepFooter
-            onBack={() => setStep(1)}
-            onNext={() => setStep(3)}
-          />
+          <StepFooter onBack={() => setStep(1)} onNext={() => setStep(3)} />
         </>
       )}
 
@@ -128,10 +127,7 @@ export default function NewRecipePage() {
             setIngredients={setIngredients}
           />
 
-          <StepFooter
-            onBack={() => setStep(2)}
-            onNext={() => setStep(4)}
-          />
+          <StepFooter onBack={() => setStep(2)} onNext={() => setStep(4)} />
         </>
       )}
 
@@ -140,10 +136,7 @@ export default function NewRecipePage() {
         <>
           <StepsCard steps={stepsData} setSteps={setStepsData} />
 
-          <StepFooter
-            onBack={() => setStep(3)}
-            onNext={() => setStep(5)}
-          />
+          <StepFooter onBack={() => setStep(3)} onNext={() => setStep(5)} />
         </>
       )}
 
