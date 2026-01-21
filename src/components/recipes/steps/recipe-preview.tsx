@@ -32,13 +32,10 @@ export function RecipePreview({
         {/* Image */}
         {imageUrl && (
           <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg bg-muted">
-            <Image
+            <img
               src={imageUrl}
               alt={title}
-              fill
-              sizes="100vw"
-              className="object-cover"
-              priority
+              className="h-full w-full object-cover"
             />
           </div>
         )}

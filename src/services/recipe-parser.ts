@@ -128,7 +128,7 @@ Return ONLY valid JSON matching this schema:
 Rules:
 - servings default = 2 if missing
 - ingredients.quantity must be normalized (e.g. "one cup" → "1 cup")
-- ingredients.name must be canonical (e.g. "olive oil", not "extra virgin olive oils")
+- ingredients.name must be canonical
 - steps.stepNo must start from 1
 - dietaryTags must be chosen ONLY from this list:
 ${DIETARY_PREFERENCES.join(", ")}
@@ -138,9 +138,25 @@ ${JSON.stringify(raw, null, 2)}
 `;
 
   const result = await geminiModel.generateContent(prompt);
-  const text = result.response.text();
+  const rawText = result.response.text();
 
-  return JSON.parse(text);
+  function extractJson(text: string) {
+    const cleaned = text
+      .replace(/```json/gi, "")
+      .replace(/```/g, "")
+      .trim();
+
+    const firstBrace = cleaned.indexOf("{");
+    const lastBrace = cleaned.lastIndexOf("}");
+
+    if (firstBrace === -1 || lastBrace === -1) {
+      throw new Error("No JSON object found in Gemini response");
+    }
+
+    return JSON.parse(cleaned.slice(firstBrace, lastBrace + 1));
+  }
+
+  return extractJson(rawText);
 }
 
 /* =======================

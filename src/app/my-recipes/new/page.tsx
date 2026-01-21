@@ -1,152 +1,173 @@
 "use client";
 
 import { useState } from "react";
+
+import { StepSource } from "@/components/recipes/steps/step-source-select";
+import { RecipeBasicsCard } from "@/components/recipes/steps/recipe-basics-card";
+import { IngredientsCard } from "@/components/recipes/steps/ingredients-card";
+import { StepsCard } from "@/components/recipes/steps/steps-card";
+import { RecipePreview } from "@/components/recipes/steps/recipe-preview";
 import { Button } from "@/components/ui/button";
-import { RecipeProgress } from "@/components/recipes/recipe-progress";
-import { RecipeBasicsCard } from "@/components/recipes/recipe-basics-card";
-import { IngredientsCard } from "@/components/recipes/ingredients-card";
-import { StepsCard } from "@/components/recipes/steps-card";
-import { Ingredient } from "../../../types/ingredient";
-import { RecipePreview } from "@/components/recipes/recipe-preview";
-import axios from "axios";
+import { Ingredient } from "@/types/ingredient";
+import { StepFooter } from "@/components/recipes/steps/steps-footer";
+
 
 export default function NewRecipePage() {
   const [step, setStep] = useState(1);
+  const [saving, setSaving] = useState(false);
+
+  /* ───────────── State ───────────── */
 
   const [title, setTitle] = useState("");
-  const [servings, setServings] = useState(2);
-  const [ingredients, setIngredients] = useState<Ingredient[]>([
-    { quantity: "", name: "" },
-  ]);
-  const [steps, setSteps] = useState<string[]>([""]);
   const [description, setDescription] = useState("");
+  const [servings, setServings] = useState(2);
   const [dietaryTags, setDietaryTags] = useState<string[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const imagePreviewUrl = imageFile ? URL.createObjectURL(imageFile) : imageUrl;
 
-  const canNext =
-    (step === 1 && title.trim().length > 0) ||
-    (step === 2 &&
-      ingredients.some((i) => i.quantity.trim() && i.name.trim())) ||
-    (step === 3 && steps.some((s) => s.trim().length > 0));
+  const [ingredients, setIngredients] = useState<Ingredient[]>([
+    { name: "", quantity: "" },
+  ]);
 
-  const canSave =
-    title.trim().length > 0 &&
-    ingredients.some((i) => i.quantity.trim() && i.name.trim()) &&
-    steps.some((s) => s.trim().length > 0);
+  const [stepsData, setStepsData] = useState<string[]>([""]);
 
-  const handleSave = async () => {
-    let uploadedImageUrl = imageUrl;
+  /* ───────────── URL → state ───────────── */
 
-    if (imageFile && !imageUrl) {
-      setUploading(true);
+  const handleFetchedRecipe = (recipe: any) => {
+    setTitle(recipe.title ?? "");
+    setDescription(recipe.description ?? "");
+    setServings(recipe.servings ?? 2);
+    setDietaryTags(recipe.dietaryTags ?? []);
+    setImageUrl(recipe.imageUrl ?? null);
 
-      const formData = new FormData();
-      formData.append("file", imageFile);
+    setIngredients(
+      recipe.ingredients?.length
+        ? recipe.ingredients
+        : [{ name: "", quantity: "" }]
+    );
 
-      const uploadResponse = await axios.post("/api/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+    setStepsData(
+      recipe.steps?.length
+        ? recipe.steps.map((s: any) => s.content)
+        : [""]
+    );
 
-      const uploadJson = uploadResponse.data;
-      uploadedImageUrl = uploadJson.imageUrl;
-      setImageUrl(uploadedImageUrl);
-      setUploading(false);
-    }
+    setStep(2);
+  };
+
+  /* ───────────── Save Recipe ───────────── */
+
+  const saveRecipe = async () => {
+    setSaving(true);
 
     try {
-      await axios.post("/api/recipes", {
-        title,
-        description,
-        servings,
-        dietaryTags,
-        imageUrl: uploadedImageUrl,
-        ingredients: ingredients.filter(
-          (i) => i.quantity.trim() && i.name.trim(),
-        ),
-        steps: steps.filter((s) => s.trim()),
+      const res = await fetch("/api/recipes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          description,
+          servings,
+          dietaryTags,
+          ingredients,
+          steps: stepsData,
+          imageUrl,
+        }),
       });
 
+      if (!res.ok) throw new Error();
+
+      // redirect to recipes list
       window.location.href = "/my-recipes";
-    } catch (e) {
+    } catch {
       alert("Failed to save recipe");
+    } finally {
+      setSaving(false);
     }
   };
 
+  /* ───────────── UI ───────────── */
+
   return (
-    <div className="mx-auto max-w-3xl space-y-8 px-6 py-8">
-      <RecipeProgress
-        step={step}
-        total={4}
-        label={
-          step === 1
-            ? "Basics"
-            : step === 2
-              ? "Ingredients"
-              : step === 3
-                ? "Steps"
-                : "Preview"
-        }
-      />
-
+    <div className="mx-auto max-w-3xl space-y-6">
+      {/* STEP 1 */}
       {step === 1 && (
-        <RecipeBasicsCard
-          title={title}
-          setTitle={setTitle}
-          description={description}
-          setDescription={setDescription}
-          servings={servings}
-          setServings={setServings}
-          dietaryTags={dietaryTags}
-          setDietaryTags={setDietaryTags}
-          setImageFile={setImageFile}
+        <StepSource
+          onManual={() => setStep(2)}
+          onFetched={handleFetchedRecipe}
         />
       )}
 
+      {/* STEP 2 */}
       {step === 2 && (
-        <IngredientsCard
-          ingredients={ingredients}
-          setIngredients={setIngredients}
-        />
+        <>
+          <RecipeBasicsCard
+            title={title}
+            setTitle={setTitle}
+            description={description}
+            setDescription={setDescription}
+            servings={servings}
+            setServings={setServings}
+            dietaryTags={dietaryTags}
+            setDietaryTags={setDietaryTags}
+            setImageFile={setImageFile}
+          />
+
+          <StepFooter
+            onBack={() => setStep(1)}
+            onNext={() => setStep(3)}
+          />
+        </>
       )}
 
-      {step === 3 && <StepsCard steps={steps} setSteps={setSteps} />}
+      {/* STEP 3 */}
+      {step === 3 && (
+        <>
+          <IngredientsCard
+            ingredients={ingredients}
+            setIngredients={setIngredients}
+          />
+
+          <StepFooter
+            onBack={() => setStep(2)}
+            onNext={() => setStep(4)}
+          />
+        </>
+      )}
+
+      {/* STEP 4 */}
       {step === 4 && (
-        <RecipePreview
-          title={title}
-          description={description}
-          servings={servings}
-          dietaryTags={dietaryTags}
-          ingredients={ingredients}
-          steps={steps}
-          imageUrl={imagePreviewUrl}
-        />
+        <>
+          <StepsCard steps={stepsData} setSteps={setStepsData} />
+
+          <StepFooter
+            onBack={() => setStep(3)}
+            onNext={() => setStep(5)}
+          />
+        </>
       )}
 
-      {/* Navigation */}
-      <div className="flex justify-between">
-        <Button
-          variant="ghost"
-          disabled={step === 1}
-          onClick={() => setStep(step - 1)}
-        >
-          Previous
-        </Button>
+      {/* STEP 5 */}
+      {step === 5 && (
+        <>
+          <RecipePreview
+            title={title}
+            description={description}
+            servings={servings}
+            dietaryTags={dietaryTags}
+            ingredients={ingredients}
+            steps={stepsData}
+            imageUrl={imageUrl}
+          />
 
-        {step < 4 ? (
-          <Button disabled={!canNext} onClick={() => setStep(step + 1)}>
-            Next
-          </Button>
-        ) : (
-          <Button disabled={!canSave || uploading} onClick={handleSave}>
-            {uploading ? "Saving..." : "Save Recipe"}
-          </Button>
-        )}
-      </div>
+          <StepFooter
+            onBack={() => setStep(4)}
+            onNext={saveRecipe}
+            nextLabel="Save Recipe"
+            loading={saving}
+          />
+        </>
+      )}
     </div>
   );
 }

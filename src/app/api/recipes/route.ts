@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
+import axios from "axios";
+import { uploadImageBuffer } from "@/services/cloudinary-upload";
+
 
 export async function GET(req: Request) {
   const { userId } = await auth();
@@ -54,53 +57,57 @@ export async function GET(req: Request) {
   });
 }
 
-export async function POST(req: Request) {
-  const session = await auth();
 
-  if (!session.userId) {
+export async function POST(req: Request) {
+  const { userId } = await auth();
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body = await req.json();
 
-  const { title, description, servings, dietaryTags, ingredients, steps,imageUrl } =
-    body;
+  let finalImageUrl: string | null = null;
 
-  // Basic validation
-  if (
-    !title ||
-    !Array.isArray(ingredients) ||
-    ingredients.length === 0 ||
-    !Array.isArray(steps) ||
-    steps.length === 0
-  ) {
-    return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+  /* ───────── Upload external image directly ───────── */
+
+  if (body.imageUrl) {
+    try {
+      const imageRes = await axios.get(body.imageUrl, {
+        responseType: "arraybuffer",
+      });
+
+      const buffer = Buffer.from(imageRes.data);
+      finalImageUrl = await uploadImageBuffer(buffer);
+    } catch (err) {
+      console.error("Cloudinary upload failed", err);
+      finalImageUrl = null; // do NOT block save
+    }
   }
+
+  /* ───────── Save recipe ───────── */
 
   const recipe = await prisma.recipe.create({
     data: {
-      userId: session.userId,
-      title,
-      description,
-      servings,
-      dietaryTags,
-      imageUrl,
+      userId,
+      title: body.title,
+      description: body.description,
+      servings: body.servings,
+      dietaryTags: body.dietaryTags,
+      imageUrl: finalImageUrl,
 
       ingredients: {
-        create: ingredients.map((item: { name: string; quantity: string }) => ({
-          name: item.name,
-          quantity: item.quantity,
-        })),
+        create: body.ingredients,
       },
 
       steps: {
-        create: steps.map((content: string, index: number) => ({
-          stepNo: index + 1,
+        create: body.steps.map((content: string, i: number) => ({
+          stepNo: i + 1,
           content,
         })),
       },
     },
   });
 
-  return NextResponse.json({ id: recipe.id });
+  return NextResponse.json({ success: true, recipe });
 }
+
