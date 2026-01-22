@@ -4,7 +4,7 @@ import { useState } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { RecipeCard } from "./recipe-card";
+import { SelectableRecipeCard } from "./selectable-recipe-card";
 import { RecipeDetailsModal } from "./recipe-details-modal";
 import { useRouter } from "next/navigation";
 import { RecipeSearch } from "@/components/dashboard/recipe-search";
@@ -76,7 +76,25 @@ export function MyRecipesGrid({
       searchRecipes(query);
     }
   };
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
+  const toggleRecipe = (recipeId: string, checked: boolean) => {
+    setSelectedIds((prev) =>
+      checked
+        ? [...prev, recipeId]
+        : prev.filter((id) => id !== recipeId)
+    );
+  };
+
+  /* ───────── Action ───────── */
+
+  const createShoppingList = () => {
+    if (selectedIds.length === 0) return;
+
+    router.push(
+      `/shopping-lists/new?recipes=${selectedIds.join(",")}`
+    );
+  };
   return (
     <section className="space-y-6">
       {/* Header */}
@@ -90,13 +108,13 @@ export function MyRecipesGrid({
       </div>
 
       {/* Search */}
-    
-        <RecipeSearch
-          value={query}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-        />
-      
+
+      <RecipeSearch
+        value={query}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+      />
+
       {/* Grid */}
       {recipes.length === 0 ? (
         <div className="rounded-lg border border-dashed p-12 text-center text-sm text-muted-foreground">
@@ -107,13 +125,11 @@ export function MyRecipesGrid({
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {recipes.map((recipe) => (
-            <RecipeCard
+            <SelectableRecipeCard
               key={recipe.id}
               recipe={recipe}
-              onClick={() => {
-                setSelectedRecipe(recipe);
-                setOpen(true);
-              }}
+              selected={selectedIds.includes(recipe.id)}
+              onSelect={(checked) => toggleRecipe(recipe.id, checked)}
             />
           ))}
         </div>
@@ -134,6 +150,20 @@ export function MyRecipesGrid({
             setSelectedRecipe(null);
           }}
         />
+      )}
+       {selectedIds.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background p-4">
+          <div className="mx-auto flex max-w-3xl items-center justify-between">
+            <span className="text-sm">
+              {selectedIds.length} recipe
+              {selectedIds.length > 1 ? "s" : ""} selected
+            </span>
+
+            <Button onClick={createShoppingList}>
+              Create Shopping List
+            </Button>
+          </div>
+        </div>
       )}
     </section>
   );
