@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { RecipeCard } from "./recipe-card";
 import { RecipeDetailsModal } from "./recipe-details-modal";
 import { useRouter } from "next/navigation";
+import { RecipeSearch } from "@/components/dashboard/recipe-search";
 
 type Recipe = {
   id: string;
@@ -21,13 +23,59 @@ type Recipe = {
 type Props = {
   recipes: Recipe[];
   loadRecipes: (page: number) => void;
-  onDelete: (recipe: Recipe) => void;
+  onDelete: (recipe: Recipe) => Promise<void>;
+  setRecipes: React.Dispatch<React.SetStateAction<Recipe[]>>;
 };
 
-export function MyRecipesGrid({ recipes, loadRecipes, onDelete }: Props) {
+export function MyRecipesGrid({
+  recipes,
+  loadRecipes,
+  onDelete,
+  setRecipes,
+}: Props) {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [open, setOpen] = useState(false);
+
+  const [query, setQuery] = useState("");
+  const [lastSearchedLength, setLastSearchedLength] = useState(0);
+
   const router = useRouter();
+
+  // 🔹 Search API
+  const searchRecipes = async (q: string) => {
+    const res = await axios.get("/api/recipes/search", {
+      params: { q, limit: 12 },
+    });
+    setRecipes(res.data?.data ?? []);
+  };
+
+  // 🔹 Handle typing (every 3rd character)
+  const handleChange = (value: string) => {
+    setQuery(value);
+
+    if (value.length === 0) {
+      setLastSearchedLength(0);
+      loadRecipes(1); // reset to normal list
+      return;
+    }
+
+    if (
+      value.length >= 3 &&
+      value.length % 3 === 0 &&
+      value.length !== lastSearchedLength
+    ) {
+      setLastSearchedLength(value.length);
+      searchRecipes(value);
+    }
+  };
+
+  // 🔹 Handle Enter
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      setLastSearchedLength(query.length);
+      searchRecipes(query);
+    }
+  };
 
   return (
     <section className="space-y-6">
@@ -41,6 +89,14 @@ export function MyRecipesGrid({ recipes, loadRecipes, onDelete }: Props) {
         </Button>
       </div>
 
+      {/* Search */}
+    
+        <RecipeSearch
+          value={query}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+        />
+      
       {/* Grid */}
       {recipes.length === 0 ? (
         <div className="rounded-lg border border-dashed p-12 text-center text-sm text-muted-foreground">
@@ -73,8 +129,8 @@ export function MyRecipesGrid({ recipes, loadRecipes, onDelete }: Props) {
             setSelectedRecipe(null);
           }}
           onDeleted={async (recipe) => {
-            await onDelete(recipe); // ✅ delete FIRST
-            setOpen(false); // ✅ then close modal
+            await onDelete(recipe);
+            setOpen(false);
             setSelectedRecipe(null);
           }}
         />

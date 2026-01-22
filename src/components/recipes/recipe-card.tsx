@@ -14,35 +14,34 @@ type RecipeCardProps = {
 
 export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
   return (
-  <Card className="overflow-hidden" onClick={onClick}>
-  {/* Image */}
- <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-muted">
-  <Image
-    src={recipe.imageUrl ?? "/images/recipe-placeholder.png"}
-    alt={recipe.title}
-    fill
-    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
-    className="object-cover"
-  />
-</div>
+  <Card className="flex h-[360px] flex-col overflow-hidden" onClick={onClick}>
+      {/* Image */}
+      <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-muted">
+        <Image
+          src={recipe.imageUrl ?? "/images/recipe-placeholder.png"}
+          alt={recipe.title}
+          fill
+          className="object-cover"
+        />
+      </div>
 
+      {/* Content */}
+  <CardContent className="flex flex-1 flex-col gap-2 pt-4">
 
-  {/* Content */}
-  <CardContent className="space-y-2 pt-4">
-    <h3 className="font-semibold">{recipe.title}</h3>
-    <p className="text-sm text-muted-foreground">
-      Servings: {recipe.servings}
-    </p>
+        <h3 className="line-clamp-2 text-sm font-semibold">{recipe.title}</h3>
 
-    <div className="flex flex-wrap gap-1">
-      {recipe.dietaryTags.map((tag) => (
-        <Badge key={tag} variant="secondary">
-          {tag}
-        </Badge>
-      ))}
-    </div>
-  </CardContent>
-</Card>
+        <p className="text-xs text-muted-foreground">
+          Servings: {recipe.servings}
+        </p>
 
+        <div className="mt-auto flex flex-wrap gap-1">
+          {recipe.dietaryTags.slice(0, 3).map((tag) => (
+            <Badge key={tag} variant="secondary">
+              {tag}
+            </Badge>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

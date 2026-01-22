@@ -63,6 +63,7 @@ export default function MyRecipesPage() {
         recipes={recipes}
         loadRecipes={loadRecipes}
         onDelete={optimisticDelete}
+        setRecipes={setRecipes}
       />
 
       {hasMore && (

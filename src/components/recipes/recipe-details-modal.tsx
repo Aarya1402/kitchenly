@@ -97,7 +97,7 @@ export function RecipeDetailsModal({
         {recipe.ingredients.length > INGREDIENTS_PREVIEW_COUNT && (
           <Button
             variant="link"
-            className="px-0 mt-1"
+            className="px-0 mt-1 font-bold"
             onClick={() =>
               setShowAllIngredients((v) => !v)
             }
@@ -119,7 +119,7 @@ export function RecipeDetailsModal({
         {recipe.steps.length > STEPS_PREVIEW_COUNT && (
           <Button
             variant="link"
-            className="px-0 mt-1"
+            className="px-0 mt-1 font-bold"
             onClick={() =>
               setShowAllSteps((v) => !v)
             }

@@ -21,26 +21,14 @@ export function DashboardHero() {
       {/* Quote */}
       <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
         <h1
-          className="
-            max-w-3xl
-            text-2xl
-            font-semibold
-            leading-snug
-            tracking-tight
-            text-white
-            md:text-4xl
-          "
+          className="max-w-3xl text-2xl font-semibold leading-snug tracking-tight text-white md:text-4xl"
+          
         >
           less clutter. better cooking.
         </h1>
 
         <p
-          className="
-            mt-3
-            text-sm
-            text-white/80
-            md:text-base
-          "
+          className="mt-3 text-sm text-white/80 md:text-base"
         >
           A simpler way to manage recipes, plan meals, and shop for ingredients
         </p>
