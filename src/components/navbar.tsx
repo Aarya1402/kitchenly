@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname,useRouter } from "next/navigation";
 import { useUser, SignInButton, SignOutButton } from "@clerk/nextjs";
 import {
   DropdownMenu,
@@ -12,20 +12,21 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogOut, Settings } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Navbar() {
   const pathname = usePathname();
   const { user, isLoaded, isSignedIn } = useUser();
-
+  const router = useRouter();
   const isRecipesActive = pathname.startsWith("/my-recipes");
   const isListsActive = pathname.startsWith("/shopping-lists");
-  const isDashboardActive = pathname === "/dashboard";
+  const isDashboardActive = pathname === "/";
 
   return (
     <header className="border-b">
       <div className="mx-2 flex h-16 max-w-8xl items-center justify-between px-1">
         {/* Left: App name / logo */}
-        <Link href="/dashboard" className="text-lg font-semibold">
+        <Link href="/" className="text-lg font-semibold">
           Kitchenly
         </Link>
 
@@ -41,7 +42,7 @@ export function Navbar() {
                   : ""
               }
             >
-              <Link href="/dashboard">Home</Link>
+              <Link href="/">Home</Link>
             </Button>
             {/* Recipes */}
             <Button
@@ -68,7 +69,7 @@ export function Navbar() {
             >
               <Link href="/shopping-lists">Lists</Link>
             </Button>
-
+            <ThemeToggle />
             {/* User menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -105,9 +106,9 @@ export function Navbar() {
             </DropdownMenu>
           </div>
         ) : (
-          <SignInButton mode="modal">
-            <Button>Login</Button>
-          </SignInButton>
+          
+            <Button onClick={() => router.push("/sign-in")}>Login</Button>
+         
         )}
       </div>
     </header>

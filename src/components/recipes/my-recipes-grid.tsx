@@ -35,7 +35,7 @@ export function MyRecipesGrid({
 }: Props) {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [open, setOpen] = useState(false);
-
+  const [selectedRecipeModal, setSelectedRecipeModal] = useState<Recipe | null>(null);
   const [query, setQuery] = useState("");
   const [lastSearchedLength, setLastSearchedLength] = useState(0);
 
@@ -126,24 +126,28 @@ export function MyRecipesGrid({
               recipe={recipe}
               selected={selectedIds.includes(recipe.id)}
               onSelect={(checked) => toggleRecipe(recipe.id, checked)}
+              onCardClick={(recipe) => {
+                setSelectedRecipeModal(recipe);
+                setOpen(true);
+              }}
             />
           ))}
         </div>
       )}
 
       {/* Details Modal */}
-      {selectedRecipe && (
+      {selectedRecipeModal && (
         <RecipeDetailsModal
-          recipe={selectedRecipe}
+          recipe={selectedRecipeModal}
           open={open}
           onClose={() => {
             setOpen(false);
-            setSelectedRecipe(null);
+            setSelectedRecipeModal(null);
           }}
           onDeleted={async (recipe) => {
             await onDelete(recipe);
             setOpen(false);
-            setSelectedRecipe(null);
+            setSelectedRecipeModal(null);
           }}
         />
       )}

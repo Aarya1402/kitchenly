@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
-import axios from "axios";
-import { uploadImageBuffer } from "@/services/cloudinary-upload";
+
 import { normalizeIngredient } from "@/lib/ingredient-normalizer";
 
 export async function GET(req: Request) {
@@ -62,23 +61,7 @@ export async function POST(req: Request) {
 
   const body = await req.json();
 
-  let finalImageUrl: string | null = null;
 
-  /* ───────── Upload external image directly ───────── */
-
-  if (body.imageUrl) {
-    try {
-      const imageRes = await axios.get(body.imageUrl, {
-        responseType: "arraybuffer",
-      });
-
-      const buffer = Buffer.from(imageRes.data);
-      finalImageUrl = await uploadImageBuffer(buffer);
-    } catch (err) {
-      console.error("Cloudinary upload failed", err);
-      finalImageUrl = null; // do NOT block save
-    }
-  }
 
   /* ───────── Save recipe ───────── */
 
@@ -89,7 +72,7 @@ export async function POST(req: Request) {
       description: body.description,
       servings: body.servings,
       dietaryTags: body.dietaryTags,
-      imageUrl: finalImageUrl,
+      imageUrl: body.imageUrl || null,
 
       ingredients: {
         create: body.ingredients.map(normalizeIngredient),

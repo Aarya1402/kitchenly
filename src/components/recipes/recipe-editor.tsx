@@ -26,6 +26,7 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
   const [servings, setServings] = useState(2);
   const [dietaryTags, setDietaryTags] = useState<string[]>([]);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [stepsData, setStepsData] = useState<string[]>([]);
@@ -55,11 +56,31 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
     }
   }, [mode, initialData]);
 
+  async function uploadImage(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      throw new Error("Image upload failed");
+    }
+
+    const json = await res.json();
+    return json.imageUrl;
+  }
+
   /* ───────── Save ───────── */
 
   const saveRecipe = async () => {
     setSaving(true);
-
+    let imageUrl: string | null = null;
+    if (imageFile) {
+      imageUrl = await uploadImage(imageFile);
+    }
     const payload = {
       title,
       description,
@@ -69,7 +90,7 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
       steps: stepsData,
       imageUrl,
     };
-
+    console.log(imageUrl)
     const url = mode === "create" ? "/api/recipes" : `/api/recipes/${recipeId}`;
 
     const method = mode === "create" ? "POST" : "PUT";
@@ -125,7 +146,7 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
             setServings={setServings}
             dietaryTags={dietaryTags}
             setDietaryTags={setDietaryTags}
-            setImageFile={() => {}}
+            setImageFile={setImageFile}
           />
           <StepFooter
             onBack={mode === "create" ? () => setStep(1) : undefined}

@@ -52,9 +52,6 @@ export function normalizeIngredient(ingredient: {
     name: normalizeName(ingredient.name),
   };
 
-  console.log("INGREDIENT NORMALIZATION");
-  console.log("Before:", ingredient);
-  console.log("After :", normalized);
 
   return normalized;
 }

@@ -3,6 +3,34 @@ import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
 import { normalizeIngredient } from "@/lib/ingredient-normalizer";
 
+export async function GET(
+  _req: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  const { id } = await context.params;
+  const { userId } = await auth();
+
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const recipe = await prisma.recipe.findUnique({
+    where: { id },
+    include: {
+      ingredients: true,
+      steps: {
+        orderBy: { stepNo: "asc" },
+      },
+    },
+  });
+
+  if (!recipe || recipe.userId !== userId) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  return NextResponse.json(recipe);
+}
+
 export async function DELETE(
   _req: Request,
   context: { params: Promise<{ id: string }> },
@@ -41,7 +69,7 @@ export async function PUT(
   }
 
   const body = await req.json();
-
+  console.log(body)
   const recipe = await prisma.recipe.findUnique({
     where: { id },
   });
@@ -57,7 +85,7 @@ export async function PUT(
       description: body.description,
       servings: body.servings,
       dietaryTags: body.dietaryTags,
-      imageUrl: body.imageUrl,
+      imageUrl: body.imageUrl || null,
 
       ingredients: {
         deleteMany: {},

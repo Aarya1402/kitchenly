@@ -8,9 +8,13 @@ type Props = {
   recipe: Recipe;
   selected: boolean;
   onSelect: (checked: boolean) => void;
+  onCardClick: (recipe: Recipe) => void;
 };
 
-export function SelectableRecipeCard({ recipe, selected, onSelect }: Props) {
+export function SelectableRecipeCard({ recipe, selected, onSelect, onCardClick }: Props) {
+  const onClick = () => {
+    onCardClick(recipe);
+  }
   return (
     <div className="relative flex gap-3">
       {/* Checkbox */}
@@ -22,7 +26,7 @@ export function SelectableRecipeCard({ recipe, selected, onSelect }: Props) {
 
       {/* Existing card */}
       <div className="flex-1">
-        <RecipeCard recipe={recipe} onClick={() => {}} />
+        <RecipeCard recipe={recipe} onClick={onClick} />
       </div>
     </div>
   );
