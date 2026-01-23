@@ -50,106 +50,94 @@ export function RecipeDetailsModal({
     : recipe.steps.slice(0, STEPS_PREVIEW_COUNT);
 
   return (
-<Dialog open={open} onOpenChange={onClose}>
-  <DialogContent
-    className="max-w-3xl h-[85vh] flex flex-col"
-  >
-    {/* HEADER (fixed) */}
-    <DialogHeader>
-      <DialogTitle>{recipe.title}</DialogTitle>
-    </DialogHeader>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-3xl h-[85vh] flex flex-col">
+        {/* HEADER (fixed) */}
+        <DialogHeader>
+          <DialogTitle>{recipe.title}</DialogTitle>
+        </DialogHeader>
 
-    {/* SCROLLABLE BODY */}
-    <div className="flex-1 overflow-y-auto space-y-6 pr-2">
-      {/* Image */}
-      {recipe.imageUrl && (
-        <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
-          <Image
-            src={recipe.imageUrl}
-            alt={recipe.title}
-            fill
-            className="object-cover"
-          />
+        {/* SCROLLABLE BODY */}
+        <div className="flex-1 overflow-y-auto space-y-6 pr-2">
+          {/* Image */}
+          {recipe.imageUrl && (
+            <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
+              <Image
+                src={recipe.imageUrl}
+                alt={recipe.title}
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
+
+          {/* Meta */}
+          <div className="flex flex-wrap gap-2">
+            <Badge>Servings: {recipe.servings}</Badge>
+            {recipe.dietaryTags.map((tag) => (
+              <Badge key={tag} variant="secondary">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+
+          {/* Ingredients */}
+          <div>
+            <h3 className="font-medium mb-1">Ingredients</h3>
+            <ul className="list-disc pl-5 text-sm space-y-1">
+              {ingredientsToShow.map((i, idx) => (
+                <li key={idx}>
+                  {i.quantity} {i.name}
+                </li>
+              ))}
+            </ul>
+
+            {recipe.ingredients.length > INGREDIENTS_PREVIEW_COUNT && (
+              <Button
+                variant="link"
+                className="px-0 mt-1 font-bold"
+                onClick={() => setShowAllIngredients((v) => !v)}
+              >
+                {showAllIngredients ? "Show less" : "Show more"}
+              </Button>
+            )}
+          </div>
+
+          {/* Steps */}
+          <div>
+            <h3 className="font-medium mb-1">Steps</h3>
+            <ol className="list-decimal pl-5 text-sm space-y-1">
+              {stepsToShow.map((s) => (
+                <li key={s.stepNo}>{s.content}</li>
+              ))}
+            </ol>
+
+            {recipe.steps.length > STEPS_PREVIEW_COUNT && (
+              <Button
+                variant="link"
+                className="px-0 mt-1 font-bold"
+                onClick={() => setShowAllSteps((v) => !v)}
+              >
+                {showAllSteps ? "Show less" : "Show more"}
+              </Button>
+            )}
+          </div>
         </div>
-      )}
 
-      {/* Meta */}
-      <div className="flex flex-wrap gap-2">
-        <Badge>Servings: {recipe.servings}</Badge>
-        {recipe.dietaryTags.map((tag) => (
-          <Badge key={tag} variant="secondary">
-            {tag}
-          </Badge>
-        ))}
-      </div>
-
-      {/* Ingredients */}
-      <div>
-        <h3 className="font-medium mb-1">Ingredients</h3>
-        <ul className="list-disc pl-5 text-sm space-y-1">
-          {ingredientsToShow.map((i, idx) => (
-            <li key={idx}>
-              {i.quantity} {i.name}
-            </li>
-          ))}
-        </ul>
-
-        {recipe.ingredients.length > INGREDIENTS_PREVIEW_COUNT && (
+        {/* FOOTER (fixed) */}
+        <DialogFooter className="flex justify-between">
           <Button
-            variant="link"
-            className="px-0 mt-1 font-bold"
-            onClick={() =>
-              setShowAllIngredients((v) => !v)
-            }
+            variant="outline"
+            onClick={() => router.push(`/my-recipes/${recipe.id}/edit`)}
           >
-            {showAllIngredients ? "Show less" : "Show more"}
+            Edit
           </Button>
-        )}
-      </div>
 
-      {/* Steps */}
-      <div>
-        <h3 className="font-medium mb-1">Steps</h3>
-        <ol className="list-decimal pl-5 text-sm space-y-1">
-          {stepsToShow.map((s) => (
-            <li key={s.stepNo}>{s.content}</li>
-          ))}
-        </ol>
-
-        {recipe.steps.length > STEPS_PREVIEW_COUNT && (
-          <Button
-            variant="link"
-            className="px-0 mt-1 font-bold"
-            onClick={() =>
-              setShowAllSteps((v) => !v)
-            }
-          >
-            {showAllSteps ? "Show less" : "Show more"}
+          <Button variant="destructive" onClick={handleDelete}>
+            Delete
           </Button>
-        )}
-      </div>
-    </div>
-
-    {/* FOOTER (fixed) */}
-    <DialogFooter className="flex justify-between">
-      <Button
-        variant="outline"
-        onClick={() =>
-          router.push(`/my-recipes/${recipe.id}/edit`)
-        }
-      >
-        Edit
-      </Button>
-
-      <Button
-        variant="destructive"
-        onClick={handleDelete}
-      >
-        Delete
-      </Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
-
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

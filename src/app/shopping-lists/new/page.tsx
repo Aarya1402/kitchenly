@@ -15,7 +15,6 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { X } from "lucide-react";
 import { CATEGORIES } from "@/constants/categories";
 
-
 type Item = {
   name: string;
   quantity: string;

@@ -24,20 +24,14 @@ function inferCategory(ingredientName: string): string {
 export async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body = await req.json();
   const recipeIds: string[] = body.recipeIds;
 
   if (!Array.isArray(recipeIds) || recipeIds.length === 0) {
-    return NextResponse.json(
-      { error: "No recipes selected" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "No recipes selected" }, { status: 400 });
   }
 
   /* ───────── Fetch ingredients ───────── */
@@ -71,15 +65,12 @@ export async function POST(req: Request) {
 
       if (!parsed) {
         // fallback: treat as unique
-        map.set(
-          `${key}-${Math.random()}`,
-          {
-            name: ing.name,
-            quantity: ing.quantity,
-            category: inferCategory(ing.name),
-            checked: false,
-          }
-        );
+        map.set(`${key}-${Math.random()}`, {
+          name: ing.name,
+          quantity: ing.quantity,
+          category: inferCategory(ing.name),
+          checked: false,
+        });
         continue;
       }
 
@@ -88,26 +79,19 @@ export async function POST(req: Request) {
       if (existing) {
         const existingParsed = parseQuantity(existing.quantity);
 
-        if (
-          existingParsed &&
-          existingParsed.unit === parsed.unit
-        ) {
+        if (existingParsed && existingParsed.unit === parsed.unit) {
           // identical unit → sum
-          const total =
-            existingParsed.value + parsed.value;
+          const total = existingParsed.value + parsed.value;
 
           existing.quantity = `${total} ${parsed.unit}`;
         } else {
           // different unit → separate entry
-          map.set(
-            `${key}-${parsed.unit}`,
-            {
-              name: ing.name,
-              quantity: ing.quantity,
-              category: inferCategory(ing.name),
-              checked: false,
-            }
-          );
+          map.set(`${key}-${parsed.unit}`, {
+            name: ing.name,
+            quantity: ing.quantity,
+            category: inferCategory(ing.name),
+            checked: false,
+          });
         }
       } else {
         map.set(key, {

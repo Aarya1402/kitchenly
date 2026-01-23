@@ -1,5 +1,5 @@
 import { UNIT_ALIASES } from "@/constants/unit-aliases";
-import {DESCRIPTORS} from "@/constants/ingredient-descriptors";
+import { DESCRIPTORS } from "@/constants/ingredient-descriptors";
 import { FRACTIONS } from "@/constants/factions";
 
 function normalizeQuantity(input: string): string {
@@ -21,8 +21,7 @@ function normalizeQuantity(input: string): string {
 
 function singularize(word: string): string {
   if (word.endsWith("ies")) return word.slice(0, -3) + "y";
-  if (word.endsWith("s") && !word.endsWith("ss"))
-    return word.slice(0, -1);
+  if (word.endsWith("s") && !word.endsWith("ss")) return word.slice(0, -1);
   return word;
 }
 
@@ -37,10 +36,7 @@ function normalizeName(input: string): string {
   name = name.replace(/\s+/g, " ").trim();
 
   // Singularize each word
-  name = name
-    .split(" ")
-    .map(singularize)
-    .join(" ");
+  name = name.split(" ").map(singularize).join(" ");
 
   return name;
 }
@@ -51,7 +47,7 @@ export function normalizeIngredient(ingredient: {
   quantity: string;
   name: string;
 }) {
-    const normalized = {
+  const normalized = {
     quantity: normalizeQuantity(ingredient.quantity),
     name: normalizeName(ingredient.name),
   };

@@ -31,7 +31,7 @@ export async function POST(req: Request) {
           else resolve(result as any);
         })
         .end(buffer);
-    }
+    },
   );
 
   return NextResponse.json({ imageUrl: uploadResult.secure_url });

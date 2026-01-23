@@ -5,12 +5,7 @@ import { UserProfile, useUser } from "@clerk/nextjs";
 import { Sliders } from "lucide-react";
 
 import { DIETARY_PREFERENCES } from "@/constants/dietary-preferences";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,27 +22,26 @@ export default function SettingsPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Load private metadata (read-only on client)
-useEffect(() => {
-  if (!isLoaded) return;
+  useEffect(() => {
+    if (!isLoaded) return;
 
-  const loadPreferences = async () => {
-    try {
-      const response = await axios.get("/api/user/preferences");
-      const data = response.data;
-      setDefaultServings(data.defaultServings);
-      setDietaryPreferences(data.dietaryPreferences);
-    } catch (e) {
-      // Handle error if needed
-    }
-  };
+    const loadPreferences = async () => {
+      try {
+        const response = await axios.get("/api/user/preferences");
+        const data = response.data;
+        setDefaultServings(data.defaultServings);
+        setDietaryPreferences(data.dietaryPreferences);
+      } catch (e) {
+        // Handle error if needed
+      }
+    };
 
-  loadPreferences();
-}, [isLoaded]);
-
+    loadPreferences();
+  }, [isLoaded]);
 
   const toggleDiet = (id: string) => {
     setDietaryPreferences((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
     );
   };
 
@@ -89,18 +83,14 @@ useEffect(() => {
             <CardContent className="space-y-6">
               {/* Default Servings */}
               <div className="space-y-2">
-                <Label htmlFor="defaultServings">
-                  Default Servings
-                </Label>
+                <Label htmlFor="defaultServings">Default Servings</Label>
                 <Input
                   id="defaultServings"
                   type="number"
                   min={1}
                   max={20}
                   value={defaultServings}
-                  onChange={(e) =>
-                    setDefaultServings(Number(e.target.value))
-                  }
+                  onChange={(e) => setDefaultServings(Number(e.target.value))}
                   className="w-32"
                 />
                 <p className="text-sm text-muted-foreground">
@@ -113,19 +103,13 @@ useEffect(() => {
                 <Label>Dietary Preferences</Label>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                   {DIETARY_PREFERENCES.map((pref) => (
-                    <div
-                      key={pref.id}
-                      className="flex items-center gap-2"
-                    >
+                    <div key={pref.id} className="flex items-center gap-2">
                       <Checkbox
                         id={pref.id}
                         checked={dietaryPreferences.includes(pref.id)}
                         onCheckedChange={() => toggleDiet(pref.id)}
                       />
-                      <Label
-                        htmlFor={pref.id}
-                        className="font-normal"
-                      >
+                      <Label htmlFor={pref.id} className="font-normal">
                         {pref.label}
                       </Label>
                     </div>
@@ -145,11 +129,7 @@ useEffect(() => {
                   </span>
                 )}
 
-                {error && (
-                  <span className="text-sm text-red-600">
-                    {error}
-                  </span>
-                )}
+                {error && <span className="text-sm text-red-600">{error}</span>}
               </div>
             </CardContent>
           </Card>

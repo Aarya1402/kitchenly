@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import axios from "axios";
 
-
 export default function MyRecipesPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [page, setPage] = useState(1);
@@ -21,7 +20,7 @@ export default function MyRecipesPage() {
     const json = response.data;
 
     setRecipes((prev) =>
-      pageToLoad === 1 ? json.data : [...prev, ...json.data]
+      pageToLoad === 1 ? json.data : [...prev, ...json.data],
     );
 
     setHasMore(json.hasMore);
@@ -58,7 +57,6 @@ export default function MyRecipesPage() {
 
   return (
     <div className="mx-auto max-w-6xl p-6 space-y-6">
-      
       <MyRecipesGrid
         recipes={recipes}
         loadRecipes={loadRecipes}
@@ -68,10 +66,7 @@ export default function MyRecipesPage() {
 
       {hasMore && (
         <div className="flex justify-center">
-          <Button
-            onClick={() => loadRecipes(page + 1)}
-            disabled={loading}
-          >
+          <Button onClick={() => loadRecipes(page + 1)} disabled={loading}>
             {loading ? "Loading..." : "Load more"}
           </Button>
         </div>

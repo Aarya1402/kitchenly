@@ -14,7 +14,7 @@ type RecipeCardProps = {
 
 export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
   return (
-  <Card className="flex h-[360px] flex-col overflow-hidden" onClick={onClick}>
+    <Card className="flex h-[360px] flex-col overflow-hidden" onClick={onClick}>
       {/* Image */}
       <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-muted">
         <Image
@@ -26,8 +26,7 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
       </div>
 
       {/* Content */}
-  <CardContent className="flex flex-1 flex-col gap-2 pt-4">
-
+      <CardContent className="flex flex-1 flex-col gap-2 pt-4">
         <h3 className="line-clamp-2 text-sm font-semibold">{recipe.title}</h3>
 
         <p className="text-xs text-muted-foreground">

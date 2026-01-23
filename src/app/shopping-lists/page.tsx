@@ -45,18 +45,13 @@ export default function ShoppingListsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Shopping Lists</h1>
 
-        <Button
-          variant="outline"
-          onClick={() => router.push("/my-recipes")}
-        >
+        <Button variant="outline" onClick={() => router.push("/my-recipes")}>
           New from Recipes
         </Button>
       </div>
 
       {lists.length === 0 && (
-        <p className="text-sm text-muted-foreground">
-          No shopping lists yet.
-        </p>
+        <p className="text-sm text-muted-foreground">No shopping lists yet.</p>
       )}
 
       <div className="space-y-4">
@@ -64,9 +59,7 @@ export default function ShoppingListsPage() {
           <Card
             key={list.id}
             className="cursor-pointer hover:bg-muted/50"
-            onClick={() =>
-              router.push(`/shopping-lists/${list.id}`)
-            }
+            onClick={() => router.push(`/shopping-lists/${list.id}`)}
           >
             <CardHeader>
               <CardTitle className="flex justify-between items-center">
@@ -78,8 +71,7 @@ export default function ShoppingListsPage() {
             </CardHeader>
 
             <CardContent className="text-sm text-muted-foreground">
-              Created on{" "}
-              {new Date(list.createdAt).toLocaleDateString()}
+              Created on {new Date(list.createdAt).toLocaleDateString()}
             </CardContent>
           </Card>
         ))}

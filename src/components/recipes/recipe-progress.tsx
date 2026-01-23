@@ -3,7 +3,6 @@ import { Progress } from "@/components/ui/progress";
 type Props = {
   step: number;
   total: number;
- 
 };
 
 export function RecipeProgress({ step, total }: Props) {
@@ -13,7 +12,7 @@ export function RecipeProgress({ step, total }: Props) {
     <div className="space-y-2">
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
-          Step {step} of {total} 
+          Step {step} of {total}
         </span>
       </div>
       <Progress value={value} />

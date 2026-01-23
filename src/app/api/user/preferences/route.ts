@@ -8,10 +8,7 @@ export async function GET() {
   const session = await auth();
 
   if (!session.userId) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const client = await clerkClient();
@@ -22,8 +19,9 @@ export async function GET() {
   return NextResponse.json({
     defaultServings:
       typeof md.defaultServings === "number" ? md.defaultServings : 2,
-    dietaryPreferences:
-      Array.isArray(md.dietaryPreferences) ? md.dietaryPreferences : [],
+    dietaryPreferences: Array.isArray(md.dietaryPreferences)
+      ? md.dietaryPreferences
+      : [],
   });
 }
 
@@ -34,10 +32,7 @@ export async function POST(req: Request) {
   const session = await auth();
 
   if (!session.userId) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { defaultServings, dietaryPreferences } = await req.json();
@@ -48,10 +43,7 @@ export async function POST(req: Request) {
     defaultServings > 20 ||
     !Array.isArray(dietaryPreferences)
   ) {
-    return NextResponse.json(
-      { error: "Invalid input" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 
   const client = await clerkClient();

@@ -57,22 +57,20 @@ function tryJsonLd(html: string) {
         json["@type"] === "Recipe"
           ? json
           : Array.isArray(json["@graph"])
-          ? json["@graph"].find((x) => x["@type"] === "Recipe")
-          : null;
+            ? json["@graph"].find((x) => x["@type"] === "Recipe")
+            : null;
 
       if (!recipe) continue;
 
       return {
         title: recipe.name,
         description: recipe.description,
-        imageUrl: Array.isArray(recipe.image)
-          ? recipe.image[0]
-          : recipe.image,
+        imageUrl: Array.isArray(recipe.image) ? recipe.image[0] : recipe.image,
         servings: parseInt(recipe.recipeYield) || undefined,
         ingredients: recipe.recipeIngredient,
         steps: Array.isArray(recipe.recipeInstructions)
           ? recipe.recipeInstructions.map((s: any) =>
-              typeof s === "string" ? s : s.text
+              typeof s === "string" ? s : s.text,
             )
           : [],
       };
@@ -163,9 +161,7 @@ ${JSON.stringify(raw, null, 2)}
    Orchestrator (PUBLIC)
 ======================= */
 
-export async function parseRecipeFromUrl(
-  url: string
-): Promise<ParsedRecipe> {
+export async function parseRecipeFromUrl(url: string): Promise<ParsedRecipe> {
   const html = await fetchHtml(url);
 
   const jsonLd = tryJsonLd(html);

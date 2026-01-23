@@ -59,8 +59,7 @@ export async function GET(req: Request) {
     console.error("Search error:", error);
     return NextResponse.json(
       { error: "Failed to search recipes" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

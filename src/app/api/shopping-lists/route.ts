@@ -5,10 +5,7 @@ import { prisma } from "@/lib/db";
 export async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body = await req.json();
@@ -16,10 +13,7 @@ export async function POST(req: Request) {
   const { title, items } = body;
 
   if (!Array.isArray(items) || items.length === 0) {
-    return NextResponse.json(
-      { error: "No items to save" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "No items to save" }, { status: 400 });
   }
 
   const list = await prisma.shoppingList.create({
@@ -43,15 +37,11 @@ export async function POST(req: Request) {
   });
 }
 
-
 export async function GET() {
   const { userId } = await auth();
 
   if (!userId) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const lists = await prisma.shoppingList.findMany({

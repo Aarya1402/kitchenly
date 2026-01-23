@@ -12,26 +12,20 @@ export async function PATCH(
   req: Request,
   context: {
     params: Promise<{ listId: string; itemId: string }>;
-  }
+  },
 ) {
   const { listId, itemId } = await context.params;
   const { userId } = await auth();
 
   if (!userId) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body = await req.json();
   const { checked } = body;
 
   if (typeof checked !== "boolean") {
-    return NextResponse.json(
-      { error: "Invalid body" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
   // Verify ownership: list belongs to user
@@ -41,10 +35,7 @@ export async function PATCH(
   });
 
   if (!list || list.userId !== userId) {
-    return NextResponse.json(
-      { error: "Not found" },
-      { status: 404 }
-    );
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
   // Update the item
@@ -59,10 +50,7 @@ export async function PATCH(
   });
 
   if (updated.count === 0) {
-    return NextResponse.json(
-      { error: "Item not found" },
-      { status: 404 }
-    );
+    return NextResponse.json({ error: "Item not found" }, { status: 404 });
   }
 
   return NextResponse.json({ success: true });

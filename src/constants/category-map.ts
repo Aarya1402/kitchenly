@@ -1,6 +1,6 @@
 export const CATEGORY_MAP: Record<string, string> = {
-      water: "everyday Essentials",
- 
+  water: "everyday Essentials",
+
   // Produce
   onion: "Produce",
   redOnion: "Produce",

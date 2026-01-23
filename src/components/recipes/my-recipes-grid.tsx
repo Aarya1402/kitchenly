@@ -76,13 +76,11 @@ export function MyRecipesGrid({
       searchRecipes(query);
     }
   };
-    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const toggleRecipe = (recipeId: string, checked: boolean) => {
     setSelectedIds((prev) =>
-      checked
-        ? [...prev, recipeId]
-        : prev.filter((id) => id !== recipeId)
+      checked ? [...prev, recipeId] : prev.filter((id) => id !== recipeId),
     );
   };
 
@@ -91,9 +89,7 @@ export function MyRecipesGrid({
   const createShoppingList = () => {
     if (selectedIds.length === 0) return;
 
-    router.push(
-      `/shopping-lists/new?recipes=${selectedIds.join(",")}`
-    );
+    router.push(`/shopping-lists/new?recipes=${selectedIds.join(",")}`);
   };
   return (
     <section className="space-y-6">
@@ -151,7 +147,7 @@ export function MyRecipesGrid({
           }}
         />
       )}
-       {selectedIds.length > 0 && (
+      {selectedIds.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background p-4">
           <div className="mx-auto flex max-w-3xl items-center justify-between">
             <span className="text-sm">
@@ -159,9 +155,7 @@ export function MyRecipesGrid({
               {selectedIds.length > 1 ? "s" : ""} selected
             </span>
 
-            <Button onClick={createShoppingList}>
-              Create Shopping List
-            </Button>
+            <Button onClick={createShoppingList}>Create Shopping List</Button>
           </div>
         </div>
       )}

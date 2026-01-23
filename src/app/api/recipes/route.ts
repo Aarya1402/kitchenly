@@ -9,10 +9,7 @@ export async function GET(req: Request) {
   const { userId } = await auth();
 
   if (!userId) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { searchParams } = new URL(req.url);
@@ -20,7 +17,7 @@ export async function GET(req: Request) {
   const page = Math.max(Number(searchParams.get("page")) || 1, 1);
   const limit = Math.min(
     Math.max(Number(searchParams.get("limit")) || 10, 1),
-    50
+    50,
   );
 
   const skip = (page - 1) * limit;
@@ -56,7 +53,6 @@ export async function GET(req: Request) {
     hasMore: skip + recipes.length < total,
   });
 }
-
 
 export async function POST(req: Request) {
   const { userId } = await auth();
@@ -96,8 +92,8 @@ export async function POST(req: Request) {
       imageUrl: finalImageUrl,
 
       ingredients: {
-  create: body.ingredients.map(normalizeIngredient),
-},
+        create: body.ingredients.map(normalizeIngredient),
+      },
 
       steps: {
         create: body.steps.map((content: string, i: number) => ({
@@ -110,4 +106,3 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ success: true, recipe });
 }
-
