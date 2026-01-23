@@ -43,10 +43,7 @@ export default function ShoppingListPage() {
 
   /* ───────── Toggle item ───────── */
 
-  const toggleItem = async (
-    category: string,
-    index: number
-  ) => {
+  const toggleItem = async (category: string, index: number) => {
     const item = groups[category][index];
     const nextChecked = !item.checked;
 
@@ -61,14 +58,11 @@ export default function ShoppingListPage() {
       return next;
     });
 
-    const res = await fetch(
-      `/api/shopping-lists/${id}/items/${item.id}`,
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ checked: nextChecked }),
-      }
-    );
+    const res = await fetch(`/api/shopping-lists/${id}/items/${item.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ checked: nextChecked }),
+    });
 
     if (!res.ok) {
       // rollback
@@ -92,45 +86,34 @@ export default function ShoppingListPage() {
     <div className="mx-auto max-w-2xl p-6 space-y-6">
       <h1 className="text-xl font-semibold">{title}</h1>
 
-      {Object.entries(groups).map(
-        ([category, items]) => (
-          <div key={category}>
-            <h2 className="mb-2 font-medium">
-              {category}
-            </h2>
+      {Object.entries(groups).map(([category, items]) => (
+        <div key={category}>
+          <h2 className="mb-2 font-medium">{category}</h2>
 
-            <div className="space-y-2">
-              {items.map((item, index) => (
-                <label
-                  key={item.id}
-                  className="flex items-center gap-3"
+          <div className="space-y-2">
+            {items.map((item, index) => (
+              <label key={item.id} className="flex items-center gap-3">
+                <Checkbox
+                  checked={item.checked}
+                  onCheckedChange={() => toggleItem(category, index)}
+                />
+
+                <span
+                  className={`flex-1 ${
+                    item.checked ? "line-through text-muted-foreground" : ""
+                  }`}
                 >
-                  <Checkbox
-                    checked={item.checked}
-                    onCheckedChange={() =>
-                      toggleItem(category, index)
-                    }
-                  />
-
-                  <span
-                    className={`flex-1 ${
-                      item.checked
-                        ? "line-through text-muted-foreground"
-                        : ""
-                    }`}
-                  >
-                    {item.quantity} {item.name}
-                  </span>
-                </label>
-              ))}
-            </div>
+                  {item.quantity} {item.name}
+                </span>
+              </label>
+            ))}
           </div>
-        )
-      )}
+        </div>
+      ))}
 
       <Button
         variant="outline"
-        onClick={() => router.back()}
+        onClick={() => router.replace("/shopping-lists")}
       >
         Back
       </Button>

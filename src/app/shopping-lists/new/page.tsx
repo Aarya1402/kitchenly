@@ -13,16 +13,8 @@ import {
 } from "@/components/ui/select";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { X } from "lucide-react";
+import { CATEGORIES } from "@/constants/categories";
 
-const CATEGORIES = [
-  "Produce",
-  "Dairy",
-  "Pantry",
-  "Spices",
-  "Meat",
-  "Frozen",
-  "Other",
-];
 
 type Item = {
   name: string;

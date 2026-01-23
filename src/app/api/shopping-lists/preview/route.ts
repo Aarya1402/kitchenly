@@ -1,37 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
-
-/* ───────────────────── Store Categories ───────────────────── */
-
-const CATEGORY_MAP: Record<string, string> = {
-  onion: "Produce",
-  tomato: "Produce",
-  potato: "Produce",
-  garlic: "Produce",
-  ginger: "Produce",
-
-  milk: "Dairy",
-  butter: "Dairy",
-  cheese: "Dairy",
-  yogurt: "Dairy",
-
-  oil: "Pantry",
-  olive: "Pantry",
-  rice: "Pantry",
-  flour: "Pantry",
-  sugar: "Pantry",
-
-  salt: "Spices",
-  pepper: "Spices",
-  turmeric: "Spices",
-  cumin: "Spices",
-  garam: "Spices",
-};
-
-const DEFAULT_CATEGORY = "Other";
-
-/* ───────────────────── Helpers ───────────────────── */
+import { DEFAULT_CATEGORY } from "@/constants/defualt-category";
+import { CATEGORY_MAP } from "@/constants/category-map";
 
 function parseQuantity(quantity: string) {
   const match = quantity.match(/^([\d.]+)\s*(.*)$/);

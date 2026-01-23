@@ -19,6 +19,7 @@ export function Navbar() {
 
   const isRecipesActive = pathname.startsWith("/my-recipes");
   const isListsActive = pathname.startsWith("/shopping-lists");
+  const isDashboardActive = pathname === "/dashboard";
 
   return (
     <header className="border-b">
@@ -31,11 +32,18 @@ export function Navbar() {
         {/* Right */}
         {!isLoaded ? null : isSignedIn ? (
           <div className="flex items-center gap-2">
+              <Button
+              asChild
+              variant="ghost"
+              className={isDashboardActive? "font-bold bg-accent text-accent-foreground dark:bg-accent/50" : ""}
+            >
+              <Link href="/dashboard">Home</Link>
+            </Button>
             {/* Recipes */}
             <Button
               asChild
               variant="ghost"
-              className={isRecipesActive ? "font-bold" : ""}
+              className={isRecipesActive ? "font-bold bg-accent text-accent-foreground dark:bg-accent/50" : ""}
             >
               <Link href="/my-recipes">Recipes</Link>
             </Button>
@@ -44,7 +52,7 @@ export function Navbar() {
             <Button
               asChild
               variant="ghost"
-              className={isListsActive ? "font-bold" : ""}
+              className={isListsActive ? "font-bold bg-accent text-accent-foreground dark:bg-accent/50" : ""}
             >
               <Link href="/shopping-lists">Lists</Link>
             </Button>
