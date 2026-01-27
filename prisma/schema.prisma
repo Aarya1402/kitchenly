@@ -27,6 +27,7 @@ model Recipe {
 
   ingredients   Ingredient[]
   steps         RecipeStep[]
+  recipeInLists RecipeInList[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -65,7 +66,10 @@ model ShoppingList {
   userId    String
 
   title     String
-  items     ShoppingItem[]
+
+  recipes   RecipeInList[]
+  manualItems ManualItem[]
+  itemStates  ShoppingItemState[] 
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -73,18 +77,68 @@ model ShoppingList {
   @@index([userId])
 }
 
-model ShoppingItem {
-  id             String  @id @default(cuid())
+model RecipeInList {
+  id             String   @id @default(cuid())
   shoppingListId String
+  recipeId       String
 
-  name           String
-  quantity       String
-  category       String
-  checked        Boolean @default(false)
+  recipeTitle    String
+  baseServings   Int
+  servingsUsed   Int
 
-  shoppingList   ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
+  ingredients    ListIngredient[]
 
-  @@index([shoppingListId])
+  shoppingList ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
+
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+
+  @@unique([shoppingListId, recipeId])
+  @@index([recipeId])
 }
 
+model ListIngredient {
+  id            String   @id @default(cuid())
+  recipeInListId String
 
+  ingredientKey String
+  quantity      Float
+  unit          String
+  category      String
+
+  recipeInList RecipeInList @relation(fields: [recipeInListId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([ingredientKey])
+}
+
+model ManualItem {
+  id             String   @id @default(cuid())
+  shoppingListId String
+
+  ingredientKey String
+  quantity      Float
+  unit          String
+  category      String
+
+  checked       Boolean @default(false)
+
+  shoppingList ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model ShoppingItemState {
+  id             String   @id @default(cuid())
+  shoppingListId String
+
+  ingredientKey String
+  checked       Boolean  @default(false)
+
+  shoppingList ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
+
+  @@unique([shoppingListId, ingredientKey])
+  @@index([shoppingListId])
+}

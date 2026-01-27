@@ -27,6 +27,7 @@ type Props = {
   setDietaryTags: (v: string[]) => void;
 
   setImageFile: (f: File | null) => void;
+  mode: "create" | "edit";
 };
 
 export function RecipeBasicsCard({
@@ -39,6 +40,7 @@ export function RecipeBasicsCard({
   dietaryTags,
   setDietaryTags,
   setImageFile,
+  mode,
 }: Props) {
   const toggleTag = (tag: string) => {
     setDietaryTags(
@@ -77,6 +79,7 @@ export function RecipeBasicsCard({
           value={servings}
           onChange={(e) => setServings(Number(e.target.value))}
           className="w-32"
+          disabled={mode === "edit"}
         />
 
         {/* Dietary Tags */}

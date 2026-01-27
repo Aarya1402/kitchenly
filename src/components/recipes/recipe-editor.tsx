@@ -147,6 +147,7 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
             dietaryTags={dietaryTags}
             setDietaryTags={setDietaryTags}
             setImageFile={setImageFile}
+            mode={mode}
           />
           <StepFooter
             onBack={mode === "create" ? () => setStep(1) : undefined}

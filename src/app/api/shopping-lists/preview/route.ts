@@ -4,18 +4,26 @@ import { prisma } from "@/lib/db";
 import { DEFAULT_CATEGORY } from "@/constants/defualt-category";
 import { CATEGORY_MAP } from "@/constants/category-map";
 
-function parseQuantity(quantity: string) {
-  const match = quantity.match(/^([\d.]+)\s*(.*)$/);
-  if (!match) return null;
+/* ───────── Helpers ───────── */
+
+function canonicalizeName(name: string) {
+  return name.trim().toLowerCase();
+}
+
+function parseQuantity(input: string) {
+  const match = input.trim().match(/^([\d.]+)\s*(.*)$/);
+  if (!match) {
+    return { value: 1, unit: "piece" };
+  }
 
   return {
     value: Number(match[1]),
-    unit: match[2]?.trim() || "",
+    unit: match[2]?.trim() || "piece",
   };
 }
 
 function inferCategory(ingredientName: string): string {
-  const key = ingredientName.split(" ")[0];
+  const key = ingredientName.split(" ")[0].toLowerCase();
   return CATEGORY_MAP[key] || DEFAULT_CATEGORY;
 }
 
@@ -34,7 +42,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No recipes selected" }, { status: 400 });
   }
 
-  /* ───────── Fetch ingredients ───────── */
+  /* ───────── Fetch recipes ───────── */
 
   const recipes = await prisma.recipe.findMany({
     where: {
@@ -46,59 +54,49 @@ export async function POST(req: Request) {
     },
   });
 
-  /* ───────── Aggregate ───────── */
+  /* ───────── Aggregate ingredients ───────── */
 
   type AggregatedItem = {
+    ingredientKey: string;
     name: string;
-    quantity: string;
+    quantity: number;
+    unit: string;
     category: string;
-    checked: false;
   };
 
-  const map = new Map<string, AggregatedItem>();
+  const aggregated = new Map<string, AggregatedItem>();
 
   for (const recipe of recipes) {
+    const baseServings = recipe.servings || 1;
+    const scaleFactor = 1; // preview uses default servings
+
     for (const ing of recipe.ingredients) {
       const parsed = parseQuantity(ing.quantity);
+      const ingredientKey = canonicalizeName(ing.name);
 
-      const key = ing.name;
-
-      if (!parsed) {
-        // fallback: treat as unique
-        map.set(`${key}-${Math.random()}`, {
-          name: ing.name,
-          quantity: ing.quantity,
-          category: inferCategory(ing.name),
-          checked: false,
-        });
-        continue;
-      }
-
-      const existing = map.get(key);
+      const existing = aggregated.get(ingredientKey);
 
       if (existing) {
-        const existingParsed = parseQuantity(existing.quantity);
-
-        if (existingParsed && existingParsed.unit === parsed.unit) {
-          // identical unit → sum
-          const total = existingParsed.value + parsed.value;
-
-          existing.quantity = `${total} ${parsed.unit}`;
+        // only sum if unit matches
+        if (existing.unit === parsed.unit) {
+          existing.quantity += parsed.value * scaleFactor;
         } else {
-          // different unit → separate entry
-          map.set(`${key}-${parsed.unit}`, {
+          // different unit → keep separate key
+          aggregated.set(`${ingredientKey}:${parsed.unit}`, {
+            ingredientKey: `${ingredientKey}:${parsed.unit}`,
             name: ing.name,
-            quantity: ing.quantity,
+            quantity: parsed.value * scaleFactor,
+            unit: parsed.unit,
             category: inferCategory(ing.name),
-            checked: false,
           });
         }
       } else {
-        map.set(key, {
+        aggregated.set(ingredientKey, {
+          ingredientKey,
           name: ing.name,
-          quantity: ing.quantity,
+          quantity: parsed.value * scaleFactor,
+          unit: parsed.unit,
           category: inferCategory(ing.name),
-          checked: false,
         });
       }
     }
@@ -108,12 +106,22 @@ export async function POST(req: Request) {
 
   const groups: Record<string, AggregatedItem[]> = {};
 
-  for (const item of map.values()) {
+  for (const item of aggregated.values()) {
     if (!groups[item.category]) {
       groups[item.category] = [];
     }
     groups[item.category].push(item);
   }
 
-  return NextResponse.json({ groups });
+  /* ───────── Response ───────── */
+
+  return NextResponse.json({
+    recipes: recipes.map((r) => ({
+      recipeId: r.id,
+      title: r.title,
+      baseServings: r.servings,
+      servingsUsed: r.servings, // preview = default
+    })),
+    groups,
+  });
 }
