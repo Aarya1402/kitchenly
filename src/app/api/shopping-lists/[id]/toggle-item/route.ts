@@ -13,9 +13,9 @@ export async function PUT(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { ingredientKey, checked } = await req.json();
+  const { ingredientKey, isChecked } = await req.json();
 
-  if (!ingredientKey || typeof checked !== "boolean") {
+  if (!ingredientKey || typeof isChecked !== "boolean") {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
@@ -35,12 +35,12 @@ export async function PUT(
       },
     },
     update: {
-      checked,
+      isChecked,
     },
     create: {
       shoppingListId: id,
       ingredientKey,
-      checked,
+      isChecked,
     },
   });
 

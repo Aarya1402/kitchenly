@@ -38,7 +38,7 @@ export default function NewShoppingListPage() {
   const router = useRouter();
 
   const recipeIds = searchParams.get("recipes")?.split(",") ?? [];
-  console.log("Recipe IDs:", recipeIds);
+
   const [title, setTitle] = useState("Shopping List");
   const [groups, setGroups] = useState<Record<string, PreviewItem[]>>({});
   const [recipes, setRecipes] = useState<RecipePreview[]>([]);

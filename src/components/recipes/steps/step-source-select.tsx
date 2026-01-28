@@ -30,7 +30,7 @@ export function StepSource({ onManual, onFetched }: Props) {
 
   if (!data.success) throw new Error('Failed to fetch recipe');
 
-  onFetched(data.recipe);
+  await onFetched(data.recipe);
 } catch (error) {
   setError('Failed to fetch recipe from URL');
 } finally {

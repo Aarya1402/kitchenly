@@ -66,6 +66,8 @@ model ShoppingList {
   userId    String
 
   title     String
+  shareToken  String?  @unique
+  isShared    Boolean  @default(false)
 
   recipes   RecipeInList[]
   manualItems ManualItem[]
@@ -123,7 +125,7 @@ model ManualItem {
   unit          String
   category      String
 
-  checked       Boolean @default(false)
+  isisChecked       Boolean @default(false)
 
   shoppingList ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
 
@@ -135,7 +137,7 @@ model ShoppingItemState {
   shoppingListId String
 
   ingredientKey String
-  checked       Boolean  @default(false)
+  isChecked       Boolean  @default(false)
 
   shoppingList ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
 

@@ -74,11 +74,15 @@ export default function NewRecipePage() {
   
   const saveRecipe = async () => {
     setSaving(true);
-    let imageUrl: string | null = null;
+    let finalImageUrl = imageUrl; // ← start with existing value
+
     if (imageFile) {
-      imageUrl = await uploadImage(imageFile);
+      console.log("Uploading image...");
+      finalImageUrl = await uploadImage(imageFile);
+      setImageUrl(finalImageUrl); // keep UI in sync (optional)
     }
     try {
+      console.log(imageUrl);
       const res = await axios.post(
         "/api/recipes",
         {
@@ -88,7 +92,7 @@ export default function NewRecipePage() {
           dietaryTags,
           ingredients,
           steps: stepsData,
-          imageUrl,
+          imageUrl: finalImageUrl,
         },
         {
           headers: {
@@ -124,6 +128,7 @@ export default function NewRecipePage() {
         <>
           <RecipeBasicsCard
             title={title}
+            mode="create"
             setTitle={setTitle}
             description={description}
             setDescription={setDescription}

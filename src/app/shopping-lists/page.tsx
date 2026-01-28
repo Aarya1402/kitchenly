@@ -64,9 +64,7 @@ export default function ShoppingListsPage() {
             <CardHeader>
               <CardTitle className="flex justify-between items-center">
                 {list.title}
-                <Badge variant="secondary">
-                  {list.completed}/{list.total}
-                </Badge>
+               
               </CardTitle>
             </CardHeader>
 

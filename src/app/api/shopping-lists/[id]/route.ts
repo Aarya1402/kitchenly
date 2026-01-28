@@ -51,10 +51,10 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  /* ───────── Build checked map ───────── */
+  /* ───────── Build isChecked map ───────── */
 
-  const checkedMap = new Map(
-    list.itemStates.map((s) => [s.ingredientKey, s.checked]),
+  const isCheckedMap = new Map(
+    list.itemStates.map((s) => [s.ingredientKey, s.isChecked]),
   );
 
   /* ───────── Aggregate ingredients ───────── */
@@ -111,12 +111,12 @@ export async function GET(
     }
   }
 
-  /* ───────── Group by category + attach checked ───────── */
+  /* ───────── Group by category + attach isChecked ───────── */
 
   const groups: Record<string, any[]> = {};
 
   for (const item of aggregated.values()) {
-    const checked = checkedMap.get(item.ingredientKey) ?? false;
+    const isChecked = isCheckedMap.get(item.ingredientKey) ?? false;
 
     const category = item.category || "Other";
 
@@ -124,7 +124,7 @@ export async function GET(
 
     groups[category].push({
       ...item,
-      checked,
+      isChecked,
     });
   }
 
@@ -141,4 +141,81 @@ export async function GET(
     })),
     groups,
   });
+}
+
+
+/* ───────────────────── PUT /shopping-lists/[id] ─────────────────────
+   Add a recipe to an existing shopping list
+--------------------------------------------------------------------- */
+
+export async function PUT(
+  req: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  const { id } = await context.params;
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const shoppingListId = id;
+  const body = await req.json();
+
+  const { recipeId, servingsUsed } = body;
+
+  if (!recipeId) {
+    return NextResponse.json(
+      { error: "recipeId is required" },
+      { status: 400 },
+    );
+  }
+
+  /* ───────── Verify list ownership ───────── */
+
+  const list = await prisma.shoppingList.findUnique({
+    where: { id: shoppingListId },
+    include: { recipes: true },
+  });
+
+  if (!list || list.userId !== userId) {
+    return NextResponse.json(
+      { error: "Shopping list not found" },
+      { status: 404 },
+    );
+  }
+
+  /* ───────── Prevent duplicate recipe ───────── */
+
+  const alreadyExists = list.recipes.some((r) => r.recipeId === recipeId);
+
+  if (alreadyExists) {
+    return NextResponse.json(
+      { error: "Recipe already added to this list" },
+      { status: 409 },
+    );
+  }
+
+  /* ───────── Fetch recipe (immutable) ───────── */
+
+  const recipe = await prisma.recipe.findUnique({
+    where: { id: recipeId },
+  });
+
+  if (!recipe || recipe.userId !== userId) {
+    return NextResponse.json({ error: "Recipe not found" }, { status: 404 });
+  }
+
+  /* ───────── Add recipe to list ───────── */
+
+  await prisma.recipeInList.create({
+    data: {
+      shoppingListId,
+      recipeId,
+      recipeTitle: recipe.title,
+      baseServings: recipe.servings,
+      servingsUsed: servingsUsed ?? recipe.servings,
+    },
+  });
+
+  return NextResponse.json({ success: true });
 }

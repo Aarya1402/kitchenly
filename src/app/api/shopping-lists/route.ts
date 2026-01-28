@@ -56,7 +56,6 @@ export async function POST(req: Request) {
 }
 
 /* ───────── GET: list all shopping lists ───────── */
-
 export async function GET() {
   const { userId } = await auth();
 
@@ -67,9 +66,7 @@ export async function GET() {
   const lists = await prisma.shoppingList.findMany({
     where: { userId },
     include: {
-      itemStates: true,
-      recipes: true,
-      manualItems: true,
+      itemStates: true, // 👈 THIS is the source of truth
     },
     orderBy: { createdAt: "desc" },
   });
@@ -77,7 +74,10 @@ export async function GET() {
   return NextResponse.json({
     lists: lists.map((list) => {
       const total = list.itemStates.length;
-      const completed = list.itemStates.filter((i) => i.checked).length;
+
+      const completed = list.itemStates.filter(
+        (item) => item.isChecked === true,
+      ).length;
 
       return {
         id: list.id,

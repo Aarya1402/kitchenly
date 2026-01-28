@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
-
+import { v2 as cloudinary } from "cloudinary";
 import { normalizeIngredient } from "@/lib/ingredient-normalizer";
 
 export async function GET(req: Request) {
@@ -53,6 +53,18 @@ export async function GET(req: Request) {
   });
 }
 
+
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+  api_key: process.env.CLOUDINARY_API_KEY!,
+  api_secret: process.env.CLOUDINARY_API_SECRET!,
+});
+
+function isCloudinaryUrl(url: string) {
+  return url.includes("res.cloudinary.com");
+}
+
 export async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) {
@@ -61,8 +73,26 @@ export async function POST(req: Request) {
 
   const body = await req.json();
 
+  /* ───────── Handle imageUrl ───────── */
+console.log(body.imageUrl);
+  let finalImageUrl: string | null = body.imageUrl ?? null;
 
+  if (finalImageUrl && !isCloudinaryUrl(finalImageUrl)) {
+    try {
+      const uploadResult = await cloudinary.uploader.upload(finalImageUrl, {
+        folder: "recipes",
+      });
 
+      finalImageUrl = uploadResult.secure_url;
+    } catch (err) {
+      console.error("Cloudinary upload failed", err);
+      return NextResponse.json(
+        { error: "Failed to upload recipe image" },
+        { status: 500 },
+      );
+    }
+  }
+  console.log(finalImageUrl);
   /* ───────── Save recipe ───────── */
 
   const recipe = await prisma.recipe.create({
@@ -72,7 +102,7 @@ export async function POST(req: Request) {
       description: body.description,
       servings: body.servings,
       dietaryTags: body.dietaryTags,
-      imageUrl: body.imageUrl || null,
+      imageUrl: finalImageUrl,
 
       ingredients: {
         create: body.ingredients.map(normalizeIngredient),
@@ -89,3 +119,4 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ success: true, recipe });
 }
+

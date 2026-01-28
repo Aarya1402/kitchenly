@@ -69,9 +69,7 @@ function tryJsonLd(html: string) {
         servings: parseInt(recipe.recipeYield) || undefined,
         ingredients: recipe.recipeIngredient,
         steps: Array.isArray(recipe.recipeInstructions)
-          ? recipe.recipeInstructions.map((s: any) =>
-              typeof s === "string" ? s : s.text,
-            )
+          ? normalizeInstructions(recipe.recipeInstructions)
           : [],
       };
     } catch {
@@ -157,6 +155,74 @@ ${JSON.stringify(raw, null, 2)}
   return extractJson(rawText);
 }
 
+function extractPhotoGuidedSteps(html: string) {
+  const $ = cheerio.load(html);
+
+  const steps: string[] = [];
+
+  // Common patterns used by food blogs
+  const stepImages = $("figure img, .wp-block-image img");
+
+  stepImages.each((_, img) => {
+    const texts: string[] = [];
+
+    let el = $(img).parent().next();
+
+    // Collect text until next image block
+    while (el.length && !el.find("img").length && !el.is("figure")) {
+      const text = el.text().trim();
+      if (text.length > 20) {
+        texts.push(text);
+      }
+      el = el.next();
+    }
+
+    if (texts.length > 0) {
+      steps.push(texts.join(" "));
+    }
+  });
+
+  return steps.length > 0 ? steps : null;
+}
+
+function normalizeInstructions(instructions: any[]): string[] {
+  const steps: string[] = [];
+
+  for (const step of instructions) {
+    // 1️⃣ plain string
+    if (typeof step === "string") {
+      steps.push(step);
+      continue;
+    }
+
+    // 2️⃣ text is string
+    if (typeof step.text === "string") {
+      steps.push(step.text);
+      continue;
+    }
+
+    // 3️⃣ text is array
+    if (Array.isArray(step.text)) {
+      steps.push(step.text.join(" "));
+      continue;
+    }
+
+    // 4️⃣ nested HowToDirection
+    if (Array.isArray(step.itemListElement)) {
+      const parts = step.itemListElement
+        .map((x: any) => x.text)
+        .filter(Boolean);
+
+      if (parts.length > 0) {
+        steps.push(parts.join(" "));
+      }
+    }
+  }
+
+  return steps;
+}
+
+
 /* =======================
    Orchestrator (PUBLIC)
 ======================= */
@@ -166,12 +232,16 @@ export async function parseRecipeFromUrl(url: string): Promise<ParsedRecipe> {
 
   const jsonLd = tryJsonLd(html);
 
+  const photoSteps = extractPhotoGuidedSteps(html);
+
   const raw =
     jsonLd ??
-    (() => {
-      const fallback = extractRawText(html);
-      return fallback;
-    })();
+    (photoSteps
+      ? {
+          title: extractRawText(html).title,
+          steps: photoSteps,
+        }
+      : extractRawText(html));
 
   return await parseWithGemini(raw);
 }

@@ -11,8 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Recipe } from "@/types/recipe";
+import { Input } from "@/components/ui/input";
 
 type Props = {
   recipe: Recipe | null;
@@ -49,6 +50,50 @@ export function RecipeDetailsModal({
     ? recipe.steps
     : recipe.steps.slice(0, STEPS_PREVIEW_COUNT);
 
+  function parseQuantity(input: string) {
+    const match = input.trim().match(/^([\d.]+)\s*(.*)$/);
+    if (!match) return null;
+
+    return {
+      value: Number(match[1]),
+      unit: match[2] || "",
+    };
+  }
+
+  function scaleQuantity(quantity: string, factor: number): string {
+    const parsed = parseQuantity(quantity);
+    if (!parsed) return quantity;
+
+    const scaled = parsed.value * factor;
+
+    // clean formatting (2 decimal max)
+    const display = Math.round(scaled * 100) / 100;
+
+    return `${display} ${parsed.unit}`.trim();
+  }
+
+  /* ───────── component ───────── */
+
+  type Props = {
+    recipe: Recipe | null;
+    open: boolean;
+    onClose: () => void;
+  };
+
+  const originalServings = recipe?.servings ?? 1;
+
+  const [servings, setServings] = useState(originalServings);
+
+  // reset servings when modal opens/closes
+  useEffect(() => {
+    if (open && recipe) {
+      setServings(recipe.servings);
+    }
+  }, [open, recipe]);
+
+  if (!recipe) return null;
+
+  const scaleFactor = servings / originalServings;
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl h-[85vh] flex flex-col">
@@ -72,22 +117,42 @@ export function RecipeDetailsModal({
           )}
 
           {/* Meta */}
-          <div className="flex flex-wrap gap-2">
-            <Badge>Servings: {recipe.servings}</Badge>
+          <div className="flex flex-wrap items-center gap-4">
+             
+            <Badge>Original: {originalServings} servings</Badge>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm">Servings</span>
+              <Input
+                type="number"
+                min={1}
+                value={servings}
+                autoFocus={false}
+                onChange={(e) =>
+                  setServings(Math.max(1, Number(e.target.value)))
+                }
+                className="w-20"
+              />
+            </div>
+            
             {recipe.dietaryTags.map((tag) => (
               <Badge key={tag} variant="secondary">
                 {tag}
               </Badge>
             ))}
           </div>
+          <div>
+            
+            <p className="text-sm">{recipe.description}</p>
+          </div>
 
           {/* Ingredients */}
           <div>
             <h3 className="font-medium mb-1">Ingredients</h3>
             <ul className="list-disc pl-5 text-sm space-y-1">
-              {ingredientsToShow.map((i, idx) => (
-                <li key={idx}>
-                  {i.quantity} {i.name}
+              {recipe.ingredients.map((i) => (
+                <li key={i.name}>
+                  {scaleQuantity(i.quantity, scaleFactor)} {i.name}
                 </li>
               ))}
             </ul>

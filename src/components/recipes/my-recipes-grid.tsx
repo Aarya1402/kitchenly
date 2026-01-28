@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -8,6 +8,14 @@ import { SelectableRecipeCard } from "./selectable-recipe-card";
 import { RecipeDetailsModal } from "./recipe-details-modal";
 import { useRouter } from "next/navigation";
 import { RecipeSearch } from "@/components/dashboard/recipe-search";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 
 type Recipe = {
   id: string;
@@ -18,6 +26,11 @@ type Recipe = {
   dietaryTags: string[];
   ingredients: { name: string; quantity: string }[];
   steps: { stepNo: number; content: string }[];
+};
+
+type ShoppingList = {
+  id: string;
+  title: string;
 };
 
 type Props = {
@@ -33,15 +46,30 @@ export function MyRecipesGrid({
   onDelete,
   setRecipes,
 }: Props) {
-  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
-  const [open, setOpen] = useState(false);
-  const [selectedRecipeModal, setSelectedRecipeModal] = useState<Recipe | null>(null);
-  const [query, setQuery] = useState("");
-  const [lastSearchedLength, setLastSearchedLength] = useState(0);
-
   const router = useRouter();
 
-  // 🔹 Search API
+  const [open, setOpen] = useState(false);
+  const [selectedRecipeModal, setSelectedRecipeModal] = useState<Recipe | null>(
+    null,
+  );
+
+  const [query, setQuery] = useState("");
+  const [lastSearchedLength, setLastSearchedLength] = useState(0);
+  const [servingsUsed, setServingsUsed] = useState<number>(1);
+
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  /* ───────── Shopping list modal state ───────── */
+
+  const [listModalOpen, setListModalOpen] = useState(false);
+  const [lists, setLists] = useState<ShoppingList[]>([]);
+  const singleSelectedRecipe =
+    selectedIds.length === 1
+      ? (recipes.find((r) => r.id === selectedIds[0]) ?? null)
+      : null;
+
+  /* ───────── Search ───────── */
+
   const searchRecipes = async (q: string) => {
     const res = await axios.get("/api/recipes/search", {
       params: { q, limit: 12 },
@@ -49,13 +77,12 @@ export function MyRecipesGrid({
     setRecipes(res.data?.data ?? []);
   };
 
-  // 🔹 Handle typing (every 3rd character)
   const handleChange = (value: string) => {
     setQuery(value);
 
     if (value.length === 0) {
       setLastSearchedLength(0);
-      loadRecipes(1); // reset to normal list
+      loadRecipes(1);
       return;
     }
 
@@ -69,14 +96,14 @@ export function MyRecipesGrid({
     }
   };
 
-  // 🔹 Handle Enter
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       setLastSearchedLength(query.length);
       searchRecipes(query);
     }
   };
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  /* ───────── Selection ───────── */
 
   const toggleRecipe = (recipeId: string, checked: boolean) => {
     setSelectedIds((prev) =>
@@ -84,13 +111,56 @@ export function MyRecipesGrid({
     );
   };
 
-  /* ───────── Action ───────── */
+  /* ───────── Actions ───────── */
 
-  const createShoppingList = () => {
+  const handleCreateClick = async () => {
     if (selectedIds.length === 0) return;
 
-    router.push(`/shopping-lists/new?recipes=${selectedIds.join(",")}`);
+    // multiple recipes → existing flow
+    if (selectedIds.length > 1) {
+      router.push(`/shopping-lists/new?recipes=${selectedIds.join(",")}`);
+      return;
+    }
+
+    // single recipe → show list picker
+    try {
+      const res = await axios.get("/api/shopping-lists");
+      setLists(res.data.lists ?? []);
+      if (singleSelectedRecipe) {
+        setServingsUsed(singleSelectedRecipe.servings);
+      }
+
+      setListModalOpen(true);
+    } catch {
+      toast.error("Failed to load shopping lists");
+    }
   };
+
+  const addToExistingList = async (listId: string) => {
+    if (!singleSelectedRecipe) return;
+
+    try {
+     await axios.put(`/api/shopping-lists/${listId}`, {
+       recipeId: singleSelectedRecipe.id,
+       servingsUsed,
+     });
+
+
+      toast.success("Recipe added to shopping list");
+      setListModalOpen(false);
+      setSelectedIds([]);
+      router.push(`/shopping-lists/${listId}`);
+    } catch (err: any) {
+      if (err.response?.status === 409) {
+        toast.error("Recipe already added to this list");
+      } else {
+        toast.error("Failed to add recipe");
+      }
+    }
+  };
+
+  /* ───────── Render ───────── */
+
   return (
     <section className="space-y-6">
       {/* Header */}
@@ -104,7 +174,6 @@ export function MyRecipesGrid({
       </div>
 
       {/* Search */}
-
       <RecipeSearch
         value={query}
         onChange={handleChange}
@@ -115,8 +184,6 @@ export function MyRecipesGrid({
       {recipes.length === 0 ? (
         <div className="rounded-lg border border-dashed p-12 text-center text-sm text-muted-foreground">
           You haven’t added any recipes yet.
-          <br />
-          Click <span className="font-medium">Add Recipe</span> to get started.
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -135,7 +202,7 @@ export function MyRecipesGrid({
         </div>
       )}
 
-      {/* Details Modal */}
+      {/* Recipe details modal */}
       {selectedRecipeModal && (
         <RecipeDetailsModal
           recipe={selectedRecipeModal}
@@ -151,6 +218,8 @@ export function MyRecipesGrid({
           }}
         />
       )}
+
+      {/* Bottom bar */}
       {selectedIds.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background p-4">
           <div className="mx-auto flex max-w-3xl items-center justify-between">
@@ -159,10 +228,71 @@ export function MyRecipesGrid({
               {selectedIds.length > 1 ? "s" : ""} selected
             </span>
 
-            <Button onClick={createShoppingList}>Create Shopping List</Button>
+            <Button onClick={handleCreateClick}>Create Shopping List</Button>
           </div>
         </div>
       )}
+
+      {/* Existing list picker */}
+
+      <Dialog open={listModalOpen} onOpenChange={setListModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add to existing list</DialogTitle>
+          </DialogHeader>
+          {singleSelectedRecipe && (
+            <div className="space-y-2">
+              <div className="text-sm font-medium">
+                {singleSelectedRecipe.title}
+              </div>
+
+              <div className="flex items-center gap-3">
+                <label className="text-sm text-muted-foreground">
+                  Servings
+                </label>
+
+                <Input
+                  type="number"
+                  min={1}
+                  value={servingsUsed}
+                  onChange={(e) =>
+                    setServingsUsed(Math.max(1, Number(e.target.value)))
+                  }
+                  className="w-24"
+                />
+
+                <span className="text-xs text-muted-foreground">
+                  (original: {singleSelectedRecipe.servings})
+                </span>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            {lists.map((list) => (
+              <Button
+                key={list.id}
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => addToExistingList(list.id)}
+              >
+                {list.title}
+              </Button>
+            ))}
+
+            <Button
+              className="w-full"
+              onClick={() =>
+                router.push(
+                  `/shopping-lists/new?recipes=${selectedIds.join(",")}`,
+                )
+              }
+            >
+              + Create new list
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

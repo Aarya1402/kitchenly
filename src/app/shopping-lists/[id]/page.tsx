@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import { ShareExportModal } from "@/components/export-modal";
 
 /* ───────── Types ───────── */
 
@@ -14,7 +16,7 @@ type Item = {
   quantity: number;
   unit: string;
   category: string;
-  checked: boolean;
+  isChecked: boolean;
 };
 
 type RecipeInList = {
@@ -33,11 +35,17 @@ export default function ShoppingListPage() {
   const [groups, setGroups] = useState<Record<string, Item[]>>({});
   const [recipes, setRecipes] = useState<RecipeInList[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [isShared, setIsShared] = useState(false);
+  const [shareToken, setShareToken] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [draftTitle, setDraftTitle] = useState("");
   const [draftGroups, setDraftGroups] = useState<Record<string, Item[]>>({});
   const [draftRecipes, setDraftRecipes] = useState<RecipeInList[]>([]);
+  const items = Object.values(groups).flat();
+  const total = items.length;
+  const completed = items.filter((i) => i.isChecked).length;
+  const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+  const [openShare, setOpenShare] = useState(false);
 
   const activeGroups = editMode ? draftGroups : groups;
 
@@ -57,7 +65,8 @@ export default function ShoppingListPage() {
       setTitle(json.title);
       setGroups(json.groups);
       setRecipes(json.recipes);
-
+      setIsShared(json.isShared);
+      setShareToken(json.shareToken);
       // prepare edit drafts
       setDraftTitle(json.title);
       setDraftGroups(structuredClone(json.groups));
@@ -69,15 +78,34 @@ export default function ShoppingListPage() {
     if (id) load();
   }, [id, router]);
 
-  /* ───────── Toggle checked (shopping mode) ───────── */
+  /* ───────── Toggle isChecked (shopping mode) ───────── */
 
-  async function toggleItem(ingredientKey: string, checked: boolean) {
+  async function toggleItem(ingredientKey: string, isChecked: boolean) {
     await fetch(`/api/shopping-lists/${id}/toggle-item`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ingredientKey, checked }),
+      body: JSON.stringify({ ingredientKey, isChecked }),
     });
   }
+  async function generateShareLink(listId: string) {
+    const res = await fetch(`/api/shopping-lists/${listId}/share`, {
+      method: "POST",
+    });
+
+    const json = await res.json();
+
+    const url = `${window.location.origin}/share/shopping-lists/${json.token}`;
+    navigator.clipboard.writeText(url);
+
+    alert("Share link copied!");
+  }
+
+ async function disableShareLink(listId: string) {
+   await fetch(`/api/shopping-lists/${listId}/share`, {
+     method: "DELETE",
+   });
+ }
+
 
   if (loading) {
     return <div className="p-6">Loading…</div>;
@@ -98,6 +126,21 @@ export default function ShoppingListPage() {
         )}
       </h1>
 
+      <Button variant="outline" onClick={() => setOpenShare(true)}>
+        Share / Export
+      </Button>
+      {!editMode && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span>
+              {completed} of {total} items completed
+            </span>
+            <span>{percent}%</span>
+          </div>
+
+          <Progress value={percent} />
+        </div>
+      )}
       {/* ───────── Recipes + Servings (EDIT MODE ONLY) ───────── */}
       {editMode && (
         <div className="space-y-3 rounded-md border p-4">
@@ -160,7 +203,6 @@ export default function ShoppingListPage() {
           ))}
         </div>
       )}
-
       {/* ───────── Ingredients ───────── */}
       {Object.entries(activeGroups).map(([category, items]) => (
         <div key={category}>
@@ -171,7 +213,7 @@ export default function ShoppingListPage() {
               <div key={item.ingredientKey} className="flex items-center gap-2">
                 {!editMode && (
                   <Checkbox
-                    checked={item.checked}
+                    checked={item.isChecked}
                     onCheckedChange={(v) => {
                       const next = Boolean(v);
 
@@ -180,7 +222,7 @@ export default function ShoppingListPage() {
                         const target = copy[category].find(
                           (i) => i.ingredientKey === item.ingredientKey,
                         );
-                        if (target) target.checked = next;
+                        if (target) target.isChecked = next;
                         return copy;
                       });
 
@@ -194,7 +236,7 @@ export default function ShoppingListPage() {
                     <Input
                       type="number"
                       min={0}
-                      value={item.quantity}
+                      value={item.quantity.toFixed(2)}
                       onChange={(e) => {
                         const next = structuredClone(draftGroups);
                         next[category][index].quantity = Number(e.target.value);
@@ -216,10 +258,10 @@ export default function ShoppingListPage() {
                 ) : (
                   <span
                     className={`flex-1 ${
-                      item.checked ? "line-through text-muted-foreground" : ""
+                      item.isChecked ? "line-through text-muted-foreground" : ""
                     }`}
                   >
-                    {item.quantity} {item.unit} {item.name}
+                    {item.quantity.toFixed(2)} {item.unit} {item.name}
                   </span>
                 )}
               </div>
@@ -227,7 +269,6 @@ export default function ShoppingListPage() {
           </div>
         </div>
       ))}
-
       {/* ───────── Footer ───────── */}
       {editMode ? (
         <div className="flex justify-between pt-6">
@@ -275,6 +316,13 @@ export default function ShoppingListPage() {
           Edit List
         </Button>
       )}
+      <ShareExportModal
+        open={openShare}
+        onClose={() => setOpenShare(false)}
+        listId={id}
+        isShared={isShared}
+        shareToken={shareToken}
+      />
     </div>
   );
 }

@@ -69,7 +69,7 @@ export async function PUT(
   }
 
   const body = await req.json();
-  console.log(body)
+
   const recipe = await prisma.recipe.findUnique({
     where: { id },
   });

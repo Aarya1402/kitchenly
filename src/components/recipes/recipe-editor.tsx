@@ -90,7 +90,7 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
       steps: stepsData,
       imageUrl,
     };
-    console.log(imageUrl)
+
     const url = mode === "create" ? "/api/recipes" : `/api/recipes/${recipeId}`;
 
     const method = mode === "create" ? "POST" : "PUT";
