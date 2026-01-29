@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
 
-
-export async function PUT  (req: Request,
+export async function PUT(
+  req: Request,
   context: { params: Promise<{ id: string }> },
 ) {
   const { id } = await context.params;
@@ -30,7 +30,7 @@ export async function PUT  (req: Request,
   const recipeLink = await prisma.recipeInList.findUnique({
     where: {
       shoppingListId_recipeId: {
-        shoppingListId:id,
+        shoppingListId: id,
         recipeId,
       },
     },
@@ -50,25 +50,25 @@ export async function PUT  (req: Request,
   }
 
   const scaleFactor = servingsUsed / recipeLink.baseServings;
- function parseQuantity(input: string): {
-   value: number;
-   unit: string;
- } {
-   const match = input.trim().match(/^([\d.]+)\s*(.*)$/);
+  function parseQuantity(input: string): {
+    value: number;
+    unit: string;
+  } {
+    const match = input.trim().match(/^([\d.]+)\s*(.*)$/);
 
-   if (!match) {
-     return { value: 1, unit: "piece" };
-   }
+    if (!match) {
+      return { value: 1, unit: "piece" };
+    }
 
-   return {
-     value: Number(match[1]),
-     unit: match[2] || "piece",
-   };
- }
+    return {
+      value: Number(match[1]),
+      unit: match[2] || "piece",
+    };
+  }
 
- function canonicalizeName(name: string): string {
-   return name.trim().toLowerCase();
- }
+  function canonicalizeName(name: string): string {
+    return name.trim().toLowerCase();
+  }
 
   await prisma.$transaction([
     prisma.listIngredient.deleteMany({
@@ -86,7 +86,7 @@ export async function PUT  (req: Request,
               ingredientKey: canonicalizeName(i.name),
               quantity: parsed.value * scaleFactor,
               unit: parsed.unit,
-              category: "other",
+              category: "Other",
             };
           }),
         },

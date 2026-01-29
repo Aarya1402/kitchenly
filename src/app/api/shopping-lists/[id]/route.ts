@@ -88,7 +88,7 @@ export async function GET(
           name: ing.name,
           quantity: parsed.value * scale,
           unit: parsed.unit,
-          category: "Other",
+          category: ing.category || "Other",
         });
       }
     }
@@ -142,7 +142,6 @@ export async function GET(
     groups,
   });
 }
-
 
 /* ───────────────────── PUT /shopping-lists/[id] ─────────────────────
    Add a recipe to an existing shopping list

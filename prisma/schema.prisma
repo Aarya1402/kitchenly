@@ -39,6 +39,7 @@ model Recipe {
 model Ingredient {
   id        String  @id @default(cuid())
   recipeId String
+  category  String?
 
   name      String
   quantity  String   // "2 cups", "1 tsp", "200g"
@@ -125,7 +126,7 @@ model ManualItem {
   unit          String
   category      String
 
-  isisChecked       Boolean @default(false)
+  isChecked       Boolean @default(false)
 
   shoppingList ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
 

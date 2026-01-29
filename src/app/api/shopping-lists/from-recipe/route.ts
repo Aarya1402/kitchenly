@@ -96,7 +96,7 @@ export async function POST(req: Request) {
             ingredientKey: canonicalizeName(i.name),
             quantity: parsed.value * scaleFactor,
             unit: parsed.unit,
-            category: "other",
+            category: "Other",
           };
         }),
       },

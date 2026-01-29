@@ -82,9 +82,9 @@ export function ShareExportModal({
   /* ───────── Export PDF (hook only) ───────── */
 
   const exportPdf = () => {
-    toast.info("PDF export coming next 🚀");
-    // later:
-    // window.open(`/api/shopping-lists/share/${listId}/export-pdf`)
+
+
+    window.open(`/api/shopping-lists/${listId}/export-pdf`, "_blank");
   };
 
   return (

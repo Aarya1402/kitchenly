@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
+import { DEFAULT_CATEGORY } from "@/constants/defualt-category";
+import { CATEGORY_MAP } from "@/constants/category-map";
 
+function inferCategory(ingredientName: string): string {
+  const key = ingredientName.split(" ")[0].toLowerCase();
+  return CATEGORY_MAP[key] || DEFAULT_CATEGORY;
+}
 export async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) {
@@ -41,7 +47,7 @@ export async function POST(req: Request) {
                 ingredientKey: i.ingredientKey,
                 quantity: i.quantity,
                 unit: i.unit,
-                category: i.category,
+                category: inferCategory(i.ingredientKey),
               })),
             },
           }

@@ -1,7 +1,13 @@
 import { UNIT_ALIASES } from "@/constants/unit-aliases";
 import { DESCRIPTORS } from "@/constants/ingredient-descriptors";
 import { FRACTIONS } from "@/constants/factions";
+import { DEFAULT_CATEGORY } from "@/constants/defualt-category";
+import { CATEGORY_MAP } from "@/constants/category-map";
 
+function inferCategory(ingredientName: string): string {
+  const key = ingredientName.split(" ")[0].toLowerCase();
+  return CATEGORY_MAP[key] || DEFAULT_CATEGORY;
+}
 function normalizeQuantity(input: string): string {
   let q = input.toLowerCase().trim();
 
@@ -50,8 +56,8 @@ export function normalizeIngredient(ingredient: {
   const normalized = {
     quantity: normalizeQuantity(ingredient.quantity),
     name: normalizeName(ingredient.name),
+    category: inferCategory(ingredient.name) ?? "Other",
   };
-
 
   return normalized;
 }

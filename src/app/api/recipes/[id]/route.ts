@@ -85,7 +85,7 @@ export async function PUT(
       description: body.description,
       servings: body.servings,
       dietaryTags: body.dietaryTags,
-      imageUrl: body.imageUrl || null,
+      ...(body.imageUrl != null && { imageUrl: body.imageUrl }),
 
       ingredients: {
         deleteMany: {},
