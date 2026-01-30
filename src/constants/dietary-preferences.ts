@@ -1,5 +1,6 @@
 export const DIETARY_PREFERENCES = [
   { id: "vegetarian", label: "Vegetarian" },
+  { id: "non-vegetarian", label: "Non-Vegetarian" },
   { id: "vegan", label: "Vegan" },
   { id: "eggetarian", label: "Eggetarian" },
   { id: "pescatarian", label: "Pescatarian" },

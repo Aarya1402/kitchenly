@@ -7,7 +7,7 @@ import { Plus } from "lucide-react";
 import { SelectableRecipeCard } from "./selectable-recipe-card";
 import { RecipeDetailsModal } from "./recipe-details-modal";
 import { useRouter } from "next/navigation";
-import { RecipeSearch } from "@/components/dashboard/recipe-search";
+import { RecipeSearchWithFilters } from "@/components/dashboard/recipe-search";
 import {
   Dialog,
   DialogContent,
@@ -16,17 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
-
-type Recipe = {
-  id: string;
-  title: string;
-  description?: string | null;
-  imageUrl?: string | null;
-  servings: number;
-  dietaryTags: string[];
-  ingredients: { name: string; quantity: string }[];
-  steps: { stepNo: number; content: string }[];
-};
+import type { Recipe } from "@/types/recipe";
 
 type ShoppingList = {
   id: string;
@@ -56,8 +46,10 @@ export function MyRecipesGrid({
   const [query, setQuery] = useState("");
   const [lastSearchedLength, setLastSearchedLength] = useState(0);
   const [servingsUsed, setServingsUsed] = useState<number>(1);
-
+  const [loading, setLoading] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
+  const [availableCuisines, setAvailableCuisines] = useState<string[]>([]);
 
   /* ───────── Shopping list modal state ───────── */
 
@@ -68,21 +60,57 @@ export function MyRecipesGrid({
       ? (recipes.find((r) => r.id === selectedIds[0]) ?? null)
       : null;
 
+  useEffect(() => {
+    fetchAvailableCuisines();
+  }, []);
   /* ───────── Search ───────── */
 
-  const searchRecipes = async (q: string) => {
-    const res = await axios.get("/api/recipes/search", {
-      params: { q, limit: 12 },
-    });
-    setRecipes(res.data?.data ?? []);
+  const fetchRecipes = async (search?: string, cuisines?: string[]) => {
+    try {
+      setLoading(true);
+
+      const isSearch =
+        Boolean(search && search.length > 0) ||
+        (cuisines && cuisines.length > 0);
+
+      const url = isSearch ? "/api/recipes/search" : "/api/recipes";
+
+      const params: any = {
+        limit: isSearch ? 12 : 8,
+      };
+
+      // 🔍 search param (only for search route)
+      if (isSearch) {
+        params.q = search;
+      }
+
+      // 🎛️ cuisine filter (comma-separated)
+      if (cuisines && cuisines.length > 0) {
+        params.cuisine = cuisines.join(",");
+      }
+
+
+      const res = await axios.get(url, { params });
+      setRecipes(res.data?.data ?? []);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const fetchAvailableCuisines = async () => {
+    try {
+      const res = await axios.get("/api/recipes/cuisines");
+      setAvailableCuisines(res.data?.cuisines ?? []);
+    } catch (e) {
+      console.error("Failed to load cuisines", e);
+    }
+  };
   const handleChange = (value: string) => {
     setQuery(value);
 
     if (value.length === 0) {
       setLastSearchedLength(0);
-      loadRecipes(1);
+      fetchRecipes(undefined, selectedCuisines);
       return;
     }
 
@@ -92,15 +120,21 @@ export function MyRecipesGrid({
       value.length !== lastSearchedLength
     ) {
       setLastSearchedLength(value.length);
-      searchRecipes(value);
+      fetchRecipes(value, selectedCuisines);
     }
   };
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       setLastSearchedLength(query.length);
-      searchRecipes(query);
+      fetchRecipes(query, selectedCuisines);
     }
+  };
+
+  const handleCuisineChange = (cuisines: string[]) => {
+    setSelectedCuisines(cuisines);
+
+    // re-fetch using current search query + new cuisines
+    fetchRecipes(query.length >= 3 ? query : undefined, cuisines);
   };
 
   /* ───────── Selection ───────── */
@@ -140,11 +174,10 @@ export function MyRecipesGrid({
     if (!singleSelectedRecipe) return;
 
     try {
-     await axios.put(`/api/shopping-lists/${listId}`, {
-       recipeId: singleSelectedRecipe.id,
-       servingsUsed,
-     });
-
+      await axios.put(`/api/shopping-lists/${listId}`, {
+        recipeId: singleSelectedRecipe.id,
+        servingsUsed,
+      });
 
       toast.success("Recipe added to shopping list");
       setListModalOpen(false);
@@ -174,12 +207,14 @@ export function MyRecipesGrid({
       </div>
 
       {/* Search */}
-      <RecipeSearch
+      <RecipeSearchWithFilters
         value={query}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
+        cuisines={selectedCuisines}
+        availableCuisines={availableCuisines}
+        onCuisineChange={handleCuisineChange}
       />
-
       {/* Grid */}
       {recipes.length === 0 ? (
         <div className="rounded-lg border border-dashed p-12 text-center text-sm text-muted-foreground">

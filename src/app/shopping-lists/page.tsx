@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import axios from "axios";
 
 type ShoppingListSummary = {
   id: string;
@@ -21,17 +22,17 @@ export default function ShoppingListsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function load() {
-      const res = await fetch("/api/shopping-lists");
-      if (!res.ok) {
-        alert("Failed to load shopping lists");
-        return;
-      }
+  async function load() {
+    try {
+      const res = await axios.get("/api/shopping-lists");
 
-      const json = await res.json();
-      setLists(json.lists || []);
+      setLists(res.data.lists || []);
+    } catch (error) {
+      alert("Failed to load shopping lists");
+    } finally {
       setLoading(false);
     }
+  }
 
     load();
   }, []);

@@ -42,7 +42,6 @@ export async function GET(req: Request) {
       },
     }),
   ]);
-
   return NextResponse.json({
     data: recipes,
     page,
@@ -74,7 +73,7 @@ export async function POST(req: Request) {
   const body = await req.json();
 
   /* ───────── Handle imageUrl ───────── */
-console.log(body.imageUrl);
+
   let finalImageUrl: string | null = body.imageUrl ?? null;
 
   if (finalImageUrl && !isCloudinaryUrl(finalImageUrl)) {
@@ -92,7 +91,7 @@ console.log(body.imageUrl);
       );
     }
   }
-  console.log(finalImageUrl);
+
   /* ───────── Save recipe ───────── */
 
   const recipe = await prisma.recipe.create({
@@ -103,7 +102,7 @@ console.log(body.imageUrl);
       servings: body.servings,
       dietaryTags: body.dietaryTags,
       imageUrl: finalImageUrl,
-
+      cuisine: body.cuisine,
       ingredients: {
         create: body.ingredients.map(normalizeIngredient),
       },

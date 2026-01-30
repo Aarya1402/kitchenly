@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import type { Recipe } from "@/types/recipe";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
-import { RecipeSearch } from "@/components/dashboard/recipe-search";
+import { RecipeSearchWithFilters } from "@/components/dashboard/recipe-search";
 import { RecipeCarousel } from "@/components/dashboard/recipe-carousel";
 import { RecipeDetailsModal } from "@/components/recipes/recipe-details-modal";
 
@@ -15,14 +15,32 @@ export default function DashboardPage() {
   const [lastSearchedLength, setLastSearchedLength] = useState(0);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [open, setOpen] = useState(false);
-
-  const fetchRecipes = async (search?: string) => {
+  const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
+  const [availableCuisines, setAvailableCuisines] = useState<string[]>([]);
+  const fetchRecipes = async (search?: string, cuisines?: string[]) => {
     try {
       setLoading(true);
 
-      const url = search ? "/api/recipes/search" : "/api/recipes";
+      const isSearch = Boolean(
+        (search && search.length > 0) || (cuisines && cuisines.length > 0),
+      );
 
-      const params = search ? { q: search, limit: 12 } : { limit: 5 };
+      const url = isSearch ? "/api/recipes/search" : "/api/recipes";
+
+      const params: any = {
+        limit: isSearch ? 12 : 8,
+      };
+
+      // 🔍 search param (only for search route)
+      if (isSearch) {
+        params.q = search;
+      }
+
+      // 🎛️ cuisine filter (comma-separated)
+      if (cuisines && cuisines.length > 0) {
+        params.cuisine = cuisines.join(",");
+      }
+
 
       const res = await axios.get(url, { params });
       setRecipes(res.data?.data ?? []);
@@ -31,16 +49,25 @@ export default function DashboardPage() {
     }
   };
 
+  const fetchAvailableCuisines = async () => {
+    try {
+      const res = await axios.get("/api/recipes/cuisines");
+      setAvailableCuisines(res.data?.cuisines ?? []);
+    } catch (e) {
+      console.error("Failed to load cuisines", e);
+    }
+  };
+
   useEffect(() => {
     fetchRecipes();
+    fetchAvailableCuisines();
   }, []);
-
   const handleChange = (value: string) => {
     setQuery(value);
 
     if (value.length === 0) {
       setLastSearchedLength(0);
-      fetchRecipes();
+      fetchRecipes(undefined, selectedCuisines);
       return;
     }
 
@@ -50,15 +77,21 @@ export default function DashboardPage() {
       value.length !== lastSearchedLength
     ) {
       setLastSearchedLength(value.length);
-      fetchRecipes(value);
+      fetchRecipes(value, selectedCuisines);
     }
   };
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       setLastSearchedLength(query.length);
-      fetchRecipes(query);
+      fetchRecipes(query, selectedCuisines);
     }
+  };
+
+  const handleCuisineChange = (cuisines: string[]) => {
+    setSelectedCuisines(cuisines);
+
+    // re-fetch using current search query + new cuisines
+    fetchRecipes(query.length >= 3 ? query : undefined, cuisines);
   };
 
   return (
@@ -66,10 +99,13 @@ export default function DashboardPage() {
       <DashboardHero />
 
       <div className="flex justify-center">
-        <RecipeSearch
+        <RecipeSearchWithFilters
           value={query}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
+          cuisines={selectedCuisines}
+          availableCuisines={availableCuisines}
+          onCuisineChange={handleCuisineChange}
         />
       </div>
 

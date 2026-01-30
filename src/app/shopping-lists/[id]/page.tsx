@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { ShareExportModal } from "@/components/export-modal";
+import axios from "axios";
 
 /* ───────── Types ───────── */
 
@@ -52,59 +53,43 @@ export default function ShoppingListPage() {
   /* ───────── Fetch list ───────── */
 
   useEffect(() => {
-    async function load() {
-      const res = await fetch(`/api/shopping-lists/${id}`);
-      if (!res.ok) {
-        alert("Failed to load shopping list");
-        router.back();
-        return;
-      }
 
-      const json = await res.json();
 
-      setTitle(json.title);
-      setGroups(json.groups);
-      setRecipes(json.recipes);
-      setIsShared(json.isShared);
-      setShareToken(json.shareToken);
-      // prepare edit drafts
-      setDraftTitle(json.title);
-      setDraftGroups(structuredClone(json.groups));
-      setDraftRecipes(structuredClone(json.recipes));
+   async function load() {
+     try {
+       const res = await axios.get(`/api/shopping-lists/${id}`);
+       const json = res.data;
 
-      setLoading(false);
-    }
+       setTitle(json.title);
+       setGroups(json.groups);
+       setRecipes(json.recipes);
+       setIsShared(json.isShared);
+       setShareToken(json.shareToken);
+
+       // prepare edit drafts
+       setDraftTitle(json.title);
+       setDraftGroups(structuredClone(json.groups));
+       setDraftRecipes(structuredClone(json.recipes));
+
+       setLoading(false);
+     } catch (error) {
+       alert("Failed to load shopping list");
+       router.back();
+     }
+   }
 
     if (id) load();
   }, [id, router]);
 
   /* ───────── Toggle isChecked (shopping mode) ───────── */
 
-  async function toggleItem(ingredientKey: string, isChecked: boolean) {
-    await fetch(`/api/shopping-lists/${id}/toggle-item`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ingredientKey, isChecked }),
-    });
-  }
-  async function generateShareLink(listId: string) {
-    const res = await fetch(`/api/shopping-lists/${listId}/share`, {
-      method: "POST",
-    });
+async function toggleItem(ingredientKey: string, isChecked: boolean) {
+  await axios.put(`/api/shopping-lists/${id}/toggle-item`, {
+    ingredientKey,
+    isChecked,
+  });
+}
 
-    const json = await res.json();
-
-    const url = `${window.location.origin}/share/shopping-lists/${json.token}`;
-    navigator.clipboard.writeText(url);
-
-    alert("Share link copied!");
-  }
-
- async function disableShareLink(listId: string) {
-   await fetch(`/api/shopping-lists/${listId}/share`, {
-     method: "DELETE",
-   });
- }
 
 
   if (loading) {
@@ -179,21 +164,14 @@ export default function ShoppingListPage() {
                   variant="outline"
                   size="sm"
                   onClick={async () => {
-                    await fetch(`/api/shopping-lists/${id}/regenerate`, {
-                      method: "PUT",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({
-                        recipeId: r.recipeId,
-                        servingsUsed: r.servingsUsed,
-                      }),
+                    await axios.put(`/api/shopping-lists/${id}/regenerate`, {
+                      recipeId: r.recipeId,
+                      servingsUsed: r.servingsUsed,
                     });
 
                     // reload list after regeneration
-                    const res = await fetch(`/api/shopping-lists/${id}`);
-                    const json = await res.json();
-                    setDraftGroups(json.groups);
+                    const res = await axios.get(`/api/shopping-lists/${id}`);
+                    setDraftGroups(res.data.groups);
                   }}
                 >
                   Regenerate
@@ -286,26 +264,19 @@ export default function ShoppingListPage() {
 
           <Button
             onClick={async () => {
-              const res = await fetch(`/api/shopping-lists/${id}/save`, {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
+              try {
+                await axios.put(`/api/shopping-lists/${id}/save`, {
                   title: draftTitle,
                   manualItems: [], // you can wire this later
-                }),
-              });
+                });
 
-              if (!res.ok) {
+                setTitle(draftTitle);
+                setGroups(draftGroups);
+                setRecipes(draftRecipes);
+                setEditMode(false);
+              } catch (error) {
                 alert("Failed to save");
-                return;
               }
-
-              setTitle(draftTitle);
-              setGroups(draftGroups);
-              setRecipes(draftRecipes);
-              setEditMode(false);
             }}
           >
             Save

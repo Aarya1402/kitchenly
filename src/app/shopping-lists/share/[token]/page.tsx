@@ -1,3 +1,5 @@
+import axios from "axios";
+
 type PublicListItem = {
   ingredientKey: string;
   name: string;
@@ -17,17 +19,24 @@ export default async function PublicShoppingListPage({
   params: Promise<{ token: string }>;
 }) {
   const { token } = await params; 
-
-  const res = await fetch(
+let data= null;
+ 
+try {
+  const res = await axios.get(
     `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/api/share/shopping-lists/${token}`,
-    { cache: "no-store" },
+    {
+      // Axios doesn't have `cache: "no-store"` like fetch;
+      // if needed, we can add headers to prevent caching
+      headers: {
+        "Cache-Control": "no-store",
+      },
+    },
   );
 
-  if (!res.ok) {
-    return <div className="p-6">Link expired</div>;
-  }
-  console.log(res);
-  const data = (await res.json()) as PublicShoppingListResponse;
+   data = res.data as PublicShoppingListResponse;
+} catch (error) {
+  return <div className="p-6">Link expired</div>;
+}
 
   return (
     <div className="mx-auto max-w-2xl p-6 space-y-4">
@@ -35,12 +44,12 @@ export default async function PublicShoppingListPage({
 
       {Object.entries(data.groups).map(([category, items]) => (
         <div key={category} className="space-y-2">
-          <h2 className="font-medium">{category}</h2>
+          <h2 className="font-medium font-strong-700">{category}</h2>
 
           {items.map((item) => (
             <div key={item.ingredientKey} className="flex gap-2">
               <input type="checkbox" disabled checked={item.isChecked} />
-              <span>
+              <span className="font-small">
                 {item.quantity} {item.unit} {item.name}
               </span>
             </div>

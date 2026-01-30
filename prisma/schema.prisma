@@ -24,6 +24,7 @@ model Recipe {
 
   servings      Int
   dietaryTags   String[] @default([])
+  cuisine       String?  
 
   ingredients   Ingredient[]
   steps         RecipeStep[]

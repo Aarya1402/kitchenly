@@ -27,7 +27,7 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
   const [dietaryTags, setDietaryTags] = useState<string[]>([]);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-
+  const [cuisine, setCuisine] = useState<string | null>(null);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [stepsData, setStepsData] = useState<string[]>([]);
 
@@ -40,7 +40,7 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
       setServings(initialData.servings);
       setDietaryTags(initialData.dietaryTags ?? []);
       setImageUrl(initialData.imageUrl ?? null);
-
+      setCuisine(initialData.cuisine ?? null);
       setIngredients(
         initialData.ingredients.map((i: any) => ({
           name: i.name,
@@ -56,23 +56,18 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
     }
   }, [mode, initialData]);
 
-  async function uploadImage(file: File): Promise<string> {
-    const formData = new FormData();
-    formData.append("file", file);
 
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
+async function uploadImage(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
 
-    if (!res.ok) {
-      throw new Error("Image upload failed");
-    }
-
-    const json = await res.json();
-    return json.imageUrl;
+  try {
+    const res = await axios.post("/api/upload", formData);
+    return res.data.imageUrl;
+  } catch {
+    throw new Error("Image upload failed");
   }
-
+}
   /* ───────── Save ───────── */
 
   const saveRecipe = async () => {
@@ -89,6 +84,7 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
       ingredients,
       steps: stepsData,
       imageUrl,
+      cuisine,
     };
 
     const url = mode === "create" ? "/api/recipes" : `/api/recipes/${recipeId}`;
@@ -126,6 +122,7 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
             setDescription(data.description ?? "");
             setServings(data.servings ?? 2);
             setDietaryTags(data.dietaryTags ?? []);
+            setCuisine(data.cuisine ?? null);
             setImageUrl(data.imageUrl ?? null);
             setIngredients(data.ingredients ?? []);
             setStepsData(data.steps?.map((s: any) => s.content) ?? []);
@@ -147,6 +144,8 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
             dietaryTags={dietaryTags}
             setDietaryTags={setDietaryTags}
             setImageFile={setImageFile}
+            setCuisine={setCuisine}
+            cuisine={cuisine}
             mode={mode}
           />
           <StepFooter

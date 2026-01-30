@@ -7,20 +7,29 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
 
     const q = searchParams.get("q")?.trim() || "";
+
+    // ✅ support: cuisine=Indian,Italian
+    // ✅ support: cuisine=Indian&cuisine=Italian
+    const cuisineParams = searchParams.getAll("cuisine");
+    const cuisines =
+      cuisineParams.length > 1
+        ? cuisineParams
+        : cuisineParams
+            .flatMap((c) => c.split(","))
+            .map((c) => c.trim())
+            .filter(Boolean);
+
     const page = Number(searchParams.get("page") || 1);
     const limit = Number(searchParams.get("limit") || 10);
     const skip = (page - 1) * limit;
 
-    if (!q) {
-      return NextResponse.json({
-        data: [],
-        page,
-        hasMore: false,
-      });
-    }
+    /* ───────── build where clause ───────── */
 
-    const where: Prisma.RecipeWhereInput = {
-      OR: [
+    const where: Prisma.RecipeWhereInput = {};
+
+    // 🔍 search (optional)
+    if (q) {
+      where.OR = [
         {
           title: {
             contains: q,
@@ -33,8 +42,17 @@ export async function GET(req: Request) {
             mode: Prisma.QueryMode.insensitive,
           },
         },
-      ],
-    };
+      ];
+    }
+
+    // 🎛️ cuisine filter (multi-value)
+    if (cuisines.length > 0) {
+      where.cuisine = {
+        in: cuisines,
+      };
+    }
+
+    /* ───────── queries ───────── */
 
     const [recipes, total] = await Promise.all([
       prisma.recipe.findMany({
@@ -58,7 +76,7 @@ export async function GET(req: Request) {
   } catch (error) {
     console.error("Search error:", error);
     return NextResponse.json(
-      { error: "Failed to search recipes" },
+      { error: "Failed to fetch recipes" },
       { status: 500 },
     );
   }

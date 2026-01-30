@@ -16,7 +16,7 @@ export default function MyRecipesPage() {
   const loadRecipes = async (pageToLoad: number) => {
     setLoading(true);
 
-    const response = await axios.get(`/api/recipes?page=${pageToLoad}&limit=9`);
+    const response = await axios.get(`/api/recipes?page=${pageToLoad}&limit=12`);
     const json = response.data;
 
     setRecipes((prev) =>

@@ -118,7 +118,7 @@ export function RecipeDetailsModal({
 
           {/* Meta */}
           <div className="flex flex-wrap items-center gap-4">
-             
+            <Badge>{recipe.cuisine}</Badge>
             <Badge>Original: {originalServings} servings</Badge>
 
             <div className="flex items-center gap-2">
@@ -134,15 +134,15 @@ export function RecipeDetailsModal({
                 className="w-20"
               />
             </div>
-            
+
             {recipe.dietaryTags.map((tag) => (
               <Badge key={tag} variant="secondary">
                 {tag}
               </Badge>
             ))}
+            
           </div>
           <div>
-            
             <p className="text-sm">{recipe.description}</p>
           </div>
 

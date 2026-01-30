@@ -6,5 +6,6 @@ export type Recipe = {
   servings: number;
   dietaryTags: string[];
   ingredients: { name: string; quantity: string }[];
+  cuisine?: string | null;
   steps: { stepNo: number; content: string }[];
 };

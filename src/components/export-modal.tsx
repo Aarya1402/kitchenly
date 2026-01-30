@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Copy, FileDown, Link2, Unlink } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import axios from "axios";
 
 type Props = {
   listId: string;
@@ -36,48 +37,41 @@ export function ShareExportModal({
 
   /* ───────── Generate / Regenerate Link ───────── */
 
-  const generateLink = async () => {
-    try {
-      setLoading(true);
+const generateLink = async () => {
+  try {
+    setLoading(true);
 
-      const res = await fetch(`/api/shopping-lists/${listId}/share`, {
-        method: "POST",
-      });
+    const res = await axios.post(`/api/shopping-lists/${listId}/share`);
 
-      if (!res.ok) throw new Error();
+    const json = res.data;
+    setToken(json.token);
 
-      const json = await res.json();
-      setToken(json.token);
+    const url = `${window.location.origin}/shopping-lists/share/${json.token}`;
+    await navigator.clipboard.writeText(url);
 
-      const url = `${window.location.origin}/shopping-lists/share/${json.token}`;
-      await navigator.clipboard.writeText(url);
-
-      toast.success("Share link generated & copied");
-    } catch {
-      toast.error("Failed to generate link");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+    toast.success("Share link generated & copied");
+  } catch {
+    toast.error("Failed to generate link");
+  } finally {
+    setLoading(false);
+  }
+};
   /* ───────── Disable Sharing ───────── */
 
-  const disableSharing = async () => {
-    try {
-      setLoading(true);
+const disableSharing = async () => {
+  try {
+    setLoading(true);
 
-      await fetch(`/api/shopping-lists/share/${listId}/share`, {
-        method: "DELETE",
-      });
+    await axios.delete(`/api/shopping-lists/${listId}/share`);
 
-      setToken(null);
-      toast.success("Sharing disabled");
-    } catch {
-      toast.error("Failed to disable sharing");
-    } finally {
-      setLoading(false);
-    }
-  };
+    setToken(null);
+    toast.success("Sharing disabled");
+  } catch {
+    toast.error("Failed to disable sharing");
+  } finally {
+    setLoading(false);
+  }
+};
 
   /* ───────── Export PDF (hook only) ───────── */
 

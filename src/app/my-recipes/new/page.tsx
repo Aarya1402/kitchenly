@@ -25,6 +25,7 @@ export default function NewRecipePage() {
   const [dietaryTags, setDietaryTags] = useState<string[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [cuisine, setCuisine] = useState<string>("");
 
   const [ingredients, setIngredients] = useState<Ingredient[]>([
     { name: "", quantity: "" },
@@ -40,7 +41,7 @@ export default function NewRecipePage() {
     setServings(recipe.servings ?? 2);
     setDietaryTags(recipe.dietaryTags ?? []);
     setImageUrl(recipe.imageUrl ?? null);
-
+    setCuisine(recipe.cuisine ?? "");
     setIngredients(
       recipe.ingredients?.length
         ? recipe.ingredients
@@ -55,34 +56,31 @@ export default function NewRecipePage() {
   };
 
   /* ───────────── Save Recipe ───────────── */
-  async function uploadImage(file: File): Promise<string> {
-    const formData = new FormData();
-    formData.append("file", file);
 
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
+async function uploadImage(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
 
-    if (!res.ok) {
-      throw new Error("Image upload failed");
-    }
+  try {
+    const res = await axios.post("/api/upload", formData);
 
-    const json = await res.json();
-    return json.imageUrl;
+    return res.data.imageUrl;
+  } catch (error) {
+    throw new Error("Image upload failed");
   }
-  
+}
+
   const saveRecipe = async () => {
     setSaving(true);
     let finalImageUrl = imageUrl; // ← start with existing value
 
     if (imageFile) {
-      console.log("Uploading image...");
+
       finalImageUrl = await uploadImage(imageFile);
       setImageUrl(finalImageUrl); // keep UI in sync (optional)
     }
     try {
-      console.log(imageUrl);
+
       const res = await axios.post(
         "/api/recipes",
         {
@@ -91,6 +89,7 @@ export default function NewRecipePage() {
           servings,
           dietaryTags,
           ingredients,
+          cuisine,
           steps: stepsData,
           imageUrl: finalImageUrl,
         },
@@ -137,6 +136,8 @@ export default function NewRecipePage() {
             dietaryTags={dietaryTags}
             setDietaryTags={setDietaryTags}
             setImageFile={setImageFile}
+            cuisine={cuisine}
+            setCuisine={setCuisine}
           />
 
           <StepFooter onBack={() => setStep(1)} onNext={() => setStep(3)} />

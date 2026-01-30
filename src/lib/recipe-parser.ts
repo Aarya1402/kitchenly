@@ -113,6 +113,7 @@ Return ONLY valid JSON matching this schema:
   "imageUrl": string | null,
   "servings": number,
   "dietaryTags": string[],
+  "cuisine": string | null,
   "ingredients": [
     { "name": string, "quantity": string }
   ],
@@ -125,6 +126,7 @@ Rules:
 - servings default = 2 if missing
 - ingredients.quantity must be normalized (e.g. "one cup" → "1 cup")
 - ingredients.name must be canonical
+- generate title cased(the first letter of th e word is capitalized) cuisine based on the recipe name and description, or null if unknown
 - steps.stepNo must start from 1
 - dietaryTags must be chosen ONLY from this list:
 ${DIETARY_PREFERENCES.join(", ")}

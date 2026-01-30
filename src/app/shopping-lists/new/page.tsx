@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { CATEGORIES } from "@/constants/categories";
-
+import axios from "axios"
 /* ───────── Types ───────── */
 
 type PreviewItem = {
@@ -47,25 +47,22 @@ export default function NewShoppingListPage() {
   /* ───────── Load preview ───────── */
 
   useEffect(() => {
-    async function loadPreview() {
-      const res = await fetch("/api/shopping-lists/preview", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ recipeIds }),
-      });
+   async function loadPreview() {
+     try {
+       const res = await axios.post("/api/shopping-lists/preview", {
+         recipeIds,
+       });
 
-      if (!res.ok) {
-        alert("Failed to load preview");
-        router.back();
-        return;
-      }
+       const json = res.data;
 
-      const json = await res.json();
-
-      setGroups(json.groups || {});
-      setRecipes(json.recipes || []);
-      setLoading(false);
-    }
+       setGroups(json.groups || {});
+       setRecipes(json.recipes || []);
+       setLoading(false);
+     } catch (error) {
+       alert("Failed to load preview");
+       router.back();
+     }
+   }
 
     if (recipeIds.length > 0) {
       loadPreview();
@@ -89,25 +86,21 @@ export default function NewShoppingListPage() {
 
   /* ───────── Save list ───────── */
 
-  const saveList = async () => {
-    const res = await fetch("/api/shopping-lists", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title,
-        recipes, 
-        manualItems: [], 
-      }),
-    });
 
-    if (!res.ok) {
-      alert("Failed to save shopping list");
-      return;
-    }
 
-    const json = await res.json();
-    router.push(`/shopping-lists/${json.id}`);
-  };
+ const saveList = async () => {
+   try {
+     const res = await axios.post("/api/shopping-lists", {
+       title,
+       recipes,
+       manualItems: [],
+     });
+
+     router.push(`/shopping-lists/${res.data.id}`);
+   } catch (error) {
+     alert("Failed to save shopping list");
+   }
+ };
 
   if (loading) {
     return <div className="p-6">Loading…</div>;
