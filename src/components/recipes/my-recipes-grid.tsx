@@ -28,6 +28,7 @@ type Props = {
   loadRecipes: (page: number) => void;
   onDelete: (recipe: Recipe) => Promise<void>;
   setRecipes: React.Dispatch<React.SetStateAction<Recipe[]>>;
+  setIsSearch: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export function MyRecipesGrid({
@@ -35,6 +36,7 @@ export function MyRecipesGrid({
   loadRecipes,
   onDelete,
   setRecipes,
+  setIsSearch,
 }: Props) {
   const router = useRouter();
 
@@ -68,11 +70,8 @@ export function MyRecipesGrid({
   const fetchRecipes = async (search?: string, cuisines?: string[]) => {
     try {
       setLoading(true);
-
-      const isSearch =
-        Boolean(search && search.length > 0) ||
-        (cuisines && cuisines.length > 0);
-
+      const isSearch: boolean = !!(search && search.length > 0) || !!(cuisines && cuisines.length > 0);
+      setIsSearch(isSearch);
       const url = isSearch ? "/api/recipes/search" : "/api/recipes";
 
       const params: any = {
@@ -88,7 +87,6 @@ export function MyRecipesGrid({
       if (cuisines && cuisines.length > 0) {
         params.cuisine = cuisines.join(",");
       }
-
 
       const res = await axios.get(url, { params });
       setRecipes(res.data?.data ?? []);

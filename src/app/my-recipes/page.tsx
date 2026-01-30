@@ -12,7 +12,7 @@ export default function MyRecipesPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
-
+  const [issearch, setIsSearch] = useState(false);  
   const loadRecipes = async (pageToLoad: number) => {
     setLoading(true);
 
@@ -62,9 +62,9 @@ export default function MyRecipesPage() {
         loadRecipes={loadRecipes}
         onDelete={optimisticDelete}
         setRecipes={setRecipes}
+        setIsSearch={setIsSearch}
       />
-
-      {hasMore && (
+      {!issearch && hasMore && (
         <div className="flex justify-center">
           <Button onClick={() => loadRecipes(page + 1)} disabled={loading}>
             {loading ? "Loading..." : "Load more"}
