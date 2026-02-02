@@ -14,15 +14,7 @@ import {
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { CATEGORIES } from "@/constants/categories";
 import axios from "axios";
-/* ───────── Types ───────── */
-
-type PreviewItem = {
-  ingredientKey: string;
-  name: string;
-  quantity: number;
-  unit: string;
-  category: string;
-};
+import { AggregatedItem as PreviewItem } from "@/types/aggregatedItems";
 
 type RecipePreview = {
   recipeId: string;

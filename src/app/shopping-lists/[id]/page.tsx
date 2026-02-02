@@ -8,24 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { ShareExportModal } from "@/components/export-modal";
 import axios from "axios";
-
-/* ───────── Types ───────── */
-
-type Item = {
-  ingredientKey: string;
-  name: string;
-  quantity: number;
-  unit: string;
-  category: string;
-  isChecked: boolean;
-};
-
-type RecipeInList = {
-  recipeId: string;
-  title: string;
-  servingsUsed: number;
-};
-
+import { AggregatedItem as Item } from "@/types/aggregatedItems";
+import { RecipeInList } from "@/types/recipeInList";
 /* ───────── Page ───────── */
 
 export default function ShoppingListPage() {

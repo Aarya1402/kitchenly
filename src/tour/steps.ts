@@ -62,17 +62,17 @@ export const TOUR_STEPS: TourStep[] = [
     disableBeacon: true,
     data: { previous: "/my-recipes", next: "/shopping-lists" },
   },
-  {
-    target: '[data-tour="list-card"]',
-    content: "Click on a list card to view and manage its items.",
-    disableBeacon: true,
-    data: { previous: "/shopping-lists", next: "/shopping-lists" },
-  },
-  {
-    target: '[data-tour="list-item-checkbox"]',
-    content:
-      "Check off items as you shop. Your progress is saved automatically.",
-    data: { previous: "/shopping-lists" },
-    disableBeacon: true,
-  },
+  // {
+  //   target: '[data-tour="list-card"]',
+  //   content: "Click on a list card to view and manage its items.",
+  //   disableBeacon: true,
+  //   data: { previous: "/shopping-lists", next: "/shopping-lists" },
+  // },
+  // {
+  //   target: '[data-tour="list-item-checkbox"]',
+  //   content:
+  //     "Check off items as you shop. Your progress is saved automatically.",
+  //   data: { previous: "/shopping-lists" },
+  //   disableBeacon: true,
+  // },
 ];

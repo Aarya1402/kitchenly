@@ -1,13 +1,5 @@
 import axios from "axios";
-
-type PublicListItem = {
-  ingredientKey: string;
-  name: string;
-  quantity: string;
-  category: string;
-  unit:string
-  isChecked: boolean;
-};
+import { AggregatedItem as PublicListItem } from "@/types/aggregatedItems";
 
 type PublicShoppingListResponse = {
   title: string;
@@ -18,25 +10,25 @@ export default async function PublicShoppingListPage({
 }: {
   params: Promise<{ token: string }>;
 }) {
-  const { token } = await params; 
-let data= null;
- 
-try {
-  const res = await axios.get(
-    `http://192.168.24.68:3000/api/share/shopping-lists/${token}`,
-    {
-      // Axios doesn't have `cache: "no-store"` like fetch;
-      // if needed, we can add headers to prevent caching
-      headers: {
-        "Cache-Control": "no-store",
-      },
-    },
-  );
+  const { token } = await params;
+  let data = null;
 
-   data = res.data as PublicShoppingListResponse;
-} catch (error) {
-  return <div className="p-6">Link expired</div>;
-}
+  try {
+    const res = await axios.get(
+      `http://192.168.24.68:3000/api/share/shopping-lists/${token}`,
+      {
+        // Axios doesn't have `cache: "no-store"` like fetch;
+        // if needed, we can add headers to prevent caching
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      },
+    );
+
+    data = res.data as PublicShoppingListResponse;
+  } catch (error) {
+    return <div className="p-6">Link expired</div>;
+  }
 
   return (
     <div className="mx-auto max-w-2xl p-6 space-y-4">

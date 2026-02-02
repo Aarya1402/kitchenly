@@ -9,15 +9,8 @@ import {
   useState,
 } from "react";
 import { useUser } from "@clerk/nextjs";
+import { TourContextType } from "@/types/tourContextType";
 
-type TourContextType = {
-  run: boolean;
-  stepIndex: number;
-  startTour: () => void;
-  stopTour: () => void;
-  advanceStep: () => void;
-  setStepIndex: Dispatch<SetStateAction<number>>;
-};
 
 const TourContext = createContext<TourContextType | null>(null);
 
@@ -34,7 +27,7 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     const hasSeenTour = localStorage.getItem("app-tour-started");
 
     // If user is signed in and hasn't done or started the tour, start it
-    if (isSignedIn && done !== "true" && !hasSeenTour) {
+    if (isSignedIn && done !== "true" && hasSeenTour !== "true") {
       const id = setTimeout(() => {
         setRun(true);
         setStepIndex(0);

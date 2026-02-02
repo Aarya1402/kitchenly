@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-
+import { ItemState } from "@/types/itemState";
+import { AggregatedItem } from "@/types/aggregatedItems";
 /* ───────── helpers ───────── */
 
 function canonicalizeName(name: string) {
@@ -16,21 +17,8 @@ function parseQuantity(input: string) {
   };
 }
 
-/* ───────── types ───────── */
 
-type ItemState = {
-  ingredientKey: string;
-  isChecked: boolean;
-};
 
-type AggregatedItem = {
-  ingredientKey: string;
-  name: string;
-  quantity: number;
-  unit: string;
-  category: string;
-  isChecked: boolean;
-};
 
 /* ───────── aggregator (single source of truth) ───────── */
 

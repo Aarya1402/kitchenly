@@ -4,16 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import axios from "axios";
-
-type ShoppingListSummary = {
-  id: string;
-  title: string;
-  createdAt: string;
-  total: number;
-  completed: number;
-};
+import { ShoppingListSummary } from "@/types/shoppingListSummary";
 
 export default function ShoppingListsPage() {
   const router = useRouter();
