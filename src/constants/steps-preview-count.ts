@@ -1,0 +1,1 @@
+export const STEPS_PREVIEW_COUNT = 3;

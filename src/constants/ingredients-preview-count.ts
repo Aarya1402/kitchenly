@@ -1,0 +1,1 @@
+export const INGREDIENTS_PREVIEW_COUNT = 5;
