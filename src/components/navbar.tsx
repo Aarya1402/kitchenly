@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname,useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useUser, SignInButton, SignOutButton } from "@clerk/nextjs";
 import {
   DropdownMenu,
@@ -66,6 +66,7 @@ export function Navbar() {
                   ? "font-bold bg-accent text-accent-foreground dark:bg-accent/50"
                   : ""
               }
+              data-tour="navbar-lists"
             >
               <Link href="/shopping-lists">Lists</Link>
             </Button>
@@ -106,9 +107,7 @@ export function Navbar() {
             </DropdownMenu>
           </div>
         ) : (
-          
-            <Button onClick={() => router.push("/sign-in")}>Login</Button>
-         
+          <Button onClick={() => router.push("/sign-in")}>Login</Button>
         )}
       </div>
     </header>

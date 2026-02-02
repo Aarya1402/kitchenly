@@ -23,7 +23,7 @@ let data= null;
  
 try {
   const res = await axios.get(
-    `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/api/share/shopping-lists/${token}`,
+    `http://192.168.24.68:3000/api/share/shopping-lists/${token}`,
     {
       // Axios doesn't have `cache: "no-store"` like fetch;
       // if needed, we can add headers to prevent caching

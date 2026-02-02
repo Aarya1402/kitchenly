@@ -5,6 +5,8 @@ import { Navbar } from "@/components/navbar";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { TourProvider } from "@/tour/tourContext";
+import TourController from "@/tour/tourController";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,11 +33,16 @@ export default function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <body>
           <ThemeProvider>
-            <Navbar />
-            <main>
-              {children}
-              <Toaster position="top-right" richColors />
-            </main>
+            <TourProvider>
+              <TourController />
+
+              <Navbar />
+
+              <main>
+                {children}
+                <Toaster position="top-right" richColors />
+              </main>
+            </TourProvider>
           </ThemeProvider>
         </body>
       </html>

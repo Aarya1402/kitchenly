@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Copy, FileDown, Link2, Unlink } from "lucide-react";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import axios from "axios";
 
 type Props = {
@@ -31,53 +31,81 @@ export function ShareExportModal({
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState<string | null>(shareToken ?? null);
 
-  const shareUrl = token
-    ? `${window.location.origin}/shopping-lists/share/${token}`
-    : null;
+  /* ───────── Derived share URL (SSR-safe) ───────── */
+
+  const shareUrl = useMemo(() => {
+    console.log(window.location.origin);
+    if (typeof window === "undefined" || !token) return null;
+    return `${window.location.origin}/shopping-lists/share/${token}`;
+  }, [token]);
+
+  /* ───────── Clipboard helper ───────── */
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+      toast.success("Link copied");
+    } catch (err) {
+      console.error("Clipboard error", err);
+      toast.error("Failed to copy link");
+    }
+  };
 
   /* ───────── Generate / Regenerate Link ───────── */
 
-const generateLink = async () => {
-  try {
-    setLoading(true);
+  const generateLink = async () => {
+    try {
+      setLoading(true);
 
-    const res = await axios.post(`/api/shopping-lists/${listId}/share`);
+      const res = await axios.post(`/api/shopping-lists/${listId}/share`);
 
-    const json = res.data;
-    setToken(json.token);
+      const newToken = res.data?.token;
+      setToken(newToken);
 
-    const url = `${window.location.origin}/shopping-lists/share/${json.token}`;
-    await navigator.clipboard.writeText(url);
+      if (typeof window !== "undefined" && newToken) {
+        const url = `${window.location.origin}/shopping-lists/share/${newToken}`;
+        await copyToClipboard(url);
+      } else {
+        toast.success("Share link generated");
+      }
+    } catch (err) {
+      console.error("Generate link failed", err);
+      toast.error("Failed to generate link");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    toast.success("Share link generated & copied");
-  } catch {
-    toast.error("Failed to generate link");
-  } finally {
-    setLoading(false);
-  }
-};
   /* ───────── Disable Sharing ───────── */
 
-const disableSharing = async () => {
-  try {
-    setLoading(true);
+  const disableSharing = async () => {
+    try {
+      setLoading(true);
 
-    await axios.delete(`/api/shopping-lists/${listId}/share`);
+      await axios.delete(`/api/shopping-lists/${listId}/share`);
 
-    setToken(null);
-    toast.success("Sharing disabled");
-  } catch {
-    toast.error("Failed to disable sharing");
-  } finally {
-    setLoading(false);
-  }
-};
+      setToken(null);
+      toast.success("Sharing disabled");
+    } catch (err) {
+      console.error("Disable sharing failed", err);
+      toast.error("Failed to disable sharing");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  /* ───────── Export PDF (hook only) ───────── */
+  /* ───────── Export PDF ───────── */
 
   const exportPdf = () => {
-
-
     window.open(`/api/shopping-lists/${listId}/export-pdf`, "_blank");
   };
 
@@ -90,14 +118,14 @@ const disableSharing = async () => {
 
         {/* ───────── Share Section ───────── */}
         <div className="space-y-3">
-          <h3 className="text-sm font-medium flex items-center gap-2">
+          <h3 className="flex items-center gap-2 text-sm font-medium">
             <Link2 className="h-4 w-4" />
             Shareable link
           </h3>
 
           {shareUrl ? (
             <div className="space-y-2">
-              <div className="rounded-md border bg-muted px-3 py-2 text-xs break-all">
+              <div className="break-all rounded-md border bg-muted px-3 py-2 text-xs">
                 {shareUrl}
               </div>
 
@@ -105,10 +133,8 @@ const disableSharing = async () => {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => {
-                    navigator.clipboard.writeText(shareUrl);
-                    toast.success("Link copied");
-                  }}
+                  disabled={loading}
+                  onClick={() => copyToClipboard(shareUrl)}
                 >
                   <Copy className="mr-2 h-4 w-4" />
                   Copy
@@ -117,8 +143,8 @@ const disableSharing = async () => {
                 <Button
                   size="sm"
                   variant="destructive"
-                  onClick={disableSharing}
                   disabled={loading}
+                  onClick={disableSharing}
                 >
                   <Unlink className="mr-2 h-4 w-4" />
                   Disable
@@ -134,7 +160,7 @@ const disableSharing = async () => {
 
         {/* ───────── Export Section ───────── */}
         <div className="space-y-3">
-          <h3 className="text-sm font-medium flex items-center gap-2">
+          <h3 className="flex items-center gap-2 text-sm font-medium">
             <FileDown className="h-4 w-4" />
             Export
           </h3>

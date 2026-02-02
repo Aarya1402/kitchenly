@@ -70,7 +70,8 @@ export function MyRecipesGrid({
   const fetchRecipes = async (search?: string, cuisines?: string[]) => {
     try {
       setLoading(true);
-      const isSearch: boolean = !!(search && search.length > 0) || !!(cuisines && cuisines.length > 0);
+      const isSearch: boolean =
+        !!(search && search.length > 0) || !!(cuisines && cuisines.length > 0);
       setIsSearch(isSearch);
       const url = isSearch ? "/api/recipes/search" : "/api/recipes";
 
@@ -198,7 +199,10 @@ export function MyRecipesGrid({
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">My Recipes</h1>
 
-        <Button onClick={() => router.push("/my-recipes/new")}>
+        <Button
+          onClick={() => router.push("/my-recipes/new")}
+          data-tour="add-recipe-button"
+        >
           <Plus className="mr-2 h-4 w-4" />
           Add Recipe
         </Button>
@@ -214,26 +218,29 @@ export function MyRecipesGrid({
         onCuisineChange={handleCuisineChange}
       />
       {/* Grid */}
-      {recipes.length === 0 ? (
-        <div className="rounded-lg border border-dashed p-12 text-center text-sm text-muted-foreground">
-          You haven’t added any recipes yet.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {recipes.map((recipe) => (
-            <SelectableRecipeCard
-              key={recipe.id}
-              recipe={recipe}
-              selected={selectedIds.includes(recipe.id)}
-              onSelect={(checked) => toggleRecipe(recipe.id, checked)}
-              onCardClick={(recipe) => {
-                setSelectedRecipeModal(recipe);
-                setOpen(true);
-              }}
-            />
-          ))}
-        </div>
-      )}
+      <div data-tour="recipe-card">
+        {recipes.length === 0 ? (
+          <div className="rounded-lg border border-dashed p-12 text-center text-sm text-muted-foreground">
+            You haven’t added any recipes yet.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {recipes.map((recipe) => (
+              <SelectableRecipeCard
+                key={recipe.id}
+                recipe={recipe}
+                selected={selectedIds.includes(recipe.id)}
+                onSelect={(checked) => toggleRecipe(recipe.id, checked)}
+                onCardClick={(recipe) => {
+                  setSelectedRecipeModal(recipe);
+                  setOpen(true);
+                  
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Recipe details modal */}
       {selectedRecipeModal && (

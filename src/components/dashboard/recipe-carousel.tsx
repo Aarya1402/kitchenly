@@ -25,7 +25,11 @@ export function RecipeCarousel({ recipes, onCardClick }: Props) {
   }
 
   return (
-    <Carousel opts={{ align: "start" }} className="w-full">
+    <Carousel
+      opts={{ align: "start" }}
+      className="w-full"
+      data-tour="dashboard-recent-recipes"
+    >
       <CarouselContent>
         {recipes.map((recipe) => (
           <CarouselItem

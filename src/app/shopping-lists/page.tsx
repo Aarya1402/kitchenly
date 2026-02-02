@@ -22,17 +22,17 @@ export default function ShoppingListsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  async function load() {
-    try {
-      const res = await axios.get("/api/shopping-lists");
+    async function load() {
+      try {
+        const res = await axios.get("/api/shopping-lists");
 
-      setLists(res.data.lists || []);
-    } catch (error) {
-      alert("Failed to load shopping lists");
-    } finally {
-      setLoading(false);
+        setLists(res.data.lists || []);
+      } catch (error) {
+        alert("Failed to load shopping lists");
+      } finally {
+        setLoading(false);
+      }
     }
-  }
 
     load();
   }, []);
@@ -45,10 +45,11 @@ export default function ShoppingListsPage() {
     <div className="mx-auto max-w-3xl p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Shopping Lists</h1>
-
-        <Button variant="outline" onClick={() => router.push("/my-recipes")}>
-          New from Recipes
-        </Button>
+        <div data-tour="add-list-button">
+          <Button variant="outline" onClick={() => router.push("/my-recipes")}>
+            New from Recipes
+          </Button>
+        </div>
       </div>
 
       {lists.length === 0 && (
@@ -61,11 +62,11 @@ export default function ShoppingListsPage() {
             key={list.id}
             className="cursor-pointer hover:bg-muted/50"
             onClick={() => router.push(`/shopping-lists/${list.id}`)}
+            data-tour="list-card"
           >
             <CardHeader>
               <CardTitle className="flex justify-between items-center">
                 {list.title}
-               
               </CardTitle>
             </CardHeader>
 

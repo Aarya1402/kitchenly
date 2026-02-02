@@ -21,7 +21,6 @@ export async function GET(
 ) {
   const { id } = await context.params;
 
-
   const { userId } = await auth();
 
   if (!userId) {
@@ -167,11 +166,13 @@ export async function GET(
   const pdf = await page.pdf({ format: "A4", printBackground: true });
   await browser.close();
 
-  return new NextResponse(new Blob([pdf], { type: "application/pdf" }), {
-    headers: {
-      "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="${list.title}.pdf"`,
+  return new NextResponse(
+    new Blob([pdf as BlobPart], { type: "application/pdf" }),
+    {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${list.title}.pdf"`,
+      },
     },
-  });
+  );
 }
-

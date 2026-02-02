@@ -57,20 +57,22 @@ export default function MyRecipesPage() {
 
   return (
     <div className="mx-auto max-w-6xl p-6 space-y-6">
-      <MyRecipesGrid
-        recipes={recipes}
-        loadRecipes={loadRecipes}
-        onDelete={optimisticDelete}
-        setRecipes={setRecipes}
-        setIsSearch={setIsSearch}
-      />
-      {!issearch && hasMore && (
-        <div className="flex justify-center">
-          <Button onClick={() => loadRecipes(page + 1)} disabled={loading}>
-            {loading ? "Loading..." : "Load more"}
-          </Button>
-        </div>
-      )}
-    </div>
+     
+        <MyRecipesGrid
+          recipes={recipes}
+          loadRecipes={loadRecipes}
+          onDelete={optimisticDelete}
+          setRecipes={setRecipes}
+          setIsSearch={setIsSearch}
+        />
+        {!issearch && hasMore && (
+          <div className="flex justify-center">
+            <Button onClick={() => loadRecipes(page + 1)} disabled={loading}>
+              {loading ? "Loading..." : "Load more"}
+            </Button>
+          </div>
+        )}
+      </div>
+    
   );
 }

@@ -22,19 +22,23 @@ export function StepSource({ onManual, onFetched }: Props) {
     setError("");
 
     try {
-  const { data } = await axios.post('/api/recipes/parse-url', { url }, {
-    headers: {
-      "Content-Type": "application/json"
-    }
-  });
+      const { data } = await axios.post(
+        "/api/recipes/parse-url",
+        { url },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
 
-  if (!data.success) throw new Error('Failed to fetch recipe'); 
-  await onFetched(data.recipe);
-} catch (error) {
-  setError('Failed to fetch recipe from URL');
-} finally {
-  setLoading(false);
-}
+      if (!data.success) throw new Error("Failed to fetch recipe");
+      await onFetched(data.recipe);
+    } catch (error) {
+      setError("Failed to fetch recipe from URL");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -42,23 +46,26 @@ export function StepSource({ onManual, onFetched }: Props) {
       <h1 className="text-2xl font-semibold">Add Recipe</h1>
 
       {/* Manual */}
-      <Button className="w-full" onClick={onManual}>
+      <Button
+        className="w-full"
+        onClick={onManual}
+        data-tour="add-recipe-manual"
+      >
         Add recipe manually
       </Button>
 
       {/* URL */}
-      <div className="space-y-2 rounded-lg border p-4">
+      <div
+        className="space-y-2 rounded-lg border p-4"
+        data-tour="add-recipe-url"
+      >
         <Input
           placeholder="Paste recipe URL"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
 
-        <Button
-          className="w-full"
-          onClick={fetchFromUrl}
-          disabled={loading}
-        >
+        <Button className="w-full" onClick={fetchFromUrl} disabled={loading}>
           {loading ? "Fetching recipe..." : "Fetch from URL"}
         </Button>
 

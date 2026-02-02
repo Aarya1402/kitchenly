@@ -53,44 +53,40 @@ export default function ShoppingListPage() {
   /* ───────── Fetch list ───────── */
 
   useEffect(() => {
+    async function load() {
+      try {
+        const res = await axios.get(`/api/shopping-lists/${id}`);
+        const json = res.data;
 
+        setTitle(json.title);
+        setGroups(json.groups);
+        setRecipes(json.recipes);
+        setIsShared(json.isShared);
+        setShareToken(json.shareToken);
 
-   async function load() {
-     try {
-       const res = await axios.get(`/api/shopping-lists/${id}`);
-       const json = res.data;
+        // prepare edit drafts
+        setDraftTitle(json.title);
+        setDraftGroups(structuredClone(json.groups));
+        setDraftRecipes(structuredClone(json.recipes));
 
-       setTitle(json.title);
-       setGroups(json.groups);
-       setRecipes(json.recipes);
-       setIsShared(json.isShared);
-       setShareToken(json.shareToken);
-
-       // prepare edit drafts
-       setDraftTitle(json.title);
-       setDraftGroups(structuredClone(json.groups));
-       setDraftRecipes(structuredClone(json.recipes));
-
-       setLoading(false);
-     } catch (error) {
-       alert("Failed to load shopping list");
-       router.back();
-     }
-   }
+        setLoading(false);
+      } catch (error) {
+        alert("Failed to load shopping list");
+        router.back();
+      }
+    }
 
     if (id) load();
   }, [id, router]);
 
   /* ───────── Toggle isChecked (shopping mode) ───────── */
 
-async function toggleItem(ingredientKey: string, isChecked: boolean) {
-  await axios.put(`/api/shopping-lists/${id}/toggle-item`, {
-    ingredientKey,
-    isChecked,
-  });
-}
-
-
+  async function toggleItem(ingredientKey: string, isChecked: boolean) {
+    await axios.put(`/api/shopping-lists/${id}/toggle-item`, {
+      ingredientKey,
+      isChecked,
+    });
+  }
 
   if (loading) {
     return <div className="p-6">Loading…</div>;
@@ -206,6 +202,7 @@ async function toggleItem(ingredientKey: string, isChecked: boolean) {
 
                       toggleItem(item.ingredientKey, next);
                     }}
+                    data-tour="list-item-checkbox"
                   />
                 )}
 

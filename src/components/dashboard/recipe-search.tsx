@@ -57,45 +57,45 @@ export function RecipeSearchWithFilters({
 
       {/* 🎛️ Filter (only if cuisines are provided) */}
       {/* {onCuisineChange && availableCuisines.length > 0 && ( */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="icon">
-              <Filter className="h-4 w-4" />
-            </Button>
-          </PopoverTrigger>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline" size="icon">
+            <Filter className="h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
 
-          <PopoverContent align="end" className="w-56">
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Cuisine</p>
+        <PopoverContent align="end" className="w-56">
+          <div className="space-y-2">
+            <p className="text-sm font-medium">Cuisine</p>
 
-              <div className="max-h-48 space-y-2 overflow-auto">
-                {availableCuisines.map((cuisine) => (
-                  <label
-                    key={cuisine}
-                    className="flex cursor-pointer items-center gap-2 text-sm"
-                  >
-                    <Checkbox
-                      checked={cuisines.includes(cuisine)}
-                      onCheckedChange={() => toggleCuisine(cuisine)}
-                    />
-                    {cuisine}
-                  </label>
-                ))}
-              </div>
-
-              {cuisines.length > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="mt-2 w-full"
-                  onClick={() => onCuisineChange([])}
+            <div className="max-h-48 space-y-2 overflow-auto">
+              {availableCuisines.map((cuisine) => (
+                <label
+                  key={cuisine}
+                  className="flex cursor-pointer items-center gap-2 text-sm"
                 >
-                  Clear filters
-                </Button>
-              )}
+                  <Checkbox
+                    checked={cuisines.includes(cuisine)}
+                    onCheckedChange={() => toggleCuisine(cuisine)}
+                  />
+                  {cuisine}
+                </label>
+              ))}
             </div>
-          </PopoverContent>
-        </Popover>
+
+            {cuisines.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="mt-2 w-full"
+                onClick={() => onCuisineChange?.([])}
+              >
+                Clear filters
+              </Button>
+            )}
+          </div>
+        </PopoverContent>
+      </Popover>
       {/* )} */}
     </div>
   );

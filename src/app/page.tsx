@@ -8,6 +8,7 @@ import { RecipeSearchWithFilters } from "@/components/dashboard/recipe-search";
 import { RecipeCarousel } from "@/components/dashboard/recipe-carousel";
 import { RecipeDetailsModal } from "@/components/recipes/recipe-details-modal";
 
+
 export default function DashboardPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [query, setQuery] = useState("");
@@ -17,6 +18,7 @@ export default function DashboardPage() {
   const [open, setOpen] = useState(false);
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const [availableCuisines, setAvailableCuisines] = useState<string[]>([]);
+
   const fetchRecipes = async (search?: string, cuisines?: string[]) => {
     try {
       setLoading(true);
@@ -41,7 +43,6 @@ export default function DashboardPage() {
         params.cuisine = cuisines.join(",");
       }
 
-
       const res = await axios.get(url, { params });
       setRecipes(res.data?.data ?? []);
     } finally {
@@ -61,6 +62,7 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchRecipes();
     fetchAvailableCuisines();
+ 
   }, []);
   const handleChange = (value: string) => {
     setQuery(value);
@@ -93,6 +95,12 @@ export default function DashboardPage() {
     // re-fetch using current search query + new cuisines
     fetchRecipes(query.length >= 3 ? query : undefined, cuisines);
   };
+useEffect(() => {
+  console.log(
+    "dashboard-recent-recipes exists:",
+    !!document.querySelector('[data-tour="dashboard-recent-recipes"]'),
+  );
+}, []);
 
   return (
     <div className="mx-auto max-w-7xl space-y-10 p-6">
@@ -108,20 +116,29 @@ export default function DashboardPage() {
           onCuisineChange={handleCuisineChange}
         />
       </div>
+      <div className="space-y-4">
+        <h4 className="text-lg font-semibold">
+          <div data-tour="dashboard-recent-recipes">Recent Recipes</div>
+        </h4>
 
-      {loading ? (
-        <div className="text-center text-sm text-muted-foreground">
-          Loading recipes…
-        </div>
-      ) : (
-        <RecipeCarousel
-          recipes={recipes}
-          onCardClick={(recipe) => {
-            setSelectedRecipe(recipe);
-            setOpen(true);
-          }}
-        />
-      )}
+        {loading ? (
+          <div className="text-center text-sm text-muted-foreground">
+            Loading recipes…
+          </div>
+        ) : recipes && recipes.length > 0 ? (
+          <RecipeCarousel
+            recipes={recipes}
+            onCardClick={(recipe) => {
+              setSelectedRecipe(recipe);
+              setOpen(true);
+            }}
+          />
+        ) : (
+          <div className="text-center text-sm text-muted-foreground">
+            No recipes yet. Add one to get started.
+          </div>
+        )}
+      </div>
 
       {selectedRecipe && (
         <RecipeDetailsModal
