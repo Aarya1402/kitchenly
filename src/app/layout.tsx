@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
+import dynamic from "next/dynamic";
+import { Suspense } from "react";
 import { Navbar } from "@/components/navbar";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { StoreProvider } from "@/components/StoreProvider";
 import { TourProvider } from "@/tour/tourContext";
-import TourController from "@/tour/tourController";
+import { PageLoadingFallback } from "@/components/ui/page-loading";
+import TourControllerClient from "@/tour/tourControllerClient";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,16 +37,22 @@ export default function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <body>
           <ThemeProvider>
-            <TourProvider>
-              <TourController />
+            <StoreProvider>
+              <TourProvider>
+                <Suspense fallback={null}>
+                  <TourControllerClient />
+                </Suspense>
 
-              <Navbar />
+                <Navbar />
 
-              <main>
-                {children}
-                <Toaster position="top-right" richColors />
-              </main>
-            </TourProvider>
+                <main>
+                  <Suspense fallback={<PageLoadingFallback />}>
+                    {children}
+                  </Suspense>
+                  <Toaster position="top-right" richColors />
+                </main>
+              </TourProvider>
+            </StoreProvider>
           </ThemeProvider>
         </body>
       </html>

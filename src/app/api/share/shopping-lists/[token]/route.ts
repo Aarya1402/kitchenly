@@ -17,9 +17,6 @@ function parseQuantity(input: string) {
   };
 }
 
-
-
-
 /* ───────── aggregator (single source of truth) ───────── */
 
 export function aggregateShoppingList(list: {
@@ -152,4 +149,3 @@ export async function GET(
     groups,
   });
 }
-

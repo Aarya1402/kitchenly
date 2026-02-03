@@ -1,13 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import dynamic from "next/dynamic";
 import axios from "axios";
 import type { Recipe } from "@/types/recipe";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { RecipeSearchWithFilters } from "@/components/dashboard/recipe-search";
 import { RecipeCarousel } from "@/components/dashboard/recipe-carousel";
-import { RecipeDetailsModal } from "@/components/recipes/recipe-details-modal";
+import { PageLoadingFallback } from "@/components/ui/page-loading";
+import { RecipeCarouselSkeleton } from "@/components/ui/page-skeletons";
+import { Activity } from "@/components/ui/activity";
 
+const RecipeDetailsModal = dynamic(
+  () =>
+    import("@/components/recipes/recipe-details-modal").then((m) => ({
+      default: m.RecipeDetailsModal,
+    })),
+  { ssr: false },
+);
 
 export default function DashboardPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -62,7 +72,6 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchRecipes();
     fetchAvailableCuisines();
- 
   }, []);
   const handleChange = (value: string) => {
     setQuery(value);
@@ -95,12 +104,12 @@ export default function DashboardPage() {
     // re-fetch using current search query + new cuisines
     fetchRecipes(query.length >= 3 ? query : undefined, cuisines);
   };
-useEffect(() => {
-  console.log(
-    "dashboard-recent-recipes exists:",
-    !!document.querySelector('[data-tour="dashboard-recent-recipes"]'),
-  );
-}, []);
+  useEffect(() => {
+    console.log(
+      "dashboard-recent-recipes exists:",
+      !!document.querySelector('[data-tour="dashboard-recent-recipes"]'),
+    );
+  }, []);
 
   return (
     <div className="mx-auto max-w-7xl space-y-10 p-6">
@@ -122,9 +131,7 @@ useEffect(() => {
         </h4>
 
         {loading ? (
-          <div className="text-center text-sm text-muted-foreground">
-            Loading recipes…
-          </div>
+          <RecipeCarouselSkeleton />
         ) : recipes && recipes.length > 0 ? (
           <RecipeCarousel
             recipes={recipes}
@@ -141,18 +148,19 @@ useEffect(() => {
       </div>
 
       {selectedRecipe && (
-        <RecipeDetailsModal
-          recipe={selectedRecipe}
-          open={open}
-          onClose={() => {
-            setOpen(false);
-            setSelectedRecipe(null);
-          }}
-          onDeleted={() => {
-            setOpen(false);
-            setSelectedRecipe(null);
-          }}
-        />
+        <Activity visible={open} name="recipe-details-modal">
+          <Suspense fallback={<PageLoadingFallback />}>
+            <RecipeDetailsModal
+              recipe={selectedRecipe}
+              open={open}
+              onClose={() => setOpen(false)}
+              onDeleted={() => {
+                setOpen(false);
+                setSelectedRecipe(null);
+              }}
+            />
+          </Suspense>
+        </Activity>
       )}
     </div>
   );

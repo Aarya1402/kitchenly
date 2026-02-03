@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Activity } from "@/components/ui/activity";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import type { Recipe } from "@/types/recipe";
@@ -234,7 +235,6 @@ export function MyRecipesGrid({
                 onCardClick={(recipe) => {
                   setSelectedRecipeModal(recipe);
                   setOpen(true);
-                  
                 }}
               />
             ))}
@@ -244,19 +244,18 @@ export function MyRecipesGrid({
 
       {/* Recipe details modal */}
       {selectedRecipeModal && (
-        <RecipeDetailsModal
-          recipe={selectedRecipeModal}
-          open={open}
-          onClose={() => {
-            setOpen(false);
-            setSelectedRecipeModal(null);
-          }}
-          onDeleted={async (recipe) => {
-            await onDelete(recipe);
-            setOpen(false);
-            setSelectedRecipeModal(null);
-          }}
-        />
+        <Activity visible={open} name="recipe-details-modal">
+          <RecipeDetailsModal
+            recipe={selectedRecipeModal}
+            open={open}
+            onClose={() => setOpen(false)}
+            onDeleted={async (recipe) => {
+              await onDelete(recipe);
+              setOpen(false);
+              setSelectedRecipeModal(null);
+            }}
+          />
+        </Activity>
       )}
 
       {/* Bottom bar */}
@@ -276,62 +275,64 @@ export function MyRecipesGrid({
       {/* Existing list picker */}
 
       <Dialog open={listModalOpen} onOpenChange={setListModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add to existing list</DialogTitle>
-          </DialogHeader>
-          {singleSelectedRecipe && (
+        <Activity visible={listModalOpen} name="list-picker-modal">
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add to existing list</DialogTitle>
+            </DialogHeader>
+            {singleSelectedRecipe && (
+              <div className="space-y-2">
+                <div className="text-sm font-medium">
+                  {singleSelectedRecipe.title}
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <label className="text-sm text-muted-foreground">
+                    Servings
+                  </label>
+
+                  <Input
+                    type="number"
+                    min={1}
+                    value={servingsUsed}
+                    onChange={(e) =>
+                      setServingsUsed(Math.max(1, Number(e.target.value)))
+                    }
+                    className="w-24"
+                  />
+
+                  <span className="text-xs text-muted-foreground">
+                    (original: {singleSelectedRecipe.servings})
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
-              <div className="text-sm font-medium">
-                {singleSelectedRecipe.title}
-              </div>
+              {lists.map((list) => (
+                <Button
+                  key={list.id}
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => addToExistingList(list.id)}
+                >
+                  {list.title}
+                </Button>
+              ))}
 
-              <div className="flex items-center gap-3">
-                <label className="text-sm text-muted-foreground">
-                  Servings
-                </label>
-
-                <Input
-                  type="number"
-                  min={1}
-                  value={servingsUsed}
-                  onChange={(e) =>
-                    setServingsUsed(Math.max(1, Number(e.target.value)))
-                  }
-                  className="w-24"
-                />
-
-                <span className="text-xs text-muted-foreground">
-                  (original: {singleSelectedRecipe.servings})
-                </span>
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-2">
-            {lists.map((list) => (
               <Button
-                key={list.id}
-                variant="outline"
-                className="w-full justify-start"
-                onClick={() => addToExistingList(list.id)}
+                className="w-full"
+                onClick={() =>
+                  router.push(
+                    `/shopping-lists/new?recipes=${selectedIds.join(",")}`,
+                  )
+                }
               >
-                {list.title}
+                + Create new list
               </Button>
-            ))}
-
-            <Button
-              className="w-full"
-              onClick={() =>
-                router.push(
-                  `/shopping-lists/new?recipes=${selectedIds.join(",")}`,
-                )
-              }
-            >
-              + Create new list
-            </Button>
-          </div>
-        </DialogContent>
+            </div>
+          </DialogContent>
+        </Activity>
       </Dialog>
     </section>
   );

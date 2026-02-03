@@ -9,34 +9,42 @@ import {
   useState,
 } from "react";
 import { useUser } from "@clerk/nextjs";
+import { useDispatch, useSelector } from "react-redux";
 import { TourContextType } from "@/types/tourContextType";
-
+import {
+  markTourDone,
+  markTourStarted,
+  type TourState,
+} from "@/store/slices/tourSlice";
+import type { RootState } from "@/store";
 
 const TourContext = createContext<TourContextType | null>(null);
+
+function selectTour(state: RootState): TourState {
+  return state.tour;
+}
 
 export function TourProvider({ children }: { children: React.ReactNode }) {
   const [run, setRun] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
-  const { user, isLoaded, isSignedIn } = useUser();
+  const { isLoaded, isSignedIn } = useUser();
+  const dispatch = useDispatch();
+  const { tourDone, tourStarted } = useSelector(selectTour);
 
-  // ✅ Start tour automatically after login
+  // Start tour automatically after login
   useEffect(() => {
-    if (!isLoaded) return; // Wait for auth to load
+    if (!isLoaded) return;
 
-    const done = localStorage.getItem("app-tour-done");
-    const hasSeenTour = localStorage.getItem("app-tour-started");
-
-    // If user is signed in and hasn't done or started the tour, start it
-    if (isSignedIn && done !== "true" && hasSeenTour !== "true") {
+    if (isSignedIn && !tourDone && !tourStarted) {
       const id = setTimeout(() => {
         setRun(true);
         setStepIndex(0);
-        localStorage.setItem("app-tour-started", "true");
-      }, 1500); // slightly longer = safer
+        dispatch(markTourStarted());
+      }, 1500);
 
       return () => clearTimeout(id);
     }
-  }, [isLoaded, isSignedIn]);
+  }, [isLoaded, isSignedIn, tourDone, tourStarted, dispatch]);
 
   const startTour = () => {
     setRun(true);
@@ -46,11 +54,10 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
   const stopTour = () => {
     setRun(false);
     setStepIndex(0);
-    localStorage.setItem("app-tour-done", "true");
+    dispatch(markTourDone());
   };
 
   const advanceStep = () => {
-    console.log("Advancing tour step from context");
     setStepIndex((s) => s + 1);
   };
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ShoppingListsSkeleton } from "@/components/ui/page-skeletons";
 import axios from "axios";
 import { ShoppingListSummary } from "@/types/shoppingListSummary";
 
@@ -30,7 +31,7 @@ export default function ShoppingListsPage() {
   }, []);
 
   if (loading) {
-    return <div className="p-6">Loading…</div>;
+    return <ShoppingListsSkeleton />;
   }
 
   return (
@@ -55,6 +56,7 @@ export default function ShoppingListsPage() {
             className="cursor-pointer hover:bg-muted/50"
             onClick={() => router.push(`/shopping-lists/${list.id}`)}
             data-tour="list-card"
+            data-list-id={list.id}
           >
             <CardHeader>
               <CardTitle className="flex justify-between items-center">

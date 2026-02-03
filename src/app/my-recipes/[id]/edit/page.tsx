@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
 import { RecipeEditor } from "@/components/recipes/recipe-editor";
+import { MyRecipesFormSkeleton } from "@/components/ui/page-skeletons";
 
 export default function EditRecipePage() {
   const { id } = useParams<{ id: string }>();
@@ -31,7 +32,7 @@ export default function EditRecipePage() {
   }, [id]);
 
   if (loading) {
-    return <div className="p-6">Loading…</div>;
+    return <MyRecipesFormSkeleton />;
   }
 
   if (error || !recipe) {

@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { ShoppingListNewSkeleton } from "@/components/ui/page-skeletons";
 import { CATEGORIES } from "@/constants/categories";
 import axios from "axios";
 import { AggregatedItem as PreviewItem } from "@/types/aggregatedItems";
@@ -28,7 +29,7 @@ type RecipePreview = {
 export default function NewShoppingListPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-const recipesParam = searchParams.get("recipes") ?? "";
+  const recipesParam = searchParams.get("recipes") ?? "";
   const recipeIds = searchParams.get("recipes")?.split(",") ?? [];
 
   const [title, setTitle] = useState("Shopping List");
@@ -58,6 +59,8 @@ const recipesParam = searchParams.get("recipes") ?? "";
 
     if (recipeIds.length > 0) {
       loadPreview();
+    } else {
+      setLoading(false);
     }
   }, [recipesParam, router]);
 
@@ -93,7 +96,7 @@ const recipesParam = searchParams.get("recipes") ?? "";
   };
 
   if (loading) {
-    return <div className="p-6">Loading…</div>;
+    return <ShoppingListNewSkeleton />;
   }
 
   return (

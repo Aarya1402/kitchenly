@@ -17,11 +17,7 @@ export function StepFooter({
 }: Props) {
   return (
     <div className="flex items-center justify-between pt-4">
-      <Button
-        variant="ghost"
-        disabled={!onBack}
-        onClick={onBack}
-      >
+      <Button variant="ghost" disabled={!onBack} onClick={onBack}>
         Previous
       </Button>
 

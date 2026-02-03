@@ -7,6 +7,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Activity } from "@/components/ui/activity";
 import { Button } from "@/components/ui/button";
 import { Copy, FileDown, Link2, Unlink } from "lucide-react";
 import { toast } from "sonner";
@@ -111,71 +112,73 @@ export function ShareExportModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md space-y-6">
-        <DialogHeader>
-          <DialogTitle>Share or Export</DialogTitle>
-        </DialogHeader>
+      <Activity visible={open} name="share-export-modal">
+        <DialogContent className="max-w-md space-y-6">
+          <DialogHeader>
+            <DialogTitle>Share or Export</DialogTitle>
+          </DialogHeader>
 
-        {/* ───────── Share Section ───────── */}
-        <div className="space-y-3">
-          <h3 className="flex items-center gap-2 text-sm font-medium">
-            <Link2 className="h-4 w-4" />
-            Shareable link
-          </h3>
+          {/* ───────── Share Section ───────── */}
+          <div className="space-y-3">
+            <h3 className="flex items-center gap-2 text-sm font-medium">
+              <Link2 className="h-4 w-4" />
+              Shareable link
+            </h3>
 
-          {shareUrl ? (
-            <div className="space-y-2">
-              <div className="break-all rounded-md border bg-muted px-3 py-2 text-xs">
-                {shareUrl}
+            {shareUrl ? (
+              <div className="space-y-2">
+                <div className="break-all rounded-md border bg-muted px-3 py-2 text-xs">
+                  {shareUrl}
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={loading}
+                    onClick={() => copyToClipboard(shareUrl)}
+                  >
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copy
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    disabled={loading}
+                    onClick={disableSharing}
+                  >
+                    <Unlink className="mr-2 h-4 w-4" />
+                    Disable
+                  </Button>
+                </div>
               </div>
+            ) : (
+              <Button size="sm" onClick={generateLink} disabled={loading}>
+                Generate link
+              </Button>
+            )}
+          </div>
 
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={loading}
-                  onClick={() => copyToClipboard(shareUrl)}
-                >
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copy
-                </Button>
+          {/* ───────── Export Section ───────── */}
+          <div className="space-y-3">
+            <h3 className="flex items-center gap-2 text-sm font-medium">
+              <FileDown className="h-4 w-4" />
+              Export
+            </h3>
 
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  disabled={loading}
-                  onClick={disableSharing}
-                >
-                  <Unlink className="mr-2 h-4 w-4" />
-                  Disable
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <Button size="sm" onClick={generateLink} disabled={loading}>
-              Generate link
+            <Button variant="outline" size="sm" onClick={exportPdf}>
+              Export as PDF
             </Button>
-          )}
-        </div>
+          </div>
 
-        {/* ───────── Export Section ───────── */}
-        <div className="space-y-3">
-          <h3 className="flex items-center gap-2 text-sm font-medium">
-            <FileDown className="h-4 w-4" />
-            Export
-          </h3>
-
-          <Button variant="outline" size="sm" onClick={exportPdf}>
-            Export as PDF
-          </Button>
-        </div>
-
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>
-            Close
-          </Button>
-        </DialogFooter>
-      </DialogContent>
+          <DialogFooter>
+            <Button variant="ghost" onClick={onClose}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Activity>
     </Dialog>
   );
 }

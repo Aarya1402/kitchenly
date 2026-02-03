@@ -7,8 +7,10 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Activity } from "@/components/ui/activity";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -24,9 +26,6 @@ type Props = {
   onClose: () => void;
   onDeleted: (recipe: Recipe) => void;
 };
-
-
-
 
 export function RecipeDetailsModal({
   recipe,
@@ -154,185 +153,189 @@ export function RecipeDetailsModal({
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-3xl h-[85vh] flex flex-col">
-          {/* HEADER (fixed) */}
-          <DialogHeader>
-            <DialogTitle>{recipe.title}</DialogTitle>
-          </DialogHeader>
+        <Activity visible={open} name="recipe-details-content">
+          <DialogContent className="max-w-3xl h-[85vh] flex flex-col">
+            {/* HEADER (fixed) */}
+            <DialogHeader>
+              <DialogTitle>{recipe.title}</DialogTitle>
+            </DialogHeader>
 
-          {/* SCROLLABLE BODY */}
-          <div className="flex-1 overflow-y-auto space-y-6 pr-2">
-            {/* Image */}
-            {recipe.imageUrl && (
-              <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
-                <Image
-                  src={recipe.imageUrl}
-                  alt={recipe.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            )}
-
-            {/* Meta */}
-            <div className="flex flex-wrap items-center gap-4">
-              <Badge>{recipe.cuisine}</Badge>
-              <Badge>Original: {originalServings} servings</Badge>
-
-              <div className="flex items-center gap-2">
-                <span className="text-sm">Servings</span>
-                <Input
-                  type="number"
-                  min={1}
-                  value={servings}
-                  autoFocus={false}
-                  onChange={(e) =>
-                    setServings(Math.max(1, Number(e.target.value)))
-                  }
-                  className="w-20"
-                />
-              </div>
-
-              {recipe.dietaryTags.map((tag) => (
-                <Badge key={tag} variant="secondary">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-            <div>
-              <p className="text-sm">{recipe.description}</p>
-            </div>
-
-            {/* Ingredients */}
-            <div>
-              <h3 className="font-medium mb-1">Ingredients</h3>
-              <ul className="list-disc pl-5 text-sm space-y-1">
-                {recipe.ingredients.map((i) => (
-                  <li key={i.name}>
-                    {scaleQuantity(i.quantity, scaleFactor)} {i.name}
-                  </li>
-                ))}
-              </ul>
-
-              {recipe.ingredients.length > INGREDIENTS_PREVIEW_COUNT && (
-                <Button
-                  variant="link"
-                  className="px-0 mt-1 font-bold"
-                  onClick={() => setShowAllIngredients((v) => !v)}
-                >
-                  {showAllIngredients ? "Show less" : "Show more"}
-                </Button>
+            {/* SCROLLABLE BODY */}
+            <div className="flex-1 overflow-y-auto space-y-6 pr-2">
+              {/* Image */}
+              {recipe.imageUrl && (
+                <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
+                  <Image
+                    src={recipe.imageUrl}
+                    alt={recipe.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
               )}
-            </div>
 
-            {/* Steps */}
-            <div>
-              <h3 className="font-medium mb-1">Steps</h3>
-              <ol className="list-decimal pl-5 text-sm space-y-1">
-                {stepsToShow.map((s) => (
-                  <li key={s.stepNo}>{s.content}</li>
+              {/* Meta */}
+              <div className="flex flex-wrap items-center gap-4">
+                <Badge>{recipe.cuisine}</Badge>
+                <Badge>Original: {originalServings} servings</Badge>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">Servings</span>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={servings}
+                    autoFocus={false}
+                    onChange={(e) =>
+                      setServings(Math.max(1, Number(e.target.value)))
+                    }
+                    className="w-20"
+                  />
+                </div>
+
+                {recipe.dietaryTags.map((tag) => (
+                  <Badge key={tag} variant="secondary">
+                    {tag}
+                  </Badge>
                 ))}
-              </ol>
+              </div>
+              <div>
+                <p className="text-sm">{recipe.description}</p>
+              </div>
 
-              {recipe.steps.length > STEPS_PREVIEW_COUNT && (
-                <Button
-                  variant="link"
-                  className="px-0 mt-1 font-bold"
-                  onClick={() => setShowAllSteps((v) => !v)}
-                >
-                  {showAllSteps ? "Show less" : "Show more"}
-                </Button>
-              )}
+              {/* Ingredients */}
+              <div>
+                <h3 className="font-medium mb-1">Ingredients</h3>
+                <ul className="list-disc pl-5 text-sm space-y-1">
+                  {recipe.ingredients.map((i) => (
+                    <li key={i.name}>
+                      {scaleQuantity(i.quantity, scaleFactor)} {i.name}
+                    </li>
+                  ))}
+                </ul>
+
+                {recipe.ingredients.length > INGREDIENTS_PREVIEW_COUNT && (
+                  <Button
+                    variant="link"
+                    className="px-0 mt-1 font-bold"
+                    onClick={() => setShowAllIngredients((v) => !v)}
+                  >
+                    {showAllIngredients ? "Show less" : "Show more"}
+                  </Button>
+                )}
+              </div>
+
+              {/* Steps */}
+              <div>
+                <h3 className="font-medium mb-1">Steps</h3>
+                <ol className="list-decimal pl-5 text-sm space-y-1">
+                  {stepsToShow.map((s) => (
+                    <li key={s.stepNo}>{s.content}</li>
+                  ))}
+                </ol>
+
+                {recipe.steps.length > STEPS_PREVIEW_COUNT && (
+                  <Button
+                    variant="link"
+                    className="px-0 mt-1 font-bold"
+                    onClick={() => setShowAllSteps((v) => !v)}
+                  >
+                    {showAllSteps ? "Show less" : "Show more"}
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* FOOTER (fixed) */}
-          <DialogFooter className="flex justify-between">
-            <Button variant="secondary" onClick={handleTastePreview}>
-              ✨ Taste Preview
-            </Button>
+            {/* FOOTER (fixed) */}
+            <DialogFooter className="flex justify-between">
+              <Button variant="secondary" onClick={handleTastePreview}>
+                ✨ Taste Preview
+              </Button>
 
-            <Button
-              variant="outline"
-              onClick={() => router.push(`/my-recipes/${recipe.id}/edit`)}
-            >
-              Edit
-            </Button>
+              <Button
+                variant="outline"
+                onClick={() => router.push(`/my-recipes/${recipe.id}/edit`)}
+              >
+                Edit
+              </Button>
 
-            <Button variant="destructive" onClick={handleDelete}>
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
+              <Button variant="destructive" onClick={handleDelete}>
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Activity>
       </Dialog>
       <Dialog open={tasteOpen} onOpenChange={setTasteOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Taste Preview — {recipe.title}</DialogTitle>
-          </DialogHeader>
+        <Activity visible={tasteOpen} name="taste-preview-modal">
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Taste Preview — {recipe.title}</DialogTitle>
+            </DialogHeader>
 
-          {/* BODY */}
-          <div className="space-y-4">
-            {tasteLoading ? (
-              <div className="space-y-3">
-                <div className="h-4 bg-muted rounded animate-pulse" />
-                <div className="h-4 bg-muted rounded animate-pulse w-5/6" />
-                <div className="h-4 bg-muted rounded animate-pulse w-4/6" />
-              </div>
-            ) : (
-              tasteResult && (
-                <>
-                  {/* Meta badges */}
-                  <div className="flex gap-2 flex-wrap">
-                    <Badge variant="secondary">
-                      🌶️ {tasteResult.spiceLevel}
-                    </Badge>
-                    <Badge variant="outline">🧈 {tasteResult.richness}</Badge>
-                  </div>
-
-                  {/* Overall taste */}
-                  <div>
-                    <h4 className="text-sm font-semibold mb-1">
-                      Overall Taste
-                    </h4>
-                    <p className="text-sm text-muted-foreground">
-                      {tasteResult.overallTaste}
-                    </p>
-                  </div>
-
-                  {/* Dominant flavors */}
-                  <div>
-                    <h4 className="text-sm font-semibold mb-1">
-                      Dominant Flavors
-                    </h4>
+            {/* BODY */}
+            <div className="space-y-4">
+              {tasteLoading ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-5/6" />
+                  <Skeleton className="h-4 w-4/6" />
+                </div>
+              ) : (
+                tasteResult && (
+                  <>
+                    {/* Meta badges */}
                     <div className="flex gap-2 flex-wrap">
-                      {tasteResult.dominantFlavors.map((f) => (
-                        <Badge key={f} variant="secondary">
-                          {f}
-                        </Badge>
-                      ))}
+                      <Badge variant="secondary">
+                        🌶️ {tasteResult.spiceLevel}
+                      </Badge>
+                      <Badge variant="outline">🧈 {tasteResult.richness}</Badge>
                     </div>
-                  </div>
 
-                  {/* Best for */}
-                  <div>
-                    <h4 className="text-sm font-semibold mb-1">Best For</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {tasteResult.bestFor}
-                    </p>
-                  </div>
-                </>
-              )
-            )}
-          </div>
+                    {/* Overall taste */}
+                    <div>
+                      <h4 className="text-sm font-semibold mb-1">
+                        Overall Taste
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        {tasteResult.overallTaste}
+                      </p>
+                    </div>
 
-          {/* FOOTER */}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setTasteOpen(false)}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
+                    {/* Dominant flavors */}
+                    <div>
+                      <h4 className="text-sm font-semibold mb-1">
+                        Dominant Flavors
+                      </h4>
+                      <div className="flex gap-2 flex-wrap">
+                        {tasteResult.dominantFlavors.map((f) => (
+                          <Badge key={f} variant="secondary">
+                            {f}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Best for */}
+                    <div>
+                      <h4 className="text-sm font-semibold mb-1">Best For</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {tasteResult.bestFor}
+                      </p>
+                    </div>
+                  </>
+                )
+              )}
+            </div>
+
+            {/* FOOTER */}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setTasteOpen(false)}>
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Activity>
       </Dialog>
     </>
   );

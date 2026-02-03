@@ -57,30 +57,28 @@ export default function NewRecipePage() {
 
   /* ───────────── Save Recipe ───────────── */
 
-async function uploadImage(file: File): Promise<string> {
-  const formData = new FormData();
-  formData.append("file", file);
+  async function uploadImage(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append("file", file);
 
-  try {
-    const res = await axios.post("/api/upload", formData);
+    try {
+      const res = await axios.post("/api/upload", formData);
 
-    return res.data.imageUrl;
-  } catch (error) {
-    throw new Error("Image upload failed");
+      return res.data.imageUrl;
+    } catch (error) {
+      throw new Error("Image upload failed");
+    }
   }
-}
 
   const saveRecipe = async () => {
     setSaving(true);
     let finalImageUrl = imageUrl; // ← start with existing value
 
     if (imageFile) {
-
       finalImageUrl = await uploadImage(imageFile);
       setImageUrl(finalImageUrl); // keep UI in sync (optional)
     }
     try {
-
       const res = await axios.post(
         "/api/recipes",
         {

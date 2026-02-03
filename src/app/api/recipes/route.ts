@@ -52,8 +52,6 @@ export async function GET(req: Request) {
   });
 }
 
-
-
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
   api_key: process.env.CLOUDINARY_API_KEY!,
@@ -118,4 +116,3 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ success: true, recipe });
 }
-

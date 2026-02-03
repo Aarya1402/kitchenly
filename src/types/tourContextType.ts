@@ -1,7 +1,4 @@
-import {
-    Dispatch,
-    SetStateAction
-} from "react";
+import { Dispatch, SetStateAction } from "react";
 export type TourContextType = {
   run: boolean;
   stepIndex: number;

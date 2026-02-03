@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Recipe } from "@/types/recipe";
 import { MyRecipesGrid } from "@/components/recipes/my-recipes-grid";
+import { MyRecipesSkeleton } from "@/components/ui/page-skeletons";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import axios from "axios";
@@ -12,11 +13,13 @@ export default function MyRecipesPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [issearch, setIsSearch] = useState(false);  
+  const [issearch, setIsSearch] = useState(false);
   const loadRecipes = async (pageToLoad: number) => {
     setLoading(true);
 
-    const response = await axios.get(`/api/recipes?page=${pageToLoad}&limit=12`);
+    const response = await axios.get(
+      `/api/recipes?page=${pageToLoad}&limit=12`,
+    );
     const json = response.data;
 
     setRecipes((prev) =>
@@ -55,24 +58,26 @@ export default function MyRecipesPage() {
     }
   };
 
+  if (loading && recipes.length === 0) {
+    return <MyRecipesSkeleton />;
+  }
+
   return (
     <div className="mx-auto max-w-6xl p-6 space-y-6">
-     
-        <MyRecipesGrid
-          recipes={recipes}
-          loadRecipes={loadRecipes}
-          onDelete={optimisticDelete}
-          setRecipes={setRecipes}
-          setIsSearch={setIsSearch}
-        />
-        {!issearch && hasMore && (
-          <div className="flex justify-center">
-            <Button onClick={() => loadRecipes(page + 1)} disabled={loading}>
-              {loading ? "Loading..." : "Load more"}
-            </Button>
-          </div>
-        )}
-      </div>
-    
+      <MyRecipesGrid
+        recipes={recipes}
+        loadRecipes={loadRecipes}
+        onDelete={optimisticDelete}
+        setRecipes={setRecipes}
+        setIsSearch={setIsSearch}
+      />
+      {!issearch && hasMore && (
+        <div className="flex justify-center">
+          <Button onClick={() => loadRecipes(page + 1)} disabled={loading}>
+            {loading ? "Loading..." : "Load more"}
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }

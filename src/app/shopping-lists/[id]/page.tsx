@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { ShareExportModal } from "@/components/export-modal";
+import { ShoppingListDetailSkeleton } from "@/components/ui/page-skeletons";
 import axios from "axios";
 import { AggregatedItem as Item } from "@/types/aggregatedItems";
 import { RecipeInList } from "@/types/recipeInList";
@@ -73,7 +74,7 @@ export default function ShoppingListPage() {
   }
 
   if (loading) {
-    return <div className="p-6">Loading…</div>;
+    return <ShoppingListDetailSkeleton />;
   }
 
   return (

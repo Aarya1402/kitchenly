@@ -56,18 +56,17 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
     }
   }, [mode, initialData]);
 
+  async function uploadImage(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append("file", file);
 
-async function uploadImage(file: File): Promise<string> {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  try {
-    const res = await axios.post("/api/upload", formData);
-    return res.data.imageUrl;
-  } catch {
-    throw new Error("Image upload failed");
+    try {
+      const res = await axios.post("/api/upload", formData);
+      return res.data.imageUrl;
+    } catch {
+      throw new Error("Image upload failed");
+    }
   }
-}
   /* ───────── Save ───────── */
 
   const saveRecipe = async () => {

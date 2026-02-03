@@ -26,12 +26,7 @@ import {
 
 import { CSS } from "@dnd-kit/utilities";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { GripVertical, Plus, X } from "lucide-react";
@@ -134,7 +129,7 @@ export function StepsCard({ steps, setSteps }: Props) {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -150,10 +145,7 @@ export function StepsCard({ steps, setSteps }: Props) {
     setSteps(arrayMove(steps, oldIndex, newIndex));
   };
 
-  const activeStep =
-    activeId !== null
-      ? steps[Number(activeId)]
-      : null;
+  const activeStep = activeId !== null ? steps[Number(activeId)] : null;
 
   return (
     <Card>
@@ -189,9 +181,7 @@ export function StepsCard({ steps, setSteps }: Props) {
               {steps.map((step, index) => {
                 const id = index.toString();
                 const showIndicatorAbove =
-                  activeId !== null &&
-                  overId === id &&
-                  activeId !== id;
+                  activeId !== null && overId === id && activeId !== id;
 
                 return (
                   <SortableStep
