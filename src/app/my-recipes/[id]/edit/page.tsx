@@ -5,11 +5,12 @@ import { useParams } from "next/navigation";
 import axios from "axios";
 import { RecipeEditor } from "@/components/recipes/recipe-editor";
 import { MyRecipesFormSkeleton } from "@/components/ui/page-skeletons";
+import type { Recipe } from "@/types/recipe";
 
 export default function EditRecipePage() {
   const { id } = useParams<{ id: string }>();
 
-  const [recipe, setRecipe] = useState<any>(null);
+  const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 

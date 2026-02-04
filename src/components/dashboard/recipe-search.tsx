@@ -9,6 +9,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+import "../recipes/scrollbar-hide.css"
 
 type Props = {
   /* existing search props */
@@ -68,7 +69,7 @@ export function RecipeSearchWithFilters({
           <div className="space-y-2">
             <p className="text-sm font-medium">Cuisine</p>
 
-            <div className="max-h-48 space-y-2 overflow-auto">
+            <div className="max-h-48 space-y-2 overflow-auto scrollbar-hide">
               {availableCuisines.map((cuisine) => (
                 <label
                   key={cuisine}

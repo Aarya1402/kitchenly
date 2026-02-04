@@ -18,6 +18,7 @@ import { Activity } from "@/components/ui/activity";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import type { Recipe } from "@/types/recipe";
+import Error from "next/error";
 
 type ShoppingList = {
   id: string;
@@ -76,7 +77,7 @@ export function MyRecipesGrid({
       setIsSearch(isSearch);
       const url = isSearch ? "/api/recipes/search" : "/api/recipes";
 
-      const params: any = {
+      const params: { limit: number; q?: string; cuisine?: string } = {
         limit: isSearch ? 12 : 8,
       };
 
@@ -183,8 +184,9 @@ export function MyRecipesGrid({
       setListModalOpen(false);
       setSelectedIds([]);
       router.push(`/shopping-lists/${listId}`);
-    } catch (err: any) {
-      if (err.response?.status === 409) {
+    } catch (err: Error | any) {
+      const axiosErr = err as { response?: { status?: number } };
+      if (axiosErr.response?.status === 409) {
         toast.error("Recipe already added to this list");
       } else {
         toast.error("Failed to add recipe");

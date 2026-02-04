@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { geminiModel } from "@/lib/gemini";
+import type { Ingredient } from "@/types/ingredient";
 
 export async function POST(req: NextRequest) {
   try {
@@ -32,7 +33,7 @@ The JSON must follow this exact structure:
 Recipe title: ${title}
 
 Ingredients:
-${ingredients.map((i: any) => `- ${i.quantity} ${i.name}`).join("\n")}
+${ingredients.map((i: Ingredient) => `- ${i.quantity} ${i.name}`).join("\n")}
 
 Steps:
 ${steps.map((s: string, i: number) => `${i + 1}. ${s}`).join("\n")}

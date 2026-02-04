@@ -8,10 +8,13 @@ import { StepsCard } from "./steps/steps-card";
 import { RecipePreview } from "./steps/recipe-preview";
 import { StepFooter } from "./steps/steps-footer";
 import { Ingredient } from "@/types/ingredient";
+import type { ParsedStep } from "@/lib/recipe-parser";
+import type { Recipe, RecipeStep } from "@/types/recipe";
 import axios from "axios";
+
 type Props = {
   mode: "create" | "edit";
-  initialData?: any;
+  initialData?: Recipe | null;
   recipeId?: string;
 };
 
@@ -42,7 +45,7 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
       setImageUrl(initialData.imageUrl ?? null);
       setCuisine(initialData.cuisine ?? null);
       setIngredients(
-        initialData.ingredients.map((i: any) => ({
+        initialData.ingredients.map((i) => ({
           name: i.name,
           quantity: i.quantity,
         })),
@@ -50,8 +53,8 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
 
       setStepsData(
         initialData.steps
-          .sort((a: any, b: any) => a.stepNo - b.stepNo)
-          .map((s: any) => s.content),
+          .sort((a: RecipeStep, b: RecipeStep) => a.stepNo - b.stepNo)
+          .map((s) => s.content),
       );
     }
   }, [mode, initialData]);
@@ -124,7 +127,7 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
             setCuisine(data.cuisine ?? null);
             setImageUrl(data.imageUrl ?? null);
             setIngredients(data.ingredients ?? []);
-            setStepsData(data.steps?.map((s: any) => s.content) ?? []);
+            setStepsData(data.steps?.map((s: ParsedStep) => s.content) ?? []);
             setStep(2);
           }}
         />

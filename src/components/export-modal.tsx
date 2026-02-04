@@ -12,7 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Copy, FileDown, Link2, Unlink } from "lucide-react";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
+  import { useEffect } from "react";
 import axios from "axios";
+import "../components/recipes/scrollbar-hide.css"
 
 type Props = {
   listId: string;
@@ -33,6 +35,13 @@ export function ShareExportModal({
   const [token, setToken] = useState<string | null>(shareToken ?? null);
 
   /* ───────── Derived share URL (SSR-safe) ───────── */
+
+
+  useEffect(() => {
+    if (open) {
+      setToken(shareToken ?? null);
+    }
+  }, [open, shareToken]);
 
   const shareUrl = useMemo(() => {
     console.log(window.location.origin);
@@ -119,13 +128,14 @@ export function ShareExportModal({
           </DialogHeader>
 
           {/* ───────── Share Section ───────── */}
-          <div className="space-y-3">
+          <div className="space-y-3 scrollbar-hide">
+            <div className="pointer-events-none sticky bottom-0 h-4 bg-gradient-to-t from-background to-transparent" />
             <h3 className="flex items-center gap-2 text-sm font-medium">
               <Link2 className="h-4 w-4" />
               Shareable link
             </h3>
 
-            {shareUrl ? (
+            {token ? (
               <div className="space-y-2">
                 <div className="break-all rounded-md border bg-muted px-3 py-2 text-xs">
                   {shareUrl}
@@ -136,7 +146,7 @@ export function ShareExportModal({
                     size="sm"
                     variant="outline"
                     disabled={loading}
-                    onClick={() => copyToClipboard(shareUrl)}
+                    onClick={() => copyToClipboard(shareUrl!)}
                   >
                     <Copy className="mr-2 h-4 w-4" />
                     Copy
@@ -158,6 +168,7 @@ export function ShareExportModal({
                 Generate link
               </Button>
             )}
+            <div className="pointer-events-none sticky bottom-0 h-4 bg-gradient-to-t from-background to-transparent" />
           </div>
 
           {/* ───────── Export Section ───────── */}

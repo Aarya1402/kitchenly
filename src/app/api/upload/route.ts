@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { v2 as cloudinary } from "cloudinary";
+import type { CloudinaryUploadResult } from "@/types/upload";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
       cloudinary.uploader
         .upload_stream({ folder: "recipes" }, (err, result) => {
           if (err || !result) reject(err);
-          else resolve(result as any);
+          else resolve(result as CloudinaryUploadResult);
         })
         .end(buffer);
     },

@@ -21,6 +21,9 @@ export async function POST(
   if (!list || list.userId !== userId) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+  if (list.shareToken) {
+    return NextResponse.json({ token: list.shareToken }); 
+  }
 
   const token = randomUUID();
 

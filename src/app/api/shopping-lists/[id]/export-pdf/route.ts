@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
+import type { ExportPdfGroupItem } from "@/types/aggregatedItems";
 import puppeteer from "puppeteer";
 function canonicalizeName(name: string) {
   return name.trim().toLowerCase();
@@ -109,10 +110,7 @@ export async function GET(
 
   /* ───────── Group by category ───────── */
 
-  const groups: Record<
-    string,
-    typeof aggregated extends Map<any, infer V> ? V[] : never
-  > = {};
+  const groups: Record<string, ExportPdfGroupItem[]> = {};
 
   for (const item of aggregated.values()) {
     if (!groups[item.category]) groups[item.category] = [];

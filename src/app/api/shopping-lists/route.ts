@@ -3,6 +3,10 @@ import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
 import { DEFAULT_CATEGORY } from "@/constants/defualt-category";
 import { CATEGORY_MAP } from "@/constants/category-map";
+import type {
+  RecipeInListCreateInput,
+  ManualItemCreateInput,
+} from "@/types/shoppingListApi";
 
 function inferCategory(ingredientName: string): string {
   const key = ingredientName.split(" ")[0].toLowerCase();
@@ -31,7 +35,7 @@ export async function POST(req: Request) {
 
       // ✅ Persist recipe structure
       recipes: {
-        create: recipes.map((r: any) => ({
+        create: recipes.map((r: RecipeInListCreateInput) => ({
           recipeId: r.recipeId,
           recipeTitle: r.title,
           baseServings: r.baseServings,
@@ -43,7 +47,7 @@ export async function POST(req: Request) {
       ...(Array.isArray(manualItems) && manualItems.length > 0
         ? {
             manualItems: {
-              create: manualItems.map((i: any) => ({
+              create: manualItems.map((i: ManualItemCreateInput) => ({
                 ingredientKey: i.ingredientKey,
                 quantity: i.quantity,
                 unit: i.unit,

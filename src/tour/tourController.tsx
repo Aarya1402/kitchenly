@@ -130,7 +130,7 @@ export default function TourController() {
     // Handle step transitions with navigation
     if (type === EVENTS.STEP_AFTER) {
       const currentStep = TOUR_STEPS[index];
-      const stepData = currentStep?.data as any;
+      const stepData = currentStep?.data;
       const isPreviousAction = action === "prev";
       const targetRoute = isPreviousAction
         ? stepData?.previous

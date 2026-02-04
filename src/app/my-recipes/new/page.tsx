@@ -9,6 +9,7 @@ import { StepsCard } from "@/components/recipes/steps/steps-card";
 import { RecipePreview } from "@/components/recipes/steps/recipe-preview";
 import { Button } from "@/components/ui/button";
 import { Ingredient } from "@/types/ingredient";
+import type { ParsedRecipe, ParsedStep } from "@/lib/recipe-parser";
 import { StepFooter } from "@/components/recipes/steps/steps-footer";
 import { RecipeProgress } from "@/components/recipes/recipe-progress";
 import axios from "axios";
@@ -35,7 +36,7 @@ export default function NewRecipePage() {
 
   /* ───────────── URL → state ───────────── */
 
-  const handleFetchedRecipe = (recipe: any) => {
+  const handleFetchedRecipe = (recipe: ParsedRecipe) => {
     setTitle(recipe.title ?? "");
     setDescription(recipe.description ?? "");
     setServings(recipe.servings ?? 2);
@@ -49,7 +50,9 @@ export default function NewRecipePage() {
     );
 
     setStepsData(
-      recipe.steps?.length ? recipe.steps.map((s: any) => s.content) : [""],
+      recipe.steps?.length
+        ? recipe.steps.map((s: ParsedStep) => s.content)
+        : [""],
     );
 
     setStep(2);

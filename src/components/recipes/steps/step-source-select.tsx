@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import type { ParsedRecipe } from "@/lib/recipe-parser";
 import axios from "axios";
 
 type Props = {
   onManual: () => void;
-  onFetched: (data: any) => void;
+  onFetched: (data: ParsedRecipe) => void;
 };
 
 export function StepSource({ onManual, onFetched }: Props) {

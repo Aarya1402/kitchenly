@@ -30,11 +30,16 @@ export default async function PublicShoppingListPage({
     return <div className="p-6">Link expired</div>;
   }
 
+  if (!data) {
+    return <div className="p-6">Link expired</div>;
+  }
+
   return (
     <div className="mx-auto max-w-2xl p-6 space-y-4">
       <h1 className="text-xl font-semibold">{data.title}</h1>
 
-      {Object.entries(data.groups).map(([category, items]) => (
+      {(Object.entries(data.groups) as [string, PublicListItem[]][]).map(
+        ([category, items]) => (
         <div key={category} className="space-y-2">
           <h2 className="font-medium font-strong-700">{category}</h2>
 
@@ -47,7 +52,8 @@ export default async function PublicShoppingListPage({
             </div>
           ))}
         </div>
-      ))}
+      ),
+      )}
 
       <p className="text-xs text-muted-foreground">
         This is a read-only shared list

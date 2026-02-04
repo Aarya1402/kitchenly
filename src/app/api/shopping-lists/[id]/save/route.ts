@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
+import type { ManualItemSaveInput } from "@/types/shoppingListApi";
 export async function PUT(
   req: Request,
   context: { params: Promise<{ id: string }> },
@@ -31,7 +32,7 @@ export async function PUT(
       where: { shoppingListId: id },
     }),
     prisma.manualItem.createMany({
-      data: manualItems.map((i: any) => ({
+      data: manualItems.map((i: ManualItemSaveInput) => ({
         shoppingListId: id,
         ingredientKey: i.ingredientKey,
         quantity: i.quantity,

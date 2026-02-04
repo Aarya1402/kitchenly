@@ -39,7 +39,7 @@ export default function DashboardPage() {
 
       const url = isSearch ? "/api/recipes/search" : "/api/recipes";
 
-      const params: any = {
+      const params: { limit: number; q?: string; cuisine?: string } = {
         limit: isSearch ? 12 : 8,
       };
 
@@ -112,7 +112,7 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-10 p-6">
+    <div className="mx-auto max-w-7xl space-y-10 p-6 ">
       <DashboardHero />
 
       <div className="flex justify-center">

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { ItemState } from "@/types/itemState";
 import { AggregatedItem } from "@/types/aggregatedItems";
+import type { ListForAggregate } from "@/types/aggregateInput";
+
 /* ───────── helpers ───────── */
 
 function canonicalizeName(name: string) {
@@ -19,11 +21,7 @@ function parseQuantity(input: string) {
 
 /* ───────── aggregator (single source of truth) ───────── */
 
-export function aggregateShoppingList(list: {
-  recipes: any[];
-  manualItems?: any[];
-  itemStates?: ItemState[];
-}) {
+export function aggregateShoppingList(list: ListForAggregate) {
   const itemStates = Array.isArray(list.itemStates) ? list.itemStates : [];
 
   const manualItems = Array.isArray(list.manualItems) ? list.manualItems : [];

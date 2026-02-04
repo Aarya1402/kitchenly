@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
+import type { AggregatedItem } from "@/types/aggregatedItems";
 
 /* ───────── Helpers ───────── */
 
@@ -113,7 +114,7 @@ export async function GET(
 
   /* ───────── Group by category + attach isChecked ───────── */
 
-  const groups: Record<string, any[]> = {};
+  const groups: Record<string, AggregatedItem[]> = {};
 
   for (const item of aggregated.values()) {
     const isChecked = isCheckedMap.get(item.ingredientKey) ?? false;

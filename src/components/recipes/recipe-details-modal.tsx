@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { TastePreview } from "@/types/tastePreview";
 import { INGREDIENTS_PREVIEW_COUNT } from "@/constants/ingredients-preview-count";
 import { STEPS_PREVIEW_COUNT } from "@/constants/steps-preview-count";
-
+import "./scrollbar-hide.css"
 type Props = {
   recipe: Recipe | null;
   open: boolean;
@@ -154,14 +154,15 @@ export function RecipeDetailsModal({
     <>
       <Dialog open={open} onOpenChange={onClose}>
         <Activity visible={open} name="recipe-details-content">
-          <DialogContent className="max-w-3xl h-[85vh] flex flex-col">
+          <DialogContent className="max-w-3xl h-[85vh] flex flex-col ">
             {/* HEADER (fixed) */}
             <DialogHeader>
               <DialogTitle>{recipe.title}</DialogTitle>
             </DialogHeader>
 
             {/* SCROLLABLE BODY */}
-            <div className="flex-1 overflow-y-auto space-y-6 pr-2">
+            <div className="flex-1 overflow-y-auto scrollbar-hide space-y-6 pr-4">
+              <div className="pointer-events-none sticky top-0 h-4 bg-gradient-to-b from-background to-transparent" />
               {/* Image */}
               {recipe.imageUrl && (
                 <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
@@ -207,8 +208,8 @@ export function RecipeDetailsModal({
               <div>
                 <h3 className="font-medium mb-1">Ingredients</h3>
                 <ul className="list-disc pl-5 text-sm space-y-1">
-                  {recipe.ingredients.map((i) => (
-                    <li key={i.name}>
+                  {ingredientsToShow.map((i, index) => (
+                    <li key={`ingredient-${index}`}>
                       {scaleQuantity(i.quantity, scaleFactor)} {i.name}
                     </li>
                   ))}
@@ -244,6 +245,7 @@ export function RecipeDetailsModal({
                   </Button>
                 )}
               </div>
+              <div className="pointer-events-none sticky bottom-0 h-4 bg-gradient-to-t from-background to-transparent" />
             </div>
 
             {/* FOOTER (fixed) */}
@@ -268,13 +270,14 @@ export function RecipeDetailsModal({
       </Dialog>
       <Dialog open={tasteOpen} onOpenChange={setTasteOpen}>
         <Activity visible={tasteOpen} name="taste-preview-modal">
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg overflow-hidden">
+            <div className="pointer-events-none sticky bottom-0 h-4 bg-gradient-to-t from-background to-transparent" />
             <DialogHeader>
               <DialogTitle>Taste Preview — {recipe.title}</DialogTitle>
             </DialogHeader>
 
             {/* BODY */}
-            <div className="space-y-4">
+            <div className="space-y-4 scrollbar-hide">
               {tasteLoading ? (
                 <div className="space-y-3">
                   <Skeleton className="h-4 w-full" />
@@ -334,6 +337,7 @@ export function RecipeDetailsModal({
                 Close
               </Button>
             </DialogFooter>
+            <div className="pointer-events-none sticky bottom-0 h-4 bg-gradient-to-t from-background to-transparent" />
           </DialogContent>
         </Activity>
       </Dialog>

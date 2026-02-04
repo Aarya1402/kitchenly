@@ -2,6 +2,8 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import { geminiModel } from "@/lib/gemini";
 import { DIETARY_PREFERENCES } from "@/constants/dietary-preferences";
+import type { ParsedRecipeInput } from "@/types/parsedRecipeInput";
+import type { JsonLdInstructionStep } from "@/types/jsonLd";
 
 /* =======================
    Types (Prisma-aligned)
@@ -25,6 +27,7 @@ export type ParsedRecipe = {
   dietaryTags: string[];
   ingredients: ParsedIngredient[];
   steps: ParsedStep[];
+  cuisine?: string | null;
 };
 
 /* =======================
@@ -69,7 +72,9 @@ function tryJsonLd(html: string) {
         servings: parseInt(recipe.recipeYield) || undefined,
         ingredients: recipe.recipeIngredient,
         steps: Array.isArray(recipe.recipeInstructions)
-          ? normalizeInstructions(recipe.recipeInstructions)
+          ? normalizeInstructions(
+              recipe.recipeInstructions as JsonLdInstructionStep[],
+            )
           : [],
       };
     } catch {
@@ -101,7 +106,7 @@ function extractRawText(html: string) {
    Layer 4 – Gemini
 ======================= */
 
-async function parseWithGemini(raw: any): Promise<ParsedRecipe> {
+async function parseWithGemini(raw: ParsedRecipeInput): Promise<ParsedRecipe> {
   const prompt = `
 You are a recipe extraction engine.
 
@@ -187,7 +192,9 @@ function extractPhotoGuidedSteps(html: string) {
   return steps.length > 0 ? steps : null;
 }
 
-function normalizeInstructions(instructions: any[]): string[] {
+function normalizeInstructions(
+  instructions: JsonLdInstructionStep[],
+): string[] {
   const steps: string[] = [];
 
   for (const step of instructions) {
@@ -212,7 +219,7 @@ function normalizeInstructions(instructions: any[]): string[] {
     // 4️⃣ nested HowToDirection
     if (Array.isArray(step.itemListElement)) {
       const parts = step.itemListElement
-        .map((x: any) => x.text)
+        .map((x) => x.text)
         .filter(Boolean);
 
       if (parts.length > 0) {
