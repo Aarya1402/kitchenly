@@ -29,6 +29,7 @@ export default function DashboardPage() {
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const [availableCuisines, setAvailableCuisines] = useState<string[]>([]);
 
+
   const fetchRecipes = async (search?: string, cuisines?: string[]) => {
     try {
       setLoading(true);

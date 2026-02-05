@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,8 @@ import { ShoppingListDetailSkeleton } from "@/components/ui/page-skeletons";
 import axios from "axios";
 import { AggregatedItem as Item } from "@/types/aggregatedItems";
 import { RecipeInList } from "@/types/recipeInList";
+import { CATEGORIES } from "@/constants/categories";
+import { SearchAndFilterBar } from "@/components/search-and-filter";
 /* ───────── Page ───────── */
 
 export default function ShoppingListPage() {
@@ -32,9 +34,22 @@ export default function ShoppingListPage() {
   const completed = items.filter((i) => i.isChecked).length;
   const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
   const [openShare, setOpenShare] = useState(false);
+  const [search, setSearch] = useState("");
+const [categories, setCategories] = useState<string[]>([]);
 
-  const activeGroups = editMode ? draftGroups : groups;
+  const [filteredGroups, setFilteredGroups] =
+    useState<Record<string, Item[]>>(groups);
+  const activeGroups = editMode
+    ? draftGroups
+    : search || categories.length > 0
+      ? filteredGroups
+      : groups;
 
+  const hasNoResults =
+    !editMode &&
+    (search || categories.length > 0) &&
+    Object.values(activeGroups).every((items) => items.length === 0);
+  const lastSearchRef = useRef<string>("");
   /* ───────── Fetch list ───────── */
 
   useEffect(() => {
@@ -63,6 +78,28 @@ export default function ShoppingListPage() {
 
     if (id) load();
   }, [id, router]);
+const fetchFilteredResults = async (
+  searchValue: string,
+  selectedCategories: string[],
+) => {
+  const res = await axios.get(`/api/shopping-lists/${id}/search`, {
+    params: {
+      q: searchValue || undefined,
+      categories:
+        selectedCategories.length > 0
+          ? selectedCategories.join(",")
+          : undefined,
+    },
+  });
+
+  setFilteredGroups(res.data.groups);
+};
+
+  useEffect(() => {
+    if (editMode) return;
+
+    fetchFilteredResults(search, categories);
+  }, [categories]);
 
   /* ───────── Toggle isChecked (shopping mode) ───────── */
 
@@ -79,22 +116,65 @@ export default function ShoppingListPage() {
 
   return (
     <div className="mx-auto max-w-2xl p-6 space-y-6">
-      {/* ───────── Title ───────── */}
-      <h1 className="text-xl font-semibold">
-        {editMode ? (
-          <Input
-            value={draftTitle}
-            onChange={(e) => setDraftTitle(e.target.value)}
-            className="max-w-sm"
-          />
-        ) : (
-          title
-        )}
-      </h1>
+      {/* ───────── Header Row ───────── */}
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-xl font-semibold">
+          {editMode ? (
+            <Input
+              value={draftTitle}
+              onChange={(e) => setDraftTitle(e.target.value)}
+              className="max-w-sm"
+            />
+          ) : (
+            title
+          )}
+        </h1>
 
-      <Button variant="outline" onClick={() => setOpenShare(true)}>
-        Share / Export
-      </Button>
+        <Button variant="outline" onClick={() => setOpenShare(true)}>
+          Share / Export
+        </Button>
+      </div>
+      {/* ───────── Search + Filter ───────── */}
+      {!editMode && (
+        <SearchAndFilterBar
+          value={search}
+          onChange={(value) => {
+            setSearch(value);
+
+            if (editMode) return;
+
+            // 🧹 Reset when cleared
+            if (value.length === 0) {
+              lastSearchRef.current = "";
+              fetchFilteredResults("", categories);
+              return;
+            }
+
+            // 🔍 Call API every 3rd character
+            if (value.length % 3 === 0 && value !== lastSearchRef.current) {
+              lastSearchRef.current = value;
+              fetchFilteredResults(value, categories);
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && search.trim()) {
+              lastSearchRef.current = search;
+              fetchFilteredResults(search, categories);
+            }
+          }}
+          selectedCategories={categories}
+          availableCategories={CATEGORIES}
+          onCategoryChange={(cats) => {
+            setCategories(cats);
+
+            // 🗂 Always fetch when categories change
+            if (!editMode) {
+              fetchFilteredResults(search, cats);
+            }
+          }}
+        />
+      )}
+
       {!editMode && (
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -162,6 +242,15 @@ export default function ShoppingListPage() {
           ))}
         </div>
       )}
+      {hasNoResults && (
+        <div className="rounded-md border border-dashed p-6 text-center">
+          <p className="text-sm font-medium">No results found</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Try adjusting your search or filter.
+          </p>
+        </div>
+      )}
+
       {/* ───────── Ingredients ───────── */}
       {Object.entries(activeGroups).map(([category, items]) => (
         <div key={category}>
