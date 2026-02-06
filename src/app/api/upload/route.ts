@@ -1,3 +1,5 @@
+export const runtime = "nodejs"; // ✅ REQUIRED
+
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { v2 as cloudinary } from "cloudinary";

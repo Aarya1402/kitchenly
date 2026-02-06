@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
 import { v2 as cloudinary } from "cloudinary";
 import { normalizeIngredient } from "@/lib/ingredient-normalizer";
-
+import axios from "axios";
 export async function GET(req: Request) {
   const { userId } = await auth();
 
@@ -61,6 +61,35 @@ cloudinary.config({
 function isCloudinaryUrl(url: string) {
   return url.includes("res.cloudinary.com");
 }
+async function uploadExtractedImageToCloudinary(
+  extractedImagePath: string,
+): Promise<string> {
+  // "/extracted_images/foo.png" → "foo.png"
+  const filename = extractedImagePath.replace(/^\/?extracted_images\//, "");
+
+  const OCR_BASE_URL = process.env.OCR_BASE_URL || "http://192.168.24.68:8000";
+
+  const imageUrl = `${OCR_BASE_URL}/images/${filename}`;
+
+  // Download image as buffer
+  const res = await axios.get(imageUrl, {
+    responseType: "arraybuffer",
+  });
+
+  const buffer = Buffer.from(res.data);
+
+  // Upload buffer to Cloudinary
+  const uploadResult: any = await new Promise((resolve, reject) => {
+    cloudinary.uploader
+      .upload_stream({ folder: "recipes" }, (error, result) => {
+        if (error) reject(error);
+        else resolve(result);
+      })
+      .end(buffer);
+  });
+
+  return uploadResult.secure_url;
+}
 
 export async function POST(req: Request) {
   const { userId } = await auth();
@@ -73,6 +102,18 @@ export async function POST(req: Request) {
   /* ───────── Handle imageUrl ───────── */
 
   let finalImageUrl: string | null = body.imageUrl ?? null;
+
+  try {
+    if (finalImageUrl && finalImageUrl.startsWith("/extracted_images")) {
+      finalImageUrl = await uploadExtractedImageToCloudinary(finalImageUrl);
+    }
+  } catch (err) {
+    console.error("Cloudinary upload failed", err);
+    return NextResponse.json(
+      { error: "Failed to upload recipe image" },
+      { status: 500 },
+    );
+  }
 
   if (finalImageUrl && !isCloudinaryUrl(finalImageUrl)) {
     try {

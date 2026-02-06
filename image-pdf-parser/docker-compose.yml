@@ -1,0 +1,13 @@
+services:
+  api:
+    build: .
+    network_mode: host
+    # When using network_mode: host, the 'ports' section is ignored.
+    # The app will be available on the port specified in the CMD (8000).
+    # Provide GOOGLE_API_KEY in .env for global use, 
+    # or users can provide their own key in the 'X-API-Key' request header.
+    env_file:
+      - .env
+    volumes:
+      -  ../extracted_images:/app/extracted_images
+    restart: always

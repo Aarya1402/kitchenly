@@ -198,7 +198,7 @@ function normalizeInstructions(
   const steps: string[] = [];
 
   for (const step of instructions) {
-    // 1️⃣ plain string
+    // 1 plain string
     if (typeof step === "string") {
       steps.push(step);
       continue;

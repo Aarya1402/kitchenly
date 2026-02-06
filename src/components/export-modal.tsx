@@ -44,7 +44,7 @@ export function ShareExportModal({
   }, [open, shareToken]);
 
   const shareUrl = useMemo(() => {
-    console.log(window.location.origin);
+
     if (typeof window === "undefined" || !token) return null;
     return `${window.location.origin}/shopping-lists/share/${token}`;
   }, [token]);

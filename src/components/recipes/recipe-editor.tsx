@@ -66,7 +66,8 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
     try {
       const res = await axios.post("/api/upload", formData);
       return res.data.imageUrl;
-    } catch {
+    } catch (error: any) {
+      console.error(error);
       throw new Error("Image upload failed");
     }
   }

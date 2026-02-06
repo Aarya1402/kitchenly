@@ -105,12 +105,7 @@ export default function DashboardPage() {
     // re-fetch using current search query + new cuisines
     fetchRecipes(query.length >= 3 ? query : undefined, cuisines);
   };
-  useEffect(() => {
-    console.log(
-      "dashboard-recent-recipes exists:",
-      !!document.querySelector('[data-tour="dashboard-recent-recipes"]'),
-    );
-  }, []);
+
 
   return (
     <div className="mx-auto max-w-7xl space-y-10 p-6 ">
