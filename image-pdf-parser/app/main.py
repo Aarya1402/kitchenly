@@ -12,8 +12,10 @@ from typing import Optional
 import json
 import os
 from dotenv import load_dotenv
+from app.extractor import get_ocr
 
 # Local module imports
+from app.llm import get_llm
 from app.logger import setup_logger
 from app.extractor import extract_from_image, extract_from_pdf
 from app.llm import get_llm
@@ -31,6 +33,22 @@ app = FastAPI(
     description="API for extracting recipe data (JSON) from PDF documents and images using PaddleOCR and Google Gemini.",
     version="1.0.0"
 )
+
+@app.on_event("startup")
+async def warmup_models():
+    logger.info("Starting OCR warmup...")
+    try:
+        ocr = get_ocr()  # loads PaddleOCR into RAM once
+        if ocr is None:
+            logger.warning("OCR warmup failed.")
+        else:
+            logger.info("OCR warmup completed successfully.")
+        try:
+            get_llm()   # optional default key warmup
+        except:
+            pass
+    except Exception as e:
+        logger.exception(f"OCR warmup error: {e}")
 
 # Ensure extraction directory exists and mount it for static file serving
 EXTRACTED_IMAGES_DIR = "extracted_images"

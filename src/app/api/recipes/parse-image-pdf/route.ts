@@ -1,10 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import FormData from "form-data";
+import { v2 as cloudinary } from "cloudinary";
 import { CATEGORIES } from "@/constants/categories";
 import { MAX_FILE_SIZE } from "@/constants/max-file-size";
 import { ALLOWED_TYPES } from "@/constants/allowed_file_types";
 import { geminiModel } from "@/lib/gemini";
+
+const EXTRACTOR_BASE_URL =
+  process.env.EXTRACTOR_BASE_URL ||
+  "https://kitchenly-7gmg.onrender.com";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+  api_key: process.env.CLOUDINARY_API_KEY!,
+  api_secret: process.env.CLOUDINARY_API_SECRET!,
+});
+
+async function uploadExtractorImageToCloudinary(
+  extractedImagePath: string,
+): Promise<string | null> {
+  // "extracted_images/foo.png" or "extracted_images\foo.png" → "foo.png"
+  const filename = extractedImagePath.replace(/^extracted_images[/\\]/, "");
+  if (!filename) return null;
+
+  const imageUrl = `${EXTRACTOR_BASE_URL.replace(/\/$/, "")}/images/${filename}`;
+
+  const res = await axios.get(imageUrl, { responseType: "arraybuffer" });
+  const buffer = Buffer.from(res.data);
+
+  const uploadResult: { secure_url: string } = await new Promise(
+    (resolve, reject) => {
+      cloudinary.uploader
+        .upload_stream({ folder: "recipes" }, (error, result) => {
+          if (error) reject(error);
+          else if (result) resolve(result as { secure_url: string });
+          else reject(new Error("Upload failed"));
+        })
+        .end(buffer);
+    },
+  );
+
+  return uploadResult.secure_url;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -41,7 +79,7 @@ export async function POST(req: NextRequest) {
     );
 
     const extractRes = await axios.post(
-      "http://192.168.24.68:8000/extract",
+      "https://kitchenly-7gmg.onrender.com/extract",
       extractorForm,
       {
         headers: extractorForm.getHeaders(),
@@ -105,21 +143,30 @@ Rules (STRICT):
     const jsonEnd = rawText.lastIndexOf("}");
     const metadata = JSON.parse(rawText.slice(jsonStart, jsonEnd + 1));
 
-    // const metadata = JSON.parse(geminiResponse.response.text().trim());
-    // const API_BASE_URL =
-    //   process.env.NEXT_PUBLIC_API_BASE_URL ||
-    //   "http://192.168.24.68:8000";
-    // const cleanedImage = firstImage.replace(/^extracted_images\//, "");
-
-    // const imageUrl = `${API_BASE_URL}/images/${cleanedImage}`;
+    /**
+     * 3️⃣ Upload extracted image to Cloudinary (if any)
+     * Extractor returns paths like "extracted_images/xyz.png" - we fetch from
+     * extractor's /images endpoint and upload to Cloudinary so the recipe gets
+     * a persistent Cloudinary URL.
+     */
+    let imageUrl: string | null = null;
+    if (firstImage) {
+      try {
+        imageUrl =
+          (await uploadExtractorImageToCloudinary(firstImage)) ?? null;
+      } catch (err) {
+        console.error("Failed to upload extracted image to Cloudinary:", err);
+        // Proceed without image - recipe can still be saved
+      }
+    }
 
     /**
-     * 3️⃣ Normalize to Recipe Prisma model shape
+     * 4️⃣ Normalize to Recipe Prisma model shape
      */
     const recipe = {
       title: extractedRecipe.title,
       description: extractedRecipe.description ?? null,
-      imageUrl: "/extracted_images/p1_i1_e8d4368c.png",
+      imageUrl,
 
       servings: metadata.servings ?? 2,
       cuisine: metadata.cuisine ?? null,

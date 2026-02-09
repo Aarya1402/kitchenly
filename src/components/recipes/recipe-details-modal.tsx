@@ -26,6 +26,7 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onDeleted: (recipe: Recipe) => void;
+  currentUserId?: string | null;
 };
 
 export function RecipeDetailsModal({
@@ -33,6 +34,7 @@ export function RecipeDetailsModal({
   open,
   onClose,
   onDeleted,
+  currentUserId,
 }: Props) {
   const router = useRouter();
 
@@ -45,8 +47,11 @@ export function RecipeDetailsModal({
 
   if (!recipe) return null;
 
-  const handleDelete = () => {
-    onDeleted(recipe);
+  const isOwnRecipe =
+    !!recipe.userId && !!currentUserId && recipe.userId === currentUserId;
+
+  const handleDelete = async () => {
+    await onDeleted(recipe);
   };
 
   const ingredientsToShow = showAllIngredients
@@ -225,16 +230,20 @@ export function RecipeDetailsModal({
                 ✨ Taste Preview
               </Button>
 
-              <Button
-                variant="outline"
-                onClick={() => router.push(`/my-recipes/${recipe.id}/edit`)}
-              >
-                Edit
-              </Button>
+              {isOwnRecipe && (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => router.push(`/my-recipes/${recipe.id}/edit`)}
+                  >
+                    Edit
+                  </Button>
 
-              <Button variant="destructive" onClick={handleDelete}>
-                Delete
-              </Button>
+                  <Button variant="destructive" onClick={handleDelete}>
+                    Delete
+                  </Button>
+                </>
+              )}
             </DialogFooter>
           </DialogContent>
         </Activity>

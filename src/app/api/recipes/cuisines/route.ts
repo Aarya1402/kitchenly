@@ -3,16 +3,14 @@ import { prisma } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 
 export async function GET() {
-  try {
-    // const { userId } = await auth();
-    //
-    // if (!userId) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
+  try {
     const cuisines = await prisma.recipe.findMany({
       where: {
-        userId :"user_38eBWe8DUQki8Rx4nnlvA7Dgqc4",
         cuisine: {
           not: null,
         },

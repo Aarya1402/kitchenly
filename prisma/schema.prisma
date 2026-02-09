@@ -17,6 +17,7 @@ datasource db {
 model Recipe {
   id            String   @id @default(cuid())
   userId        String
+  createdByName String?  // Display name of creator (from Clerk)
 
   title         String
   description   String?

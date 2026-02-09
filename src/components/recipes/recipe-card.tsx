@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
+
 type RecipeCardProps = {
   recipe: {
     id: string;
@@ -8,11 +9,27 @@ type RecipeCardProps = {
     imageUrl?: string | null;
     servings: number;
     dietaryTags: string[];
+    userId?: string;
+    createdByName?: string | null;
   };
+  currentUserId?: string | null;
   onClick: () => void;
 };
 
-export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
+export function RecipeCard({
+  recipe,
+  currentUserId,
+  onClick,
+}: RecipeCardProps) {
+  const addedByLabel =
+    recipe.userId && recipe.userId === currentUserId
+      ? "Added by me"
+      : recipe.createdByName
+        ? `Added by ${recipe.createdByName}`
+        : recipe.userId
+          ? "Added by Unknown"
+          : null;
+
   return (
     <Card
       className="flex h-[360px] flex-col overflow-hidden"
@@ -44,6 +61,13 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
             </Badge>
           ))}
         </div>
+
+        {/* Added by - bottom left border area */}
+        {addedByLabel && (
+          <div className="mt-2 border-l-2 border-muted-foreground/30 pl-2 text-left text-xs text-muted-foreground">
+            {addedByLabel}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

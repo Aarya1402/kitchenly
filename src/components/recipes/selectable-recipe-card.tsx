@@ -7,6 +7,7 @@ import type { Recipe } from "@/types/recipe";
 type Props = {
   recipe: Recipe;
   selected: boolean;
+  currentUserId?: string | null;
   onSelect: (checked: boolean) => void;
   onCardClick: (recipe: Recipe) => void;
 };
@@ -14,6 +15,7 @@ type Props = {
 export function SelectableRecipeCard({
   recipe,
   selected,
+  currentUserId,
   onSelect,
   onCardClick,
 }: Props) {
@@ -33,7 +35,11 @@ export function SelectableRecipeCard({
       {/* Existing card */}
       <div className="flex-1">
         <div data-tour="recipe-card">
-          <RecipeCard recipe={recipe} onClick={onClick} />
+          <RecipeCard
+            recipe={recipe}
+            currentUserId={currentUserId}
+            onClick={onClick}
+          />
         </div>
       </div>
     </div>

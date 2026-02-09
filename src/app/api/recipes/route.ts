@@ -22,12 +22,9 @@ export async function GET(req: Request) {
   const skip = (page - 1) * limit;
 
   const [total, recipes] = await Promise.all([
-    prisma.recipe.count({
-      where: { userId },
-    }),
+    prisma.recipe.count(),
 
     prisma.recipe.findMany({
-      where: { userId },
       orderBy: { createdAt: "desc" },
       skip,
       take: limit,
@@ -92,12 +89,25 @@ async function uploadExtractedImageToCloudinary(
 }
 
 export async function POST(req: Request) {
-  const {userId} = await auth();
+  const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body = await req.json();
+
+  /* ───────── Get creator display name from Clerk ───────── */
+  let createdByName: string | null = null;
+  try {
+    const { clerkClient } = await import("@clerk/nextjs/server");
+    const client = await clerkClient();
+    const user = await client.users.getUser(userId);
+    createdByName = user.firstName
+      ? [user.firstName, user.lastName].filter(Boolean).join(" ") || null
+      : user.username ?? null;
+  } catch {
+    // Fallback if Clerk lookup fails
+  }
 
   /* ───────── Handle imageUrl ───────── */
 
@@ -136,6 +146,7 @@ export async function POST(req: Request) {
   const recipe = await prisma.recipe.create({
     data: {
       userId,
+      createdByName,
       title: body.title,
       description: body.description,
       servings: body.servings,

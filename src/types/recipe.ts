@@ -5,6 +5,8 @@ export type RecipeStep = {
 
 export type Recipe = {
   id: string;
+  userId?: string;
+  createdByName?: string | null;
   title: string;
   description?: string | null;
   imageUrl?: string | null;

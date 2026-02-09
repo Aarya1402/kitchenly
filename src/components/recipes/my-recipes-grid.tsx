@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -41,6 +42,7 @@ export function MyRecipesGrid({
   setIsSearch,
 }: Props) {
   const router = useRouter();
+  const { user } = useUser();
 
   const [open, setOpen] = useState(false);
   const [selectedRecipeModal, setSelectedRecipeModal] = useState<Recipe | null>(
@@ -232,6 +234,7 @@ export function MyRecipesGrid({
               <SelectableRecipeCard
                 key={recipe.id}
                 recipe={recipe}
+                currentUserId={user?.id}
                 selected={selectedIds.includes(recipe.id)}
                 onSelect={(checked) => toggleRecipe(recipe.id, checked)}
                 onCardClick={(recipe) => {
@@ -256,6 +259,7 @@ export function MyRecipesGrid({
               setOpen(false);
               setSelectedRecipeModal(null);
             }}
+            currentUserId={user?.id}
           />
         </Activity>
       )}

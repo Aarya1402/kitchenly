@@ -24,7 +24,7 @@ export async function GET(
     },
   });
 
-  if (!recipe || recipe.userId !== userId) {
+  if (!recipe) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 

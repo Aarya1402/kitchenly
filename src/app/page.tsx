@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import dynamic from "next/dynamic";
+import { useUser } from "@clerk/nextjs";
 import axios from "axios";
 import type { Recipe } from "@/types/recipe";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
@@ -20,6 +21,7 @@ const RecipeDetailsModal = dynamic(
 );
 
 export default function DashboardPage() {
+  const { user } = useUser();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -131,6 +133,7 @@ export default function DashboardPage() {
         ) : recipes && recipes.length > 0 ? (
           <RecipeCarousel
             recipes={recipes}
+            currentUserId={user?.id}
             onCardClick={(recipe) => {
               setSelectedRecipe(recipe);
               setOpen(true);
@@ -150,10 +153,12 @@ export default function DashboardPage() {
               recipe={selectedRecipe}
               open={open}
               onClose={() => setOpen(false)}
-              onDeleted={() => {
+              onDeleted={(recipe) => {
+                setRecipes((prev) => prev.filter((r) => r.id !== recipe.id));
                 setOpen(false);
                 setSelectedRecipe(null);
               }}
+              currentUserId={user?.id}
             />
           </Suspense>
         </Activity>
