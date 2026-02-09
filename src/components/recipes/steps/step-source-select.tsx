@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ParsedRecipe } from "@/lib/recipe-parser";
 import axios from "axios";
+import { MyRecipesFormSkeleton } from "@/components/ui/page-skeletons";
 
 type Props = {
   onManual: () => void;
@@ -16,18 +17,20 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 export function StepSource({ onManual, onFetched }: Props) {
   const [url, setUrl] = useState("");
   const [file, setFile] = useState<File | null>(null);
-
+  const [loading, setLoading] = useState(false);
   const [urlLoading, setUrlLoading] = useState(false);
   const [fileLoading, setFileLoading] = useState(false);
 
   const [error, setError] = useState("");
-
+  if (loading) {
+    return <MyRecipesFormSkeleton />;
+  }
   /* ---------------- URL FLOW ---------------- */
 
   const fetchFromUrl = async () => {
     if (!url || urlLoading) return;
 
-    setUrlLoading(true);
+    setLoading(true);
     setError("");
 
     try {
@@ -42,7 +45,7 @@ export function StepSource({ onManual, onFetched }: Props) {
     } catch {
       setError("Failed to fetch recipe from URL");
     } finally {
-      setUrlLoading(false);
+      setLoading(false);
     }
   };
 
@@ -103,7 +106,11 @@ export function StepSource({ onManual, onFetched }: Props) {
           disabled={urlLoading}
         />
 
-        <Button className="w-full" onClick={fetchFromUrl} disabled={urlLoading || !url}>
+        <Button
+          className="w-full"
+          onClick={fetchFromUrl}
+          disabled={urlLoading || !url}
+        >
           {urlLoading ? "Fetching recipe..." : "Fetch from URL"}
         </Button>
       </div>

@@ -19,7 +19,8 @@ import { Input } from "@/components/ui/input";
 import { TastePreview } from "@/types/tastePreview";
 import { INGREDIENTS_PREVIEW_COUNT } from "@/constants/ingredients-preview-count";
 import { STEPS_PREVIEW_COUNT } from "@/constants/steps-preview-count";
-import "./scrollbar-hide.css"
+import "./scrollbar-hide.css";
+import axios from "axios";
 type Props = {
   recipe: Recipe | null;
   open: boolean;
@@ -71,18 +72,13 @@ export function RecipeDetailsModal({
     setTasteResult(null);
 
     try {
-      const res = await fetch("/api/recipes/taste-preview", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: recipe.title,
-          ingredients: recipe.ingredients,
-          steps: recipe.steps.map((s) => s.content),
-        }),
+      const res = await axios.post("/api/recipes/taste-preview", {
+        title: recipe.title,
+        ingredients: recipe.ingredients,
+        steps: recipe.steps.map((s) => s.content),
       });
 
-      const data = await res.json();
-      setTasteResult(data.tastePreview);
+      setTasteResult(res.data.tastePreview);
     } catch (err) {
       console.error("Taste preview error:", err);
       setTasteResult(null);
@@ -90,31 +86,6 @@ export function RecipeDetailsModal({
       setTasteLoading(false);
     }
   };
-  function renderTastePreview(text: string) {
-    return text.split("\n\n").map((block, i) => {
-      if (block.toLowerCase().includes("spice level")) {
-        return (
-          <Badge key={i} variant="secondary">
-            🌶️ {block.replace("2.  **Spice level:**", "").trim()}
-          </Badge>
-        );
-      }
-
-      if (block.toLowerCase().includes("richness")) {
-        return (
-          <Badge key={i} variant="outline">
-            🧈 {block.replace("3.  **Richness:**", "").trim()}
-          </Badge>
-        );
-      }
-
-      return (
-        <p key={i} className="text-sm whitespace-pre-line">
-          {block}
-        </p>
-      );
-    });
-  }
 
   function scaleQuantity(quantity: string, factor: number): string {
     const parsed = parseQuantity(quantity);

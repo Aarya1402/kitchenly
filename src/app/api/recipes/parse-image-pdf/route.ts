@@ -6,7 +6,6 @@ import { MAX_FILE_SIZE } from "@/constants/max-file-size";
 import { ALLOWED_TYPES } from "@/constants/allowed_file_types";
 import { geminiModel } from "@/lib/gemini";
 
-
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
@@ -61,7 +60,6 @@ export async function POST(req: NextRequest) {
      * 2️⃣ Enrich recipe using Gemini
      * (Gemini already configured in your project)
      */
- 
 
     const geminiPrompt = `
 You are a professional recipe analyzer and data normalizer.
@@ -98,15 +96,15 @@ Rules (STRICT):
 - Output ONLY valid JSON
 `;
 
-     const geminiResponse = await geminiModel.generateContent(geminiPrompt);
+    const geminiResponse = await geminiModel.generateContent(geminiPrompt);
     // console.log(geminiResponse.response.text();
-       const rawText = geminiResponse.response.text();
+    const rawText = geminiResponse.response.text();
 
     // Gemini sometimes wraps JSON in text — extract it safely
     const jsonStart = rawText.indexOf("{");
     const jsonEnd = rawText.lastIndexOf("}");
     const metadata = JSON.parse(rawText.slice(jsonStart, jsonEnd + 1));
-    
+
     // const metadata = JSON.parse(geminiResponse.response.text().trim());
     // const API_BASE_URL =
     //   process.env.NEXT_PUBLIC_API_BASE_URL ||
