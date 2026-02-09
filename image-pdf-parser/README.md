@@ -26,7 +26,7 @@ A robust FastAPI application that extracts structured recipe data (JSON) from PD
    ```
 3. Run the server:
    ```bash
-   uvicorn app.main:app --host 192.168.24.68 --port 8000
+   uvicorn app.main:app --host 0.0.0.0 --port 8000
    ```
 
 ## 🐳 Docker Usage (Recommended)
