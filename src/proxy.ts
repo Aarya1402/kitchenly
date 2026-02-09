@@ -12,7 +12,7 @@ export default clerkMiddleware(async (auth, req) => {
   if (isPublicRoute(req)) {
     return NextResponse.next();
   }
-
+  if (req.nextUrl.pathname.startsWith("/api")) return;
   const session = await auth();
 
   if (!session.userId) {
