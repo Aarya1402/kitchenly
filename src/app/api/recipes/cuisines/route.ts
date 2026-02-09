@@ -4,15 +4,15 @@ import { auth } from "@clerk/nextjs/server";
 
 export async function GET() {
   try {
-    const { userId } = await auth();
-
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    // const { userId } = await auth();
+    //
+    // if (!userId) {
+    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // }
 
     const cuisines = await prisma.recipe.findMany({
       where: {
-        userId,
+        userId :"user_38eBWe8DUQki8Rx4nnlvA7Dgqc4",
         cuisine: {
           not: null,
         },
