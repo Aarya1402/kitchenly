@@ -1,113 +1,7 @@
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { ItemState } from "@/types/itemState";
-import { AggregatedItem } from "@/types/aggregatedItems";
-import type { ListForAggregate } from "@/types/aggregateInput";
-
-/* ───────── helpers ───────── */
-
-function canonicalizeName(name: string) {
-  return name.trim().toLowerCase();
-}
-
-function parseQuantity(input: string) {
-  const match = input.trim().match(/^([\d.]+)\s*(.*)$/);
-  if (!match) return { value: 1, unit: "piece" };
-  return {
-    value: Number(match[1]),
-    unit: match[2] || "piece",
-  };
-}
-
-/* ───────── aggregator (single source of truth) ───────── */
-
-export function aggregateShoppingList(list: ListForAggregate) {
-  const itemStates = Array.isArray(list.itemStates) ? list.itemStates : [];
-
-  const manualItems = Array.isArray(list.manualItems) ? list.manualItems : [];
-
-  const isCheckedMap = new Map<string, boolean>(
-    itemStates.map((s) => [s.ingredientKey, s.isChecked]),
-  );
-
-  const aggregated = new Map<string, AggregatedItem>();
-
-  /* ───────── from recipes ───────── */
-
-  for (const r of list.recipes ?? []) {
-    const scale =
-      r.baseServings && r.servingsUsed ? r.servingsUsed / r.baseServings : 1;
-
-    for (const ing of r.recipe?.ingredients ?? []) {
-      const parsed = parseQuantity(ing.quantity);
-
-      const unit =
-        ing.unit ?? // ← if you add unit column later
-        parsed.unit ??
-        "piece";
-
-      const key = canonicalizeName(ing.name);
-      aggregated.set(key, {
-        ingredientKey: key,
-        name: ing.name,
-        quantity: parsed.value * scale,
-        unit,
-        category: ing.category ?? "Other",
-        isChecked: isCheckedMap.get(key) ?? false,
-      });
-
-      const existing = aggregated.get(key);
-
-      if (existing) {
-        existing.quantity += parsed.value * scale;
-      } else {
-        aggregated.set(key, {
-          ingredientKey: key,
-          name: ing.name,
-          quantity: parsed.value * scale,
-          unit: parsed.unit,
-          category: ing.category ?? "Other",
-          isChecked: isCheckedMap.get(key) ?? false,
-        });
-      }
-    }
-  }
-
-  /* ───────── from manual items ───────── */
-
-  for (const m of manualItems) {
-    const key = m.ingredientKey;
-    const existing = aggregated.get(key);
-
-    if (existing) {
-      existing.quantity += m.quantity;
-    } else {
-      aggregated.set(key, {
-        ingredientKey: key,
-        name: key,
-        quantity: m.quantity,
-        unit: m.unit,
-        category: m.category ?? "Other",
-        isChecked: isCheckedMap.get(key) ?? false,
-      });
-    }
-  }
-
-  /* ───────── group by category ───────── */
-
-  const groups: Record<string, AggregatedItem[]> = {};
-
-  for (const item of aggregated.values()) {
-    if (!groups[item.category]) {
-      groups[item.category] = [];
-    }
-    groups[item.category].push(item);
-  }
-
-  return groups;
-}
-
-/* ───────── GET: shared shopping list ───────── */
 
 export async function GET(
   _req: Request,
@@ -135,12 +29,74 @@ export async function GET(
 
   if (!list) {
     return NextResponse.json(
-      { error: "Link expired or not found" },
+      { error: "Invalid or expired link" },
       { status: 404 },
     );
   }
 
-  const groups = aggregateShoppingList(list);
+  /* build checked map */
+  const checkedMap = new Map(
+    list.itemStates.map((s) => [s.ingredientKey, s.isChecked]),
+  );
+
+  /* aggregate items */
+  const aggregated = new Map<
+    string,
+    {
+      name: string;
+      quantity: number;
+      unit: string;
+      category: string;
+      isChecked: boolean;
+    }
+  >();
+
+  for (const r of list.recipes) {
+    const scale = r.servingsUsed / r.baseServings;
+
+    for (const ing of r.recipe.ingredients) {
+      const key = ing.name.trim().toLowerCase();
+      const qty = Number(ing.quantity.match(/[\d.]+/)?.[0] ?? 1);
+
+      const existing = aggregated.get(key);
+      if (existing) {
+        existing.quantity += qty * scale;
+      } else {
+        aggregated.set(key, {
+          name: ing.name,
+          quantity: qty * scale,
+          unit: ing.quantity.replace(/[\d.\s]/g, "") || "piece",
+          category: ing.category || "Other",
+          isChecked: checkedMap.get(key) ?? false,
+        });
+      }
+    }
+  }
+
+  for (const m of list.manualItems) {
+    const existing = aggregated.get(m.ingredientKey);
+    if (existing) {
+      existing.quantity += m.quantity;
+    } else {
+      aggregated.set(m.ingredientKey, {
+        name: m.ingredientKey,
+        quantity: m.quantity,
+        unit: m.unit,
+        category: m.category,
+        isChecked: checkedMap.get(m.ingredientKey) ?? false,
+      });
+    }
+  }
+
+  /* group by category */
+  const groups: Record<
+    string,
+    typeof aggregated extends Map<any, infer V> ? V[] : never
+  > = {};
+  for (const item of aggregated.values()) {
+    if (!groups[item.category]) groups[item.category] = [];
+    groups[item.category].push(item);
+  }
 
   return NextResponse.json({
     title: list.title,
