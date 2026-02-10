@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
     );
 
     const extractRes = await axios.post(
-      "https://kitchenly-7gmg.onrender.com/extract",
+      "https://kitchenly-1.onrender.com/extract",
       extractorForm,
       {
         headers: extractorForm.getHeaders(),
