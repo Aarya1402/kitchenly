@@ -22,8 +22,8 @@ function parseQuantity(input: string) {
 /* ───────── route ───────── */
 
 export async function GET(
-    _req: Request,
-    context: { params: Promise<{ id: string }> },
+  _req: Request,
+  context: { params: Promise<{ id: string }> },
 ) {
   const { id } = await context.params;
   const { userId } = await auth();
@@ -54,20 +54,20 @@ export async function GET(
   /* ───────── checked map ───────── */
 
   const isCheckedMap = new Map(
-      list.itemStates.map((s) => [s.ingredientKey, s.isChecked]),
+    list.itemStates.map((s) => [s.ingredientKey, s.isChecked]),
   );
 
   /* ───────── aggregate ingredients ───────── */
 
   const aggregated = new Map<
-      string,
-      {
-        name: string;
-        quantity: number;
-        unit: string;
-        category: string;
-        isChecked: boolean;
-      }
+    string,
+    {
+      name: string;
+      quantity: number;
+      unit: string;
+      category: string;
+      isChecked: boolean;
+    }
   >();
 
   for (const r of list.recipes) {
@@ -144,8 +144,8 @@ export async function GET(
     y -= 18;
 
     for (const i of items) {
-      const line = `${i.isChecked ? "true" : "false"} ${i.quantity.toFixed(2)} ${
-          i.unit
+      const line = `${i.isChecked ? "✅" : "⬜"} ${i.quantity.toFixed(2)} ${
+        i.unit
       } ${i.name}`;
 
       page.drawText(line, {
@@ -168,11 +168,10 @@ export async function GET(
 
   const pdfBytes = await pdfDoc.save();
 
-return new NextResponse(Buffer.from(pdfBytes), {
-  headers: {
-    "Content-Type": "application/pdf",
-    "Content-Disposition": `attachment; filename="${list.title}.pdf"`,
-  },
-});
-
+  return new NextResponse(Buffer.from(pdfBytes), {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="${list.title}.pdf"`,
+    },
+  });
 }

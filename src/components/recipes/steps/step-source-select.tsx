@@ -18,8 +18,7 @@ export function StepSource({ onManual, onFetched }: Props) {
   const [url, setUrl] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const [urlLoading, setUrlLoading] = useState(false);
-  const [fileLoading, setFileLoading] = useState(false);
+
 
   const [error, setError] = useState("");
   if (loading) {
@@ -28,7 +27,7 @@ export function StepSource({ onManual, onFetched }: Props) {
   /* ---------------- URL FLOW ---------------- */
 
   const fetchFromUrl = async () => {
-    if (!url || urlLoading) return;
+    if (!url || loading) return;
 
     setLoading(true);
     setError("");
@@ -52,14 +51,14 @@ export function StepSource({ onManual, onFetched }: Props) {
   /* ---------------- FILE FLOW ---------------- */
 
   const fetchFromFile = async () => {
-    if (!file || fileLoading) return;
+    if (!file || loading) return;
 
     if (file.size > MAX_FILE_SIZE) {
       setError("File size must be 10 MB or less");
       return;
     }
 
-    setFileLoading(true);
+    setLoading(true);
     setError("");
 
     try {
@@ -79,7 +78,7 @@ export function StepSource({ onManual, onFetched }: Props) {
     } catch {
       setError("Failed to parse recipe from file");
     } finally {
-      setFileLoading(false);
+      setLoading(false);
     }
   };
 
@@ -91,7 +90,7 @@ export function StepSource({ onManual, onFetched }: Props) {
       <Button
         className="w-full"
         onClick={onManual}
-        disabled={urlLoading || fileLoading}
+        disabled={loading}
         data-tour="add-recipe-manual"
       >
         Add recipe manually
@@ -103,15 +102,15 @@ export function StepSource({ onManual, onFetched }: Props) {
           placeholder="Paste recipe URL"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          disabled={urlLoading}
+          disabled={loading}
         />
 
         <Button
           className="w-full"
           onClick={fetchFromUrl}
-          disabled={urlLoading || !url}
+          disabled={loading || !url}
         >
-          {urlLoading ? "Fetching recipe..." : "Fetch from URL"}
+          {loading ? "Fetching recipe..." : "Fetch from URL"}
         </Button>
       </div>
 
@@ -121,7 +120,7 @@ export function StepSource({ onManual, onFetched }: Props) {
           type="file"
           accept="image/png,image/jpeg,image/jpg,application/pdf"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          disabled={fileLoading}
+          disabled={loading}
         />
 
         <p className="text-xs text-muted-foreground">
@@ -131,9 +130,9 @@ export function StepSource({ onManual, onFetched }: Props) {
         <Button
           className="w-full"
           onClick={fetchFromFile}
-          disabled={fileLoading || !file}
+          disabled={loading || !file}
         >
-          {fileLoading ? "Parsing recipe..." : "Upload & Parse"}
+          {loading ? "Parsing recipe..." : "Upload & Parse"}
         </Button>
       </div>
 

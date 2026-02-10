@@ -95,13 +95,13 @@ model RecipeInList {
 
   shoppingList ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
 
-  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Restrict)
-
+  recipe Recipe @relation( fields: [recipeId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
   @@unique([shoppingListId, recipeId])
   @@index([recipeId])
 }
+
 
 model ListIngredient {
   id            String   @id @default(cuid())
