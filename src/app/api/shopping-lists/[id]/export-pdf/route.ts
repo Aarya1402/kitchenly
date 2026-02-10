@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
 import type { ExportPdfGroupItem } from "@/types/aggregatedItems";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
-
+import { Buffer } from "buffer";
 /* ───────── helpers (unchanged) ───────── */
 
 function canonicalizeName(name: string) {
@@ -168,11 +168,11 @@ export async function GET(
 
   const pdfBytes = await pdfDoc.save();
 
-  return new NextResponse(pdfBytes.buffer, {
-    headers: {
-      "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="${list.title}.pdf"`,
-    },
-  });
+return new NextResponse(Buffer.from(pdfBytes), {
+  headers: {
+    "Content-Type": "application/pdf",
+    "Content-Disposition": `attachment; filename="${list.title}.pdf"`,
+  },
+});
 
 }
