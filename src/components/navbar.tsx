@@ -18,7 +18,7 @@ export function Navbar() {
   const pathname = usePathname();
   const { user, isLoaded, isSignedIn } = useUser();
   const router = useRouter();
-  const isRecipesActive = pathname.startsWith("/my-recipes");
+  const isRecipesActive = pathname.startsWith("/recipes");
   const isListsActive = pathname.startsWith("/shopping-lists");
   const isDashboardActive = pathname === "/";
 
@@ -54,7 +54,7 @@ export function Navbar() {
                   : ""
               }
             >
-              <Link href="/my-recipes">Recipes</Link>
+              <Link href="/recipes">Recipes</Link>
             </Button>
 
             {/* Lists */}

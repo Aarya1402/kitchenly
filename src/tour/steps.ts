@@ -25,21 +25,21 @@ export const TOUR_STEPS: TourStep[] = [
     target: '[data-tour="dashboard-recent-recipes"]',
     content:
       "Here you'll see your recently added recipes in a carousel for quick access.",
-    data: { next: "/my-recipes" },
+    data: { next: "/recipes" },
     disableBeacon: true,
   },
   {
     target: '[data-tour="recipe-card"]',
     content:
       "Click on any recipe card to view its details, ingredients, and steps.",
-    data: { previous: "/", next: "/my-recipes" },
+    data: { previous: "/", next: "/recipes" },
     disableBeacon: true,
   },
   {
     target: '[data-tour="add-recipe-button"]',
     content: "Use this button to add a new recipe.",
     disableBeacon: true,
-    data: { previous: "/my-recipes", next: "/my-recipes" },
+    data: { previous: "/recipes", next: "/recipes" },
   },
 
   {
@@ -47,20 +47,20 @@ export const TOUR_STEPS: TourStep[] = [
     content:
       "Select one or more recipes using these checkboxes to create a shopping list.",
     disableBeacon: true,
-    data: { previous: "/my-recipes", next: "/my-recipes" },
+    data: { previous: "/recipes", next: "/recipes" },
   },
   {
     target: '[data-tour="navbar-lists"]',
     content: "Click here to view all your shopping lists.",
 
-    data: { previous: "/my-recipes", next: "/shopping-lists" },
+    data: { previous: "/recipes", next: "/shopping-lists" },
     disableBeacon: true,
   },
   {
     target: '[data-tour="add-list-button"]',
     content: "Create a new shopping list from your selected recipes.",
     disableBeacon: true,
-    data: { previous: "/my-recipes", next: "/shopping-lists" },
+    data: { previous: "/recipes", next: "/shopping-lists" },
   },
   {
     target: '[data-tour="list-card"]',

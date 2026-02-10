@@ -205,7 +205,7 @@ export function MyRecipesGrid({
         <h1 className="text-2xl font-semibold">My Recipes</h1>
 
         <Button
-          onClick={() => router.push("/my-recipes/new")}
+          onClick={() => router.push("/recipes/new")}
           data-tour="add-recipe-button"
         >
           <Plus className="mr-2 h-4 w-4" />

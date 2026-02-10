@@ -39,7 +39,7 @@ export default function ShoppingListsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Shopping Lists</h1>
         <div data-tour="add-list-button">
-          <Button variant="outline" onClick={() => router.push("/my-recipes")}>
+          <Button variant="outline" onClick={() => router.push("/recipes")}>
             New from Recipes
           </Button>
         </div>

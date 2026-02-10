@@ -249,7 +249,7 @@ export function RecipeCarouselSkeleton() {
   );
 }
 
-/** In-page: grid of recipe cards (e.g. my-recipes while loading) */
+/** In-page: grid of recipe cards (e.g. recipes while loading) */
 export function RecipeGridSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">

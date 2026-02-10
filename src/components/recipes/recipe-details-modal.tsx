@@ -234,7 +234,7 @@ export function RecipeDetailsModal({
                 <>
                   <Button
                     variant="outline"
-                    onClick={() => router.push(`/my-recipes/${recipe.id}/edit`)}
+                    onClick={() => router.push(`/recipes/${recipe.id}/edit`)}
                   >
                     Edit
                   </Button>

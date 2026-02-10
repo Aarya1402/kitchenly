@@ -103,7 +103,7 @@ export default function NewRecipePage() {
       );
 
       // redirect to recipes list
-      window.location.href = "/my-recipes";
+      window.location.href = "/recipes";
     } catch {
       alert("Failed to save recipe");
     } finally {

@@ -104,7 +104,7 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
         },
       });
 
-      window.location.href = "/my-recipes";
+      window.location.href = "/recipes";
     } catch {
       alert("Failed to save recipe");
     } finally {
