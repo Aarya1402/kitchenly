@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { AggregatedItem as Item } from "@/types/aggregatedItems";
+import { ShareListSkeleton } from "@/components/ui/page-skeletons";
 
 export default function ShareClient({ token }: { token: string }) {
   const [data, setData] = useState<{
@@ -34,7 +35,7 @@ export default function ShareClient({ token }: { token: string }) {
   }
 
   if (!data) {
-    return <div className="p-8">Loading…</div>;
+    return <ShareListSkeleton/>;
   }
 
   return (

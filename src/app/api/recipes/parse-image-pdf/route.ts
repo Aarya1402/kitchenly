@@ -8,8 +8,7 @@ import { ALLOWED_TYPES } from "@/constants/allowed_file_types";
 import { geminiModel } from "@/lib/gemini";
 
 const EXTRACTOR_BASE_URL =
-  process.env.EXTRACTOR_BASE_URL ||
-  "https://kitchenly-7gmg.onrender.com";
+  process.env.EXTRACTOR_BASE_URL
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,

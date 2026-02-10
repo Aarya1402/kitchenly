@@ -58,9 +58,9 @@ export default function MyRecipesPage() {
     }
   };
 
-  // if (loading && recipes.length === 0) {
-  //   return <MyRecipesSkeleton />;
-  // }
+  if (loading) {
+    return <MyRecipesSkeleton />;
+  }
 
   return (
     <div className="mx-auto max-w-6xl p-6 space-y-6">
