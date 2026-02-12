@@ -35,12 +35,13 @@ export function RecipeCarousel({ recipes, currentUserId, onCardClick }: Props) {
         {recipes.map((recipe) => (
           <CarouselItem
             key={recipe.id}
-            className="basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
+            className="basis-[95%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
           >
             <RecipeCard
               recipe={recipe}
               currentUserId={currentUserId}
               onClick={() => onCardClick(recipe)}
+              size="large"
             />
           </CarouselItem>
         ))}

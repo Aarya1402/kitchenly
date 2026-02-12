@@ -15,12 +15,14 @@ type RecipeCardProps = {
   };
   currentUserId?: string | null;
   onClick: () => void;
+  size?: "default" | "large";
 };
 
 export function RecipeCard({
   recipe,
   currentUserId,
   onClick,
+  size = "default",
 }: RecipeCardProps) {
   const addedByLabel =
     recipe.userId && recipe.userId === currentUserId
@@ -33,7 +35,7 @@ export function RecipeCard({
 
   return (
     <Card
-      className="group hover:shadow-primary/5 flex h-[380px] cursor-pointer flex-col overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+      className={`group hover:shadow-primary/5 flex cursor-pointer flex-col overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${size === "large" ? "h-[460px]" : "h-[400px]"}`}
       onClick={onClick}
       data-tour="recipe-card"
     >
@@ -48,9 +50,9 @@ export function RecipeCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       </div>
 
-      {/* Content */}
-      <CardContent className="flex flex-1 flex-col gap-3 p-5">
-        <div className="space-y-1">
+      {/* Content - min-h-0 allows flex shrink; spacer pushes Added by to bottom */}
+      <CardContent className="flex min-h-0 flex-1 flex-col p-5">
+        <div className="min-w-0 flex-shrink-0 space-y-1">
           <h3 className="group-hover:text-primary line-clamp-2 text-lg leading-tight font-bold tracking-tight transition-colors">
             {recipe.title}
           </h3>
@@ -59,8 +61,8 @@ export function RecipeCard({
           </p>
         </div>
 
-        <div className="mt-auto flex flex-wrap gap-1.5">
-          {recipe.dietaryTags.slice(0, 3).map((tag) => (
+        <div className="mt-2 flex flex-shrink-0 flex-wrap gap-1.5">
+          {recipe.dietaryTags.slice(0, 1).map((tag) => (
             <Badge
               key={tag}
               variant="secondary"
@@ -69,16 +71,19 @@ export function RecipeCard({
               {tag}
             </Badge>
           ))}
-          {recipe.dietaryTags.length > 3 && (
+          {recipe.dietaryTags.length > 1 && (
             <Badge variant="secondary" className="bg-secondary/50 font-medium">
-              +{recipe.dietaryTags.length - 3}
+              +{recipe.dietaryTags.length - 1}
             </Badge>
           )}
         </div>
 
-        {/* Added by - bottom left border area */}
+        {/* Spacer - fills remaining space, allows "Added by" to stick to bottom */}
+        <div className="min-h-0 flex-1" />
+
+        {/* Added by - flex-shrink-0 ensures it's never cut off */}
         {addedByLabel && (
-          <div className="border-primary/20 text-muted-foreground group-hover:border-primary mt-3 border-l-2 pl-2 text-left text-xs font-medium transition-colors">
+          <div className="border-primary/20 group-hover:border-primary mt-3 flex-shrink-0 border-l-2 pl-2 text-left text-xs font-medium transition-colors">
             {addedByLabel}
           </div>
         )}
