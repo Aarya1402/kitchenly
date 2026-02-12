@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
-import { DEFAULT_CATEGORY } from "@/constants/defualt-category";
+import { DEFAULT_CATEGORY } from "@/constants/default-category";
 import { CATEGORY_MAP } from "@/constants/category-map";
 import type {
   RecipeInListCreateInput,
@@ -28,42 +28,52 @@ export async function POST(req: Request) {
     );
   }
 
-  const list = await prisma.shoppingList.create({
-    data: {
-      userId,
-      title: title || "Shopping List",
+  try {
+    const list = await prisma.shoppingList.create({
+      data: {
+        userId,
+        title: title || "Shopping List",
 
-      // ✅ Persist recipe structure
-      recipes: {
-        create: recipes.map((r: RecipeInListCreateInput) => ({
-          recipeId: r.recipeId,
-          recipeTitle: r.title,
-          baseServings: r.baseServings,
-          servingsUsed: r.servingsUsed,
-        })),
+        // ✅ Persist recipe structure
+        recipes: {
+          create: recipes.map((r: RecipeInListCreateInput) => ({
+            recipeId: r.recipeId,
+            recipeTitle: r.title,
+            baseServings: r.baseServings ?? 4, // Fallback to safe default if missing
+            servingsUsed: r.servingsUsed,
+          })),
+        },
+
+        // ✅ Optional manual items
+        ...(Array.isArray(manualItems) && manualItems.length > 0
+          ? {
+              manualItems: {
+                create: manualItems.map((i: ManualItemCreateInput) => ({
+                  ingredientKey: i.ingredientKey,
+                  quantity: i.quantity,
+                  unit: i.unit,
+                  category: i.category || inferCategory(i.ingredientKey), // Use provided category if available
+                })),
+              },
+            }
+          : {}),
       },
+    });
 
-      // ✅ Optional manual items
-      ...(Array.isArray(manualItems) && manualItems.length > 0
-        ? {
-            manualItems: {
-              create: manualItems.map((i: ManualItemCreateInput) => ({
-                ingredientKey: i.ingredientKey,
-                quantity: i.quantity,
-                unit: i.unit,
-                category: inferCategory(i.ingredientKey),
-              })),
-            },
-          }
-        : {}),
-    },
-  });
-
-  return NextResponse.json({
-    success: true,
-    id: list.id,
-  });
+    return NextResponse.json({
+      success: true,
+      id: list.id,
+    });
+  } catch (error) {
+    console.error("Failed to create shopping list:", error);
+    return NextResponse.json(
+      { error: "Failed to create shopping list" },
+      { status: 500 },
+    );
+  }
 }
+
+
 
 /* ───────── GET: list all shopping lists ───────── */
 export async function GET() {

@@ -144,6 +144,7 @@
   --sidebar-ring: oklch(0.72 0.16 195);
 }
 
+
 /* ─────────────────────────────────────────────
    Base styles
 ───────────────────────────────────────────── */
@@ -152,7 +153,11 @@
     @apply border-border outline-ring/50;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground selection:bg-primary/20 selection:text-primary;
   }
 }

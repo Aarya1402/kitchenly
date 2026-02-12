@@ -21,6 +21,7 @@ const RecipeDetailsModal = dynamic(
 );
 
 export default function DashboardPage() {
+  // Force rebuild for CSS fix
   const { user } = useUser();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [query, setQuery] = useState("");

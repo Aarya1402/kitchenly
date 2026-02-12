@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
-import { DEFAULT_CATEGORY } from "@/constants/defualt-category";
+import { DEFAULT_CATEGORY } from "@/constants/default-category";
 import { CATEGORY_MAP } from "@/constants/category-map";
 
 /* ───────── Helpers ───────── */
@@ -47,7 +47,6 @@ export async function POST(req: Request) {
   const recipes = await prisma.recipe.findMany({
     where: {
       id: { in: recipeIds },
-      userId,
     },
     include: {
       ingredients: true,

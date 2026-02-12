@@ -1,7 +1,7 @@
 import { UNIT_ALIASES } from "@/constants/unit-aliases";
 import { DESCRIPTORS } from "@/constants/ingredient-descriptors";
 import { FRACTIONS } from "@/constants/factions";
-import { DEFAULT_CATEGORY } from "@/constants/defualt-category";
+import { DEFAULT_CATEGORY } from "@/constants/default-category";
 import { CATEGORY_MAP } from "@/constants/category-map";
 
 function inferCategory(ingredientName: string): string {

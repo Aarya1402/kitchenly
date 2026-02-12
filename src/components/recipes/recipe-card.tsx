@@ -32,39 +32,46 @@ export function RecipeCard({
 
   return (
     <Card
-      className="flex h-[360px] flex-col overflow-hidden"
+      className="group flex h-[380px] cursor-pointer flex-col overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5"
       onClick={onClick}
       data-tour="recipe-card"
     >
       {/* Image */}
-      <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-muted">
+      <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-muted">
         <Image
           src={recipe.imageUrl ?? "/images/recipe-placeholder.png"}
           alt={recipe.title}
           fill
-          className="object-cover"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       </div>
 
       {/* Content */}
-      <CardContent className="flex flex-1 flex-col gap-2 pt-4">
-        <h3 className="line-clamp-2 text-sm font-semibold">{recipe.title}</h3>
+      <CardContent className="flex flex-1 flex-col gap-3 p-5">
+        <div className="space-y-1">
+          <h3 className="line-clamp-2 text-lg font-bold leading-tight tracking-tight group-hover:text-primary transition-colors">
+            {recipe.title}
+          </h3>
+          <p className="text-sm text-muted-foreground font-medium">
+            {recipe.servings} Servings
+          </p>
+        </div>
 
-        <p className="text-xs text-muted-foreground">
-          Servings: {recipe.servings}
-        </p>
-
-        <div className="mt-auto flex flex-wrap gap-1">
+        <div className="mt-auto flex flex-wrap gap-1.5">
           {recipe.dietaryTags.slice(0, 3).map((tag) => (
-            <Badge key={tag} variant="secondary">
+            <Badge key={tag} variant="secondary" className="bg-secondary/50 font-medium hover:bg-secondary">
               {tag}
             </Badge>
           ))}
+          {recipe.dietaryTags.length > 3 && (
+             <Badge variant="secondary" className="bg-secondary/50 font-medium">+{recipe.dietaryTags.length - 3}</Badge>
+          )}
         </div>
 
         {/* Added by - bottom left border area */}
         {addedByLabel && (
-          <div className="mt-2 border-l-2 border-muted-foreground/30 pl-2 text-left text-xs text-muted-foreground">
+          <div className="mt-3 border-l-2 border-primary/20 pl-2 text-left text-xs font-medium text-muted-foreground transition-colors group-hover:border-primary">
             {addedByLabel}
           </div>
         )}

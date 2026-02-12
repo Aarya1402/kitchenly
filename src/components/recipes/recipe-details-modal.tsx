@@ -42,13 +42,21 @@ export function RecipeDetailsModal({
   const [showAllSteps, setShowAllSteps] = useState(false);
   const [tasteOpen, setTasteOpen] = useState(false);
   const [tasteLoading, setTasteLoading] = useState(false);
-
   const [tasteResult, setTasteResult] = useState<TastePreview | null>(null);
+
+  const originalServings = recipe?.servings ?? 1;
+  const [servings, setServings] = useState(originalServings);
+
+  // reset servings when modal opens/closes
+  useEffect(() => {
+    if (open && recipe) {
+      setServings(recipe.servings);
+    }
+  }, [open, recipe]);
 
   if (!recipe) return null;
 
-  const isOwnRecipe =
-    !!recipe.userId && !!currentUserId && recipe.userId === currentUserId;
+  const isOwnRecipe = currentUserId && recipe.userId === currentUserId;
 
   const handleDelete = async () => {
     await onDeleted(recipe);
@@ -103,27 +111,6 @@ export function RecipeDetailsModal({
 
     return `${display} ${parsed.unit}`.trim();
   }
-
-  /* ───────── component ───────── */
-
-  type Props = {
-    recipe: Recipe | null;
-    open: boolean;
-    onClose: () => void;
-  };
-
-  const originalServings = recipe?.servings ?? 1;
-
-  const [servings, setServings] = useState(originalServings);
-
-  // reset servings when modal opens/closes
-  useEffect(() => {
-    if (open && recipe) {
-      setServings(recipe.servings);
-    }
-  }, [open, recipe]);
-
-  if (!recipe) return null;
 
   const scaleFactor = servings / originalServings;
   return (
