@@ -12,9 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Copy, FileDown, Link2, Unlink } from "lucide-react";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
-  import { useEffect } from "react";
+import { useEffect } from "react";
 import axios from "axios";
-import "../components/recipes/scrollbar-hide.css"
+import "../components/recipes/scrollbar-hide.css";
 
 type Props = {
   listId: string;
@@ -36,7 +36,6 @@ export function ShareExportModal({
 
   /* ───────── Derived share URL (SSR-safe) ───────── */
 
-
   useEffect(() => {
     if (open) {
       setToken(shareToken ?? null);
@@ -44,7 +43,6 @@ export function ShareExportModal({
   }, [open, shareToken]);
 
   const shareUrl = useMemo(() => {
-
     if (typeof window === "undefined" || !token) return null;
     return `${window.location.origin}/shopping-lists/share/${token}`;
   }, [token]);
@@ -128,8 +126,8 @@ export function ShareExportModal({
           </DialogHeader>
 
           {/* ───────── Share Section ───────── */}
-          <div className="space-y-3 scrollbar-hide">
-            <div className="pointer-events-none sticky bottom-0 h-4 bg-gradient-to-t from-background to-transparent" />
+          <div className="scrollbar-hide space-y-3">
+            <div className="from-background pointer-events-none sticky bottom-0 h-4 bg-gradient-to-t to-transparent" />
             <h3 className="flex items-center gap-2 text-sm font-medium">
               <Link2 className="h-4 w-4" />
               Shareable link
@@ -137,7 +135,7 @@ export function ShareExportModal({
 
             {token ? (
               <div className="space-y-2">
-                <div className="break-all rounded-md border bg-muted px-3 py-2 text-xs">
+                <div className="bg-muted rounded-md border px-3 py-2 text-xs break-all">
                   {shareUrl}
                 </div>
 
@@ -168,7 +166,7 @@ export function ShareExportModal({
                 Generate link
               </Button>
             )}
-            <div className="pointer-events-none sticky bottom-0 h-4 bg-gradient-to-t from-background to-transparent" />
+            <div className="from-background pointer-events-none sticky bottom-0 h-4 bg-gradient-to-t to-transparent" />
           </div>
 
           {/* ───────── Export Section ───────── */}

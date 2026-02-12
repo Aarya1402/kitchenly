@@ -17,7 +17,7 @@ const RecipeDetailsModal = dynamic(
     import("@/components/recipes/recipe-details-modal").then((m) => ({
       default: m.RecipeDetailsModal,
     })),
-  { ssr: false },
+  { ssr: false }
 );
 
 export default function DashboardPage() {
@@ -32,13 +32,12 @@ export default function DashboardPage() {
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const [availableCuisines, setAvailableCuisines] = useState<string[]>([]);
 
-
   const fetchRecipes = async (search?: string, cuisines?: string[]) => {
     try {
       setLoading(true);
 
       const isSearch = Boolean(
-        (search && search.length > 0) || (cuisines && cuisines.length > 0),
+        (search && search.length > 0) || (cuisines && cuisines.length > 0)
       );
 
       const url = isSearch ? "/api/recipes/search" : "/api/recipes";
@@ -109,9 +108,8 @@ export default function DashboardPage() {
     fetchRecipes(query.length >= 3 ? query : undefined, cuisines);
   };
 
-
   return (
-    <div className="mx-auto max-w-7xl space-y-10 p-6 ">
+    <div className="mx-auto max-w-7xl space-y-10 p-6">
       <DashboardHero />
 
       <div className="flex justify-center">
@@ -141,7 +139,7 @@ export default function DashboardPage() {
             }}
           />
         ) : (
-          <div className="text-center text-sm text-muted-foreground">
+          <div className="text-muted-foreground text-center text-sm">
             No recipes yet. Add one to get started.
           </div>
         )}

@@ -16,7 +16,7 @@ export async function GET(req: Request) {
   const page = Math.max(Number(searchParams.get("page")) || 1, 1);
   const limit = Math.min(
     Math.max(Number(searchParams.get("limit")) || 10, 1),
-    50,
+    50
   );
 
   const skip = (page - 1) * limit;
@@ -59,7 +59,7 @@ function isCloudinaryUrl(url: string) {
   return url.includes("res.cloudinary.com");
 }
 async function uploadExtractedImageToCloudinary(
-  extractedImagePath: string,
+  extractedImagePath: string
 ): Promise<string> {
   // "/extracted_images/foo.png" → "foo.png"
   const filename = extractedImagePath.replace(/^\/?extracted_images\//, "");
@@ -104,7 +104,7 @@ export async function POST(req: Request) {
     const user = await client.users.getUser(userId);
     createdByName = user.firstName
       ? [user.firstName, user.lastName].filter(Boolean).join(" ") || null
-      : user.username ?? null;
+      : (user.username ?? null);
   } catch {
     // Fallback if Clerk lookup fails
   }
@@ -121,7 +121,7 @@ export async function POST(req: Request) {
     console.error("Cloudinary upload failed", err);
     return NextResponse.json(
       { error: "Failed to upload recipe image" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 
@@ -136,7 +136,7 @@ export async function POST(req: Request) {
       console.error("Cloudinary upload failed", err);
       return NextResponse.json(
         { error: "Failed to upload recipe image" },
-        { status: 500 },
+        { status: 500 }
       );
     }
   }

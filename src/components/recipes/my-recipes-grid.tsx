@@ -46,7 +46,7 @@ export function MyRecipesGrid({
 
   const [open, setOpen] = useState(false);
   const [selectedRecipeModal, setSelectedRecipeModal] = useState<Recipe | null>(
-    null,
+    null
   );
 
   const [query, setQuery] = useState("");
@@ -144,7 +144,7 @@ export function MyRecipesGrid({
 
   const toggleRecipe = (recipeId: string, checked: boolean) => {
     setSelectedIds((prev) =>
-      checked ? [...prev, recipeId] : prev.filter((id) => id !== recipeId),
+      checked ? [...prev, recipeId] : prev.filter((id) => id !== recipeId)
     );
   };
 
@@ -225,7 +225,7 @@ export function MyRecipesGrid({
       {/* Grid */}
       <div data-tour="recipe-card">
         {recipes.length === 0 ? (
-          <div className="rounded-lg border border-dashed p-12 text-center text-sm text-muted-foreground">
+          <div className="text-muted-foreground rounded-lg border border-dashed p-12 text-center text-sm">
             You haven’t added any recipes yet.
           </div>
         ) : (
@@ -266,7 +266,7 @@ export function MyRecipesGrid({
 
       {/* Bottom bar */}
       {selectedIds.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background p-4">
+        <div className="bg-background fixed right-0 bottom-0 left-0 z-50 border-t p-4">
           <div className="mx-auto flex max-w-3xl items-center justify-between">
             <span className="text-sm">
               {selectedIds.length} recipe
@@ -293,7 +293,7 @@ export function MyRecipesGrid({
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <label className="text-sm text-muted-foreground">
+                  <label className="text-muted-foreground text-sm">
                     Servings
                   </label>
 
@@ -307,7 +307,7 @@ export function MyRecipesGrid({
                     className="w-24"
                   />
 
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-muted-foreground text-xs">
                     (original: {singleSelectedRecipe.servings})
                   </span>
                 </div>
@@ -330,7 +330,7 @@ export function MyRecipesGrid({
                 className="w-full"
                 onClick={() =>
                   router.push(
-                    `/shopping-lists/new?recipes=${selectedIds.join(",")}`,
+                    `/shopping-lists/new?recipes=${selectedIds.join(",")}`
                   )
                 }
               >

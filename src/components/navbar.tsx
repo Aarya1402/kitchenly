@@ -23,23 +23,26 @@ export function Navbar() {
   const isDashboardActive = pathname === "/";
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
+    <header className="bg-background/80 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         {/* Left: App name / logo */}
-        <Link href="/" className="text-xl font-bold tracking-tight text-primary hover:opacity-90 transition-opacity">
+        <Link
+          href="/"
+          className="text-primary text-xl font-bold tracking-tight transition-opacity hover:opacity-90"
+        >
           Kitchenly
         </Link>
 
         {/* Right */}
         {!isLoaded ? null : isSignedIn ? (
           <div className="flex items-center gap-4">
-            <nav className="hidden md:flex items-center gap-1">
+            <nav className="hidden items-center gap-1 md:flex">
               <Button
                 asChild
                 variant="ghost"
                 className={
                   isDashboardActive
-                    ? "font-semibold bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary"
+                    ? "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary font-semibold"
                     : "text-muted-foreground hover:text-primary hover:bg-primary/5"
                 }
               >
@@ -51,7 +54,7 @@ export function Navbar() {
                 variant="ghost"
                 className={
                   isRecipesActive
-                    ? "font-semibold bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary"
+                    ? "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary font-semibold"
                     : "text-muted-foreground hover:text-primary hover:bg-primary/5"
                 }
               >
@@ -64,7 +67,7 @@ export function Navbar() {
                 variant="ghost"
                 className={
                   isListsActive
-                    ? "font-semibold bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary"
+                    ? "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary font-semibold"
                     : "text-muted-foreground hover:text-primary hover:bg-primary/5"
                 }
                 data-tour="navbar-lists"
@@ -72,14 +75,17 @@ export function Navbar() {
                 <Link href="/shopping-lists">Lists</Link>
               </Button>
             </nav>
-            
+
             <div className="flex items-center gap-2">
               <ThemeToggle />
               {/* User menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-9 w-9 rounded-full ring-offset-background hover:ring-2 hover:ring-ring hover:ring-offset-2 transition-all">
-                    <Avatar className="h-9 w-9 border border-border">
+                  <Button
+                    variant="ghost"
+                    className="ring-offset-background hover:ring-ring relative h-9 w-9 rounded-full transition-all hover:ring-2 hover:ring-offset-2"
+                  >
+                    <Avatar className="border-border h-9 w-9 border">
                       <AvatarImage
                         src={user.imageUrl}
                         alt={user.fullName ?? ""}
@@ -93,7 +99,10 @@ export function Navbar() {
 
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem asChild>
-                    <Link href="/settings" className="flex items-center gap-2 cursor-pointer">
+                    <Link
+                      href="/settings"
+                      className="flex cursor-pointer items-center gap-2"
+                    >
                       <Settings className="h-4 w-4" />
                       Settings
                     </Link>
@@ -101,7 +110,7 @@ export function Navbar() {
 
                   <DropdownMenuItem asChild>
                     <SignOutButton>
-                      <button className="flex w-full items-center gap-2 cursor-pointer text-destructive focus:text-destructive">
+                      <button className="text-destructive focus:text-destructive flex w-full cursor-pointer items-center gap-2">
                         <LogOut className="h-4 w-4" />
                         Logout
                       </button>

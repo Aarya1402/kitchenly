@@ -19,7 +19,6 @@ export function StepSource({ onManual, onFetched }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
-
   const [error, setError] = useState("");
   if (loading) {
     return <MyRecipesFormSkeleton />;
@@ -36,7 +35,7 @@ export function StepSource({ onManual, onFetched }: Props) {
       const { data } = await axios.post(
         "/api/recipes/parse-url",
         { url },
-        { headers: { "Content-Type": "application/json" } },
+        { headers: { "Content-Type": "application/json" } }
       );
 
       if (!data?.recipe) throw new Error();
@@ -70,7 +69,7 @@ export function StepSource({ onManual, onFetched }: Props) {
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
-        },
+        }
       );
 
       if (!data?.recipe) throw new Error();
@@ -123,7 +122,7 @@ export function StepSource({ onManual, onFetched }: Props) {
           disabled={loading}
         />
 
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           PNG, JPG, JPEG, or PDF · Max size 10 MB
         </p>
 

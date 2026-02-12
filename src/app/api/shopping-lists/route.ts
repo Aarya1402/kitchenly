@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   if (!Array.isArray(recipes) || recipes.length === 0) {
     return NextResponse.json(
       { error: "At least one recipe is required" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -68,12 +68,10 @@ export async function POST(req: Request) {
     console.error("Failed to create shopping list:", error);
     return NextResponse.json(
       { error: "Failed to create shopping list" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
-
-
 
 /* ───────── GET: list all shopping lists ───────── */
 export async function GET() {
@@ -96,7 +94,7 @@ export async function GET() {
       const total = list.itemStates.length;
 
       const completed = list.itemStates.filter(
-        (item) => item.isChecked === true,
+        (item) => item.isChecked === true
       ).length;
 
       return {

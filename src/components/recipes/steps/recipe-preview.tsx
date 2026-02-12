@@ -31,7 +31,7 @@ export function RecipePreview({
       <CardContent className="space-y-6">
         {/* Image */}
         {imageUrl && (
-          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg bg-muted">
+          <div className="bg-muted relative aspect-[16/9] w-full overflow-hidden rounded-lg">
             <img
               src={imageUrl}
               alt={title}

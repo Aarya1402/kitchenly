@@ -74,20 +74,20 @@ function SortableStep({
     <div
       ref={setNodeRef}
       style={style}
-      className={`relative flex items-start gap-2 rounded-md border bg-background p-3 ${
+      className={`bg-background relative flex items-start gap-2 rounded-md border p-3 ${
         dragging ? "shadow-lg" : ""
       }`}
     >
       {/* Drop indicator */}
       {showIndicatorAbove && (
-        <div className="absolute -top-2 left-6 right-6 h-[2px] rounded bg-primary" />
+        <div className="bg-primary absolute -top-2 right-6 left-6 h-[2px] rounded" />
       )}
 
       {/* Drag handle */}
       <button
         {...attributes}
         {...listeners}
-        className="mt-1 cursor-grab text-muted-foreground hover:text-foreground"
+        className="text-muted-foreground hover:text-foreground mt-1 cursor-grab"
       >
         <GripVertical className="h-4 w-4" />
       </button>
@@ -129,7 +129,7 @@ export function StepsCard({ steps, setSteps }: Props) {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   const [activeId, setActiveId] = useState<string | null>(null);

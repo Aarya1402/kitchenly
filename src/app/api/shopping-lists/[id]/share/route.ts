@@ -4,11 +4,10 @@ import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
 import { randomUUID } from "node:crypto";
 
-
 /* ───────── Enable / regenerate share link ───────── */
 export async function POST(
   _req: Request,
-  context: { params: Promise<{ id: string }> },
+  context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
   const { userId } = await auth();
@@ -24,7 +23,7 @@ export async function POST(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
   if (list.shareToken) {
-    return NextResponse.json({ token: list.shareToken }); 
+    return NextResponse.json({ token: list.shareToken });
   }
 
   const token = randomUUID();
@@ -43,7 +42,7 @@ export async function POST(
 /* ───────── Disable share link ───────── */
 export async function DELETE(
   _req: Request,
-  context: { params: Promise<{ id: string }> },
+  context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
   const { userId } = await auth();

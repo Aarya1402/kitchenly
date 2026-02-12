@@ -35,16 +35,16 @@ export default function ShareClient({ token }: { token: string }) {
   }
 
   if (!data) {
-    return <ShareListSkeleton/>;
+    return <ShareListSkeleton />;
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">{data.title}</h1>
+    <div className="mx-auto max-w-2xl p-6">
+      <h1 className="mb-6 text-2xl font-bold">{data.title}</h1>
 
       {Object.entries(data.groups).map(([category, items]) => (
         <div key={category} className="mb-6">
-          <h2 className="font-semibold border-b mb-2">{category}</h2>
+          <h2 className="mb-2 border-b font-semibold">{category}</h2>
           <ul className="space-y-1">
             {items.map((i) => (
               <li key={i.name} className="text-sm">

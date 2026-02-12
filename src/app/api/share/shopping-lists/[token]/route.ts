@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 
 export async function GET(
   _req: Request,
-  context: { params: Promise<{ token: string }> },
+  context: { params: Promise<{ token: string }> }
 ) {
   const { token } = await context.params;
 
@@ -30,13 +30,13 @@ export async function GET(
   if (!list) {
     return NextResponse.json(
       { error: "Invalid or expired link" },
-      { status: 404 },
+      { status: 404 }
     );
   }
 
   /* build checked map */
   const checkedMap = new Map(
-    list.itemStates.map((s) => [s.ingredientKey, s.isChecked]),
+    list.itemStates.map((s) => [s.ingredientKey, s.isChecked])
   );
 
   /* aggregate items */

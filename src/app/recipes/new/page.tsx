@@ -14,7 +14,6 @@ import { StepFooter } from "@/components/recipes/steps/steps-footer";
 import { RecipeProgress } from "@/components/recipes/recipe-progress";
 import axios from "axios";
 
-
 export default function NewRecipePage() {
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
@@ -47,13 +46,13 @@ export default function NewRecipePage() {
     setIngredients(
       recipe.ingredients?.length
         ? recipe.ingredients
-        : [{ name: "", quantity: "" }],
+        : [{ name: "", quantity: "" }]
     );
 
     setStepsData(
       recipe.steps?.length
         ? recipe.steps.map((s: ParsedStep) => s.content)
-        : [""],
+        : [""]
     );
 
     setStep(2);
@@ -99,7 +98,7 @@ export default function NewRecipePage() {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       // redirect to recipes list

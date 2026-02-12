@@ -1,4 +1,3 @@
-
 import ShareClient from "./share-client";
 
 export default async function SharePage({

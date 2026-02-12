@@ -7,8 +7,7 @@ import { MAX_FILE_SIZE } from "@/constants/max-file-size";
 import { ALLOWED_TYPES } from "@/constants/allowed_file_types";
 import { geminiModel } from "@/lib/gemini";
 
-const EXTRACTOR_BASE_URL =
-  process.env.EXTRACTOR_BASE_URL
+const EXTRACTOR_BASE_URL = process.env.EXTRACTOR_BASE_URL;
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
@@ -17,7 +16,7 @@ cloudinary.config({
 });
 
 async function uploadExtractorImageToCloudinary(
-  extractedImagePath: string,
+  extractedImagePath: string
 ): Promise<string | null> {
   // "extracted_images/foo.png" or "extracted_images\foo.png" → "foo.png"
   const filename = extractedImagePath.replace(/^extracted_images[/\\]/, "");
@@ -37,7 +36,7 @@ async function uploadExtractorImageToCloudinary(
           else reject(new Error("Upload failed"));
         })
         .end(buffer);
-    },
+    }
   );
 
   return uploadResult.secure_url;
@@ -56,14 +55,14 @@ export async function POST(req: NextRequest) {
     if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
         { error: "Only PNG, JPG, JPEG, or PDF allowed" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
         { error: "File size must be ≤ 10MB" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -74,15 +73,15 @@ export async function POST(req: NextRequest) {
     extractorForm.append(
       "file",
       Buffer.from(await file.arrayBuffer()),
-      file.name,
+      file.name
     );
 
     const extractRes = await axios.post(
-"https://kitchenly-1.onrender.com/extract",
+      "https://kitchenly-1.onrender.com/extract",
       extractorForm,
       {
         headers: extractorForm.getHeaders(),
-      },
+      }
     );
 
     if (!extractRes.data?.success) {
@@ -151,8 +150,7 @@ Rules (STRICT):
     let imageUrl: string | null = null;
     if (firstImage) {
       try {
-        imageUrl =
-          (await uploadExtractorImageToCloudinary(firstImage)) ?? null;
+        imageUrl = (await uploadExtractorImageToCloudinary(firstImage)) ?? null;
       } catch (err) {
         console.error("Failed to upload extracted image to Cloudinary:", err);
         // Proceed without image - recipe can still be saved
@@ -188,7 +186,7 @@ Rules (STRICT):
     console.error(error);
     return NextResponse.json(
       { error: error.message || "Something went wrong" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

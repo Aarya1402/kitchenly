@@ -73,7 +73,7 @@ function tryJsonLd(html: string) {
         ingredients: recipe.recipeIngredient,
         steps: Array.isArray(recipe.recipeInstructions)
           ? normalizeInstructions(
-              recipe.recipeInstructions as JsonLdInstructionStep[],
+              recipe.recipeInstructions as JsonLdInstructionStep[]
             )
           : [],
       };
@@ -193,7 +193,7 @@ function extractPhotoGuidedSteps(html: string) {
 }
 
 function normalizeInstructions(
-  instructions: JsonLdInstructionStep[],
+  instructions: JsonLdInstructionStep[]
 ): string[] {
   const steps: string[] = [];
 
@@ -218,9 +218,7 @@ function normalizeInstructions(
 
     // 4️⃣ nested HowToDirection
     if (Array.isArray(step.itemListElement)) {
-      const parts = step.itemListElement
-        .map((x) => x.text)
-        .filter(Boolean);
+      const parts = step.itemListElement.map((x) => x.text).filter(Boolean);
 
       if (parts.length > 0) {
         steps.push(parts.join(" "));

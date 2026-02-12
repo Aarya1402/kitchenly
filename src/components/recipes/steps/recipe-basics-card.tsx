@@ -44,11 +44,11 @@ export function RecipeBasicsCard({
     setDietaryTags(
       dietaryTags.includes(tag)
         ? dietaryTags.filter((t) => t !== tag)
-        : [...dietaryTags, tag],
+        : [...dietaryTags, tag]
     );
   };
   const [customTags, setCustomTags] = useState<{ id: string; label: string }[]>(
-    [],
+    []
   );
   const [inputValue, setInputValue] = useState("");
   const addCustomTag = () => {
@@ -130,7 +130,7 @@ export function RecipeBasicsCard({
             placeholder="Add custom tag"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            className="border rounded px-2 py-1 flex-1"
+            className="flex-1 rounded border px-2 py-1"
             onKeyDown={(e) => e.key === "Enter" && addCustomTag()}
           />
           <Button

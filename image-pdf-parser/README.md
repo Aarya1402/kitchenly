@@ -3,6 +3,7 @@
 A robust FastAPI application that extracts structured recipe data (JSON) from PDF documents and images using **PaddleOCR** for text extraction and **Google Gemini** for intelligent parsing.
 
 ## 🚀 Features
+
 - **PDF & Image Support**: Extracts text and embedded images from documents.
 - **AI-Powered Structuring**: Uses Gemini 2.5 Flash Lite to convert raw text into structured JSON.
 - **Per-User API Keys**: Supports individual Google API keys via request headers.
@@ -12,10 +13,12 @@ A robust FastAPI application that extracts structured recipe data (JSON) from PD
 ## 🛠️ Setup
 
 ### Prerequisites
+
 - Docker & Docker Compose
 - Google Gemini API Key
 
 ### Local Installation (Manual)
+
 1. Install dependencies:
    ```bash
    pip install -r requirements.txt
@@ -30,24 +33,31 @@ A robust FastAPI application that extracts structured recipe data (JSON) from PD
    ```
 
 ## 🐳 Docker Usage (Recommended)
+
 Build and run everything in one command:
+
 ```bash
 docker compose up --build -d
 ```
+
 The API will be available at `http://localhost:8080`.
 
 ## 📌 API Endpoints
 
 ### 1. Extract Recipe
+
 **POST** `/extract`
 
 **Headers:**
+
 - `X-API-Key` (Optional): Provide your own Google API Key.
 
 **Form Data:**
+
 - `file`: The PDF or Image file.
 
 **Example Response:**
+
 ```json
 {
   "success": true,
@@ -63,10 +73,12 @@ The API will be available at `http://localhost:8080`.
 ```
 
 ### 2. View Image
+
 **GET** `/images/{filename}`
 Access any extracted image by its path.
 
 ## 📁 Project Structure
+
 - `app/main.py`: API entry point and routing.
 - `app/extractor.py`: PaddleOCR and PDF processing logic.
 - `app/llm.py`: Gemini AI initialization.

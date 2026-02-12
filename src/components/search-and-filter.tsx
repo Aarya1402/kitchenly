@@ -40,7 +40,7 @@ export function SearchAndFilterBar({
     <div className="flex w-full items-center gap-2">
       {/* 🔍 Search */}
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Search className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -62,7 +62,7 @@ export function SearchAndFilterBar({
           <div className="space-y-2">
             <p className="text-sm font-medium">Category</p>
 
-            <div className="max-h-48 space-y-2 overflow-auto scrollbar-hide">
+            <div className="scrollbar-hide max-h-48 space-y-2 overflow-auto">
               {availableCategories.map((category) => (
                 <label
                   key={category}

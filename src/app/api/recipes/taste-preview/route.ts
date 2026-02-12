@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     if (!ingredients || ingredients.length === 0) {
       return NextResponse.json(
         { error: "Ingredients are required" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -56,7 +56,7 @@ ${steps.map((s: string, i: number) => `${i + 1}. ${s}`).join("\n")}
     console.error("Taste preview error:", error);
     return NextResponse.json(
       { error: "Failed to generate taste preview" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

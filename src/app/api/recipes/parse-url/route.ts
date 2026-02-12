@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     console.error(err);
     return NextResponse.json(
       { error: "Failed to parse recipe" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

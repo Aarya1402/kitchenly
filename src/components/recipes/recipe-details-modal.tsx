@@ -117,15 +117,15 @@ export function RecipeDetailsModal({
     <>
       <Dialog open={open} onOpenChange={onClose}>
         <Activity visible={open} name="recipe-details-content">
-          <DialogContent className="max-w-3xl h-[85vh] flex flex-col ">
+          <DialogContent className="flex h-[85vh] max-w-3xl flex-col">
             {/* HEADER (fixed) */}
             <DialogHeader>
               <DialogTitle>{recipe.title}</DialogTitle>
             </DialogHeader>
 
             {/* SCROLLABLE BODY */}
-            <div className="flex-1 overflow-y-auto scrollbar-hide space-y-6 pr-4">
-              <div className="pointer-events-none sticky top-0 h-4 bg-gradient-to-b from-background to-transparent" />
+            <div className="scrollbar-hide flex-1 space-y-6 overflow-y-auto pr-4">
+              <div className="from-background pointer-events-none sticky top-0 h-4 bg-gradient-to-b to-transparent" />
               {/* Image */}
               {recipe.imageUrl && (
                 <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
@@ -169,8 +169,8 @@ export function RecipeDetailsModal({
 
               {/* Ingredients */}
               <div>
-                <h3 className="font-medium mb-1">Ingredients</h3>
-                <ul className="list-disc pl-5 text-sm space-y-1">
+                <h3 className="mb-1 font-medium">Ingredients</h3>
+                <ul className="list-disc space-y-1 pl-5 text-sm">
                   {ingredientsToShow.map((i, index) => (
                     <li key={`ingredient-${index}`}>
                       {scaleQuantity(i.quantity, scaleFactor)} {i.name}
@@ -181,7 +181,7 @@ export function RecipeDetailsModal({
                 {recipe.ingredients.length > INGREDIENTS_PREVIEW_COUNT && (
                   <Button
                     variant="link"
-                    className="px-0 mt-1 font-bold"
+                    className="mt-1 px-0 font-bold"
                     onClick={() => setShowAllIngredients((v) => !v)}
                   >
                     {showAllIngredients ? "Show less" : "Show more"}
@@ -191,8 +191,8 @@ export function RecipeDetailsModal({
 
               {/* Steps */}
               <div>
-                <h3 className="font-medium mb-1">Steps</h3>
-                <ol className="list-decimal pl-5 text-sm space-y-1">
+                <h3 className="mb-1 font-medium">Steps</h3>
+                <ol className="list-decimal space-y-1 pl-5 text-sm">
                   {stepsToShow.map((s) => (
                     <li key={s.stepNo}>{s.content}</li>
                   ))}
@@ -201,14 +201,14 @@ export function RecipeDetailsModal({
                 {recipe.steps.length > STEPS_PREVIEW_COUNT && (
                   <Button
                     variant="link"
-                    className="px-0 mt-1 font-bold"
+                    className="mt-1 px-0 font-bold"
                     onClick={() => setShowAllSteps((v) => !v)}
                   >
                     {showAllSteps ? "Show less" : "Show more"}
                   </Button>
                 )}
               </div>
-              <div className="pointer-events-none sticky bottom-0 h-4 bg-gradient-to-t from-background to-transparent" />
+              <div className="from-background pointer-events-none sticky bottom-0 h-4 bg-gradient-to-t to-transparent" />
             </div>
 
             {/* FOOTER (fixed) */}
@@ -238,13 +238,13 @@ export function RecipeDetailsModal({
       <Dialog open={tasteOpen} onOpenChange={setTasteOpen}>
         <Activity visible={tasteOpen} name="taste-preview-modal">
           <DialogContent className="max-w-lg overflow-hidden">
-            <div className="pointer-events-none sticky bottom-0 h-4 bg-gradient-to-t from-background to-transparent" />
+            <div className="from-background pointer-events-none sticky bottom-0 h-4 bg-gradient-to-t to-transparent" />
             <DialogHeader>
               <DialogTitle>Taste Preview — {recipe.title}</DialogTitle>
             </DialogHeader>
 
             {/* BODY */}
-            <div className="space-y-4 scrollbar-hide">
+            <div className="scrollbar-hide space-y-4">
               {tasteLoading ? (
                 <div className="space-y-3">
                   <Skeleton className="h-4 w-full" />
@@ -255,7 +255,7 @@ export function RecipeDetailsModal({
                 tasteResult && (
                   <>
                     {/* Meta badges */}
-                    <div className="flex gap-2 flex-wrap">
+                    <div className="flex flex-wrap gap-2">
                       <Badge variant="secondary">
                         🌶️ {tasteResult.spiceLevel}
                       </Badge>
@@ -264,20 +264,20 @@ export function RecipeDetailsModal({
 
                     {/* Overall taste */}
                     <div>
-                      <h4 className="text-sm font-semibold mb-1">
+                      <h4 className="mb-1 text-sm font-semibold">
                         Overall Taste
                       </h4>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         {tasteResult.overallTaste}
                       </p>
                     </div>
 
                     {/* Dominant flavors */}
                     <div>
-                      <h4 className="text-sm font-semibold mb-1">
+                      <h4 className="mb-1 text-sm font-semibold">
                         Dominant Flavors
                       </h4>
-                      <div className="flex gap-2 flex-wrap">
+                      <div className="flex flex-wrap gap-2">
                         {tasteResult.dominantFlavors.map((f) => (
                           <Badge key={f} variant="secondary">
                             {f}
@@ -288,8 +288,8 @@ export function RecipeDetailsModal({
 
                     {/* Best for */}
                     <div>
-                      <h4 className="text-sm font-semibold mb-1">Best For</h4>
-                      <p className="text-sm text-muted-foreground">
+                      <h4 className="mb-1 text-sm font-semibold">Best For</h4>
+                      <p className="text-muted-foreground text-sm">
                         {tasteResult.bestFor}
                       </p>
                     </div>
@@ -304,7 +304,7 @@ export function RecipeDetailsModal({
                 Close
               </Button>
             </DialogFooter>
-            <div className="pointer-events-none sticky bottom-0 h-4 bg-gradient-to-t from-background to-transparent" />
+            <div className="from-background pointer-events-none sticky bottom-0 h-4 bg-gradient-to-t to-transparent" />
           </DialogContent>
         </Activity>
       </Dialog>

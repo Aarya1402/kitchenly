@@ -18,12 +18,12 @@ export default function MyRecipesPage() {
     setLoading(true);
 
     const response = await axios.get(
-      `/api/recipes?page=${pageToLoad}&limit=12`,
+      `/api/recipes?page=${pageToLoad}&limit=12`
     );
     const json = response.data;
 
     setRecipes((prev) =>
-      pageToLoad === 1 ? json.data : [...prev, ...json.data],
+      pageToLoad === 1 ? json.data : [...prev, ...json.data]
     );
 
     setHasMore(json.hasMore);
@@ -63,7 +63,7 @@ export default function MyRecipesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl p-6 space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6 p-6">
       <MyRecipesGrid
         recipes={recipes}
         loadRecipes={loadRecipes}

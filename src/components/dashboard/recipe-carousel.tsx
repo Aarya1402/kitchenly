@@ -16,14 +16,10 @@ type Props = {
   onCardClick: (recipe: Recipe) => void;
 };
 
-export function RecipeCarousel({
-  recipes,
-  currentUserId,
-  onCardClick,
-}: Props) {
+export function RecipeCarousel({ recipes, currentUserId, onCardClick }: Props) {
   if (recipes.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">
+      <div className="text-muted-foreground rounded-lg border border-dashed p-10 text-center text-sm">
         No recipes found.
       </div>
     );

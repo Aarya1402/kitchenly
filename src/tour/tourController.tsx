@@ -156,7 +156,7 @@ export default function TourController() {
         if (targetRoute === "/shopping-lists/:id") {
           // Find the first list card to get its ID
           const listCard = document.querySelector(
-            '[data-tour="list-card"]',
+            '[data-tour="list-card"]'
           ) as HTMLElement;
           if (listCard && listCard.dataset.listId) {
             routeToNavigate = `/shopping-lists/${listCard.dataset.listId}`;

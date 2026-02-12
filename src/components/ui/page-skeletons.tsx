@@ -25,7 +25,10 @@ export function DashboardSkeleton() {
         <Skeleton className="h-6 w-32" />
         <div className="flex gap-4 overflow-hidden">
           {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="h-[360px] w-full min-w-[280px] shrink-0 overflow-hidden">
+            <Card
+              key={i}
+              className="h-[360px] w-full min-w-[280px] shrink-0 overflow-hidden"
+            >
               <Skeleton className="aspect-[16/9] w-full" />
               <CardContent className="space-y-2 pt-4">
                 <Skeleton className="h-4 w-full" />
@@ -231,7 +234,10 @@ export function RecipeCarouselSkeleton() {
   return (
     <div className="flex gap-4 overflow-hidden">
       {[1, 2, 3, 4].map((i) => (
-        <Card key={i} className="h-[360px] w-full min-w-[280px] shrink-0 overflow-hidden">
+        <Card
+          key={i}
+          className="h-[360px] w-full min-w-[280px] shrink-0 overflow-hidden"
+        >
           <Skeleton className="aspect-[16/9] w-full" />
           <CardContent className="space-y-2 pt-4">
             <Skeleton className="h-4 w-full" />

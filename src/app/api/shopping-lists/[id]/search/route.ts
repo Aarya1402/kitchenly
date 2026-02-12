@@ -26,7 +26,7 @@ function parseQuantity(input: string) {
 
 export async function GET(
   req: Request,
-  context: { params: Promise<{ id: string }> },
+  context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
   const { userId } = await auth();
@@ -62,7 +62,7 @@ export async function GET(
 
   /* ───────── Checked state map ───────── */
   const isCheckedMap = new Map(
-    list.itemStates.map((s) => [s.ingredientKey, s.isChecked]),
+    list.itemStates.map((s) => [s.ingredientKey, s.isChecked])
   );
 
   /* ───────── Aggregate ingredients ───────── */
@@ -126,7 +126,7 @@ export async function GET(
     items = items.filter(
       (i) =>
         i.name.toLowerCase().includes(q) ||
-        i.ingredientKey.toLowerCase().includes(q),
+        i.ingredientKey.toLowerCase().includes(q)
     );
   }
 

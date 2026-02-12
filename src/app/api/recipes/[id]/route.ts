@@ -5,7 +5,7 @@ import { normalizeIngredient } from "@/lib/ingredient-normalizer";
 
 export async function GET(
   _req: Request,
-  context: { params: Promise<{ id: string }> },
+  context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
   const { userId } = await auth();
@@ -33,7 +33,7 @@ export async function GET(
 
 export async function DELETE(
   _req: Request,
-  context: { params: Promise<{ id: string }> },
+  context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
   const { userId } = await auth();
@@ -59,7 +59,7 @@ export async function DELETE(
 
 export async function PUT(
   req: Request,
-  context: { params: Promise<{ id: string }> },
+  context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
   const { userId } = await auth();

@@ -34,7 +34,7 @@ export async function POST(req: Request) {
           else resolve(result as CloudinaryUploadResult);
         })
         .end(buffer);
-    },
+    }
   );
 
   return NextResponse.json({ imageUrl: uploadResult.secure_url });

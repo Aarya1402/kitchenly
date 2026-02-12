@@ -10,7 +10,7 @@ export function RecipeProgress({ step, total }: Props) {
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between text-sm text-muted-foreground">
+      <div className="text-muted-foreground flex items-center justify-between text-sm">
         <span>
           Step {step} of {total}
         </span>

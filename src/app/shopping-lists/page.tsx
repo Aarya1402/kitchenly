@@ -35,7 +35,7 @@ export default function ShoppingListsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl p-6 space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Shopping Lists</h1>
         <div data-tour="add-list-button">
@@ -46,25 +46,25 @@ export default function ShoppingListsPage() {
       </div>
 
       {lists.length === 0 && (
-        <p className="text-sm text-muted-foreground">No shopping lists yet.</p>
+        <p className="text-muted-foreground text-sm">No shopping lists yet.</p>
       )}
 
       <div className="space-y-4">
         {lists.map((list) => (
           <Card
             key={list.id}
-            className="cursor-pointer hover:bg-muted/50"
+            className="hover:bg-muted/50 cursor-pointer"
             onClick={() => router.push(`/shopping-lists/${list.id}`)}
             data-tour="list-card"
             data-list-id={list.id}
           >
             <CardHeader>
-              <CardTitle className="flex justify-between items-center">
+              <CardTitle className="flex items-center justify-between">
                 {list.title}
               </CardTitle>
             </CardHeader>
 
-            <CardContent className="text-sm text-muted-foreground">
+            <CardContent className="text-muted-foreground text-sm">
               Created on {new Date(list.createdAt).toLocaleDateString()}
             </CardContent>
           </Card>

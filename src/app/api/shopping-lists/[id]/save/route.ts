@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import type { ManualItemSaveInput } from "@/types/shoppingListApi";
 export async function PUT(
   req: Request,
-  context: { params: Promise<{ id: string }> },
+  context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
   const { userId } = await auth();

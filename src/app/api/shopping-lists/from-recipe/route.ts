@@ -38,7 +38,7 @@ export async function POST(req: Request) {
   if (!shoppingList || shoppingList.userId !== userId) {
     return NextResponse.json(
       { error: "Shopping list not found" },
-      { status: 404 },
+      { status: 404 }
     );
   }
 
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
   if (existing) {
     return NextResponse.json(
       { error: "Recipe already added to list" },
-      { status: 409 },
+      { status: 409 }
     );
   }
 

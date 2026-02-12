@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 
 export async function PUT(
   req: Request,
-  context: { params: Promise<{ id: string }> },
+  context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
   const { userId } = await auth();

@@ -35,7 +35,7 @@ export default function ShoppingListPage() {
   const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
   const [openShare, setOpenShare] = useState(false);
   const [search, setSearch] = useState("");
-const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
 
   const [filteredGroups, setFilteredGroups] =
     useState<Record<string, Item[]>>(groups);
@@ -78,22 +78,22 @@ const [categories, setCategories] = useState<string[]>([]);
 
     if (id) load();
   }, [id, router]);
-const fetchFilteredResults = async (
-  searchValue: string,
-  selectedCategories: string[],
-) => {
-  const res = await axios.get(`/api/shopping-lists/${id}/search`, {
-    params: {
-      q: searchValue || undefined,
-      categories:
-        selectedCategories.length > 0
-          ? selectedCategories.join(",")
-          : undefined,
-    },
-  });
+  const fetchFilteredResults = async (
+    searchValue: string,
+    selectedCategories: string[]
+  ) => {
+    const res = await axios.get(`/api/shopping-lists/${id}/search`, {
+      params: {
+        q: searchValue || undefined,
+        categories:
+          selectedCategories.length > 0
+            ? selectedCategories.join(",")
+            : undefined,
+      },
+    });
 
-  setFilteredGroups(res.data.groups);
-};
+    setFilteredGroups(res.data.groups);
+  };
 
   useEffect(() => {
     if (editMode) return;
@@ -115,7 +115,7 @@ const fetchFilteredResults = async (
   }
 
   return (
-    <div className="mx-auto max-w-2xl p-6 space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6 p-6">
       {/* ───────── Header Row ───────── */}
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-xl font-semibold">
@@ -177,7 +177,7 @@ const fetchFilteredResults = async (
 
       {!editMode && (
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex items-center justify-between text-sm">
             <span>
               {completed} of {total} items completed
             </span>
@@ -200,7 +200,7 @@ const fetchFilteredResults = async (
               <span className="font-medium">{r.title}</span>
 
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Servings</span>
+                <span className="text-muted-foreground text-sm">Servings</span>
 
                 <Input
                   type="number"
@@ -245,7 +245,7 @@ const fetchFilteredResults = async (
       {hasNoResults && (
         <div className="rounded-md border border-dashed p-6 text-center">
           <p className="text-sm font-medium">No results found</p>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-sm">
             Try adjusting your search or filter.
           </p>
         </div>
@@ -268,7 +268,7 @@ const fetchFilteredResults = async (
                       setGroups((prev) => {
                         const copy = structuredClone(prev);
                         const target = copy[category].find(
-                          (i) => i.ingredientKey === item.ingredientKey,
+                          (i) => i.ingredientKey === item.ingredientKey
                         );
                         if (target) target.isChecked = next;
                         return copy;
@@ -307,7 +307,7 @@ const fetchFilteredResults = async (
                 ) : (
                   <span
                     className={`flex-1 ${
-                      item.isChecked ? "line-through text-muted-foreground" : ""
+                      item.isChecked ? "text-muted-foreground line-through" : ""
                     }`}
                   >
                     {item.quantity.toFixed(2)} {item.unit} {item.name}

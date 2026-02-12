@@ -24,8 +24,7 @@ export function Activity({
   name,
   children,
 }: ActivityProps) {
-  const resolvedMode: ActivityMode =
-    mode ?? (visible ? "visible" : "hidden");
+  const resolvedMode: ActivityMode = mode ?? (visible ? "visible" : "hidden");
   return (
     <ReactActivity mode={resolvedMode} name={name}>
       {children}

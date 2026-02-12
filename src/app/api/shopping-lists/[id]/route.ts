@@ -22,7 +22,7 @@ function parseQuantity(input: string) {
 
 export async function GET(
   _req: Request,
-  context: { params: Promise<{ id: string }> },
+  context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
   const { userId } = await auth();
@@ -55,7 +55,7 @@ export async function GET(
   /* ───────── Build isChecked map ───────── */
 
   const isCheckedMap = new Map(
-    list.itemStates.map((s) => [s.ingredientKey, s.isChecked]),
+    list.itemStates.map((s) => [s.ingredientKey, s.isChecked])
   );
 
   /* ───────── Aggregate ingredients ───────── */
@@ -150,7 +150,7 @@ export async function GET(
 
 export async function PUT(
   req: Request,
-  context: { params: Promise<{ id: string }> },
+  context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
   const { userId } = await auth();
@@ -166,7 +166,7 @@ export async function PUT(
   if (!recipeId) {
     return NextResponse.json(
       { error: "recipeId is required" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -180,7 +180,7 @@ export async function PUT(
   if (!list || list.userId !== userId) {
     return NextResponse.json(
       { error: "Shopping list not found" },
-      { status: 404 },
+      { status: 404 }
     );
   }
 
@@ -191,7 +191,7 @@ export async function PUT(
   if (alreadyExists) {
     return NextResponse.json(
       { error: "Recipe already added to this list" },
-      { status: 409 },
+      { status: 409 }
     );
   }
 

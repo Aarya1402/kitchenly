@@ -48,13 +48,13 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
         initialData.ingredients.map((i) => ({
           name: i.name,
           quantity: i.quantity,
-        })),
+        }))
       );
 
       setStepsData(
         initialData.steps
           .sort((a: RecipeStep, b: RecipeStep) => a.stepNo - b.stepNo)
-          .map((s) => s.content),
+          .map((s) => s.content)
       );
     }
   }, [mode, initialData]);

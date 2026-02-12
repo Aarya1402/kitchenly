@@ -23,7 +23,7 @@ function parseQuantity(input: string) {
 
 export async function GET(
   _req: Request,
-  context: { params: Promise<{ id: string }> },
+  context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
   const { userId } = await auth();
@@ -54,7 +54,7 @@ export async function GET(
   /* ───────── checked map ───────── */
 
   const isCheckedMap = new Map(
-    list.itemStates.map((s) => [s.ingredientKey, s.isChecked]),
+    list.itemStates.map((s) => [s.ingredientKey, s.isChecked])
   );
 
   /* ───────── aggregate ingredients ───────── */

@@ -41,7 +41,7 @@ export default function SettingsPage() {
 
   const toggleDiet = (id: string) => {
     setDietaryPreferences((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
+      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
     );
   };
 
@@ -93,7 +93,7 @@ export default function SettingsPage() {
                   onChange={(e) => setDefaultServings(Number(e.target.value))}
                   className="w-32"
                 />
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Used as the default when creating new recipes.
                 </p>
               </div>
