@@ -1,15 +1,15 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import {
-  persistStore,
-  persistReducer,
   FLUSH,
-  REHYDRATE,
   PAUSE,
   PERSIST,
+  persistReducer,
   PURGE,
   REGISTER,
+  REHYDRATE,
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
+
 import tourReducer from "./slices/tourSlice";
 
 const persistConfig = {

@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { prisma } from "@/lib/db";
-import { DEFAULT_CATEGORY } from "@/constants/default-category";
+import { NextResponse } from "next/server";
+
 import { CATEGORY_MAP } from "@/constants/category-map";
+import { DEFAULT_CATEGORY } from "@/constants/default-category";
+import { prisma } from "@/lib/db";
 
 /* ───────── Helpers ───────── */
 
@@ -66,7 +67,6 @@ export async function POST(req: Request) {
   const aggregated = new Map<string, AggregatedItem>();
 
   for (const recipe of recipes) {
-    const baseServings = recipe.servings || 1;
     const scaleFactor = 1; // preview uses default servings
 
     for (const ing of recipe.ingredients) {

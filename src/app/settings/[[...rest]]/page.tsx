@@ -1,19 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { UserProfile, useUser } from "@clerk/nextjs";
+import axios from "axios";
 import { Sliders } from "lucide-react";
+import { useEffect, useState } from "react";
 
-import { DIETARY_PREFERENCES } from "@/constants/dietary-preferences";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import axios from "axios";
+import { DIETARY_PREFERENCES } from "@/constants/dietary-preferences";
 
 export default function SettingsPage() {
-  const { user, isLoaded } = useUser();
+  const { isLoaded } = useUser();
 
   const [defaultServings, setDefaultServings] = useState(2);
   const [dietaryPreferences, setDietaryPreferences] = useState<string[]>([]);
@@ -31,7 +31,7 @@ export default function SettingsPage() {
         const data = response.data;
         setDefaultServings(data.defaultServings);
         setDietaryPreferences(data.dietaryPreferences);
-      } catch (e) {
+      } catch {
         // Handle error if needed
       }
     };
@@ -57,7 +57,7 @@ export default function SettingsPage() {
       });
 
       setSaved(true);
-    } catch (e) {
+    } catch {
       setError("Something went wrong while saving.");
     } finally {
       setSaving(false);

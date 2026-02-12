@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+
 import NewShoppingListClient from "@/components/new-shopping-list";
 import { PageLoadingFallback } from "@/components/ui/page-loading";
 

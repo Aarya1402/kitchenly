@@ -1,8 +1,10 @@
 export const runtime = "nodejs";
-import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
-import { prisma } from "@/lib/db";
 import { randomUUID } from "node:crypto";
+
+import { auth } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+
+import { prisma } from "@/lib/db";
 
 /* ───────── Enable / regenerate share link ───────── */
 export async function POST(

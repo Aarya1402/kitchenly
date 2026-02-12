@@ -1,10 +1,11 @@
 // src/app/share/[token]/share-client.tsx
 "use client";
 
-import { useEffect, useState } from "react";
 import axios from "axios";
-import { AggregatedItem as Item } from "@/types/aggregatedItems";
+import { useEffect, useState } from "react";
+
 import { ShareListSkeleton } from "@/components/ui/page-skeletons";
+import { AggregatedItem as Item } from "@/types/aggregatedItems";
 
 export default function ShareClient({ token }: { token: string }) {
   const [data, setData] = useState<{

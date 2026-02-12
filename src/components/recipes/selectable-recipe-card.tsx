@@ -1,8 +1,9 @@
 "use client";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import { RecipeCard } from "./recipe-card";
 import type { Recipe } from "@/types/recipe";
+
+import { RecipeCard } from "./recipe-card";
 
 type Props = {
   recipe: Recipe;

@@ -1,8 +1,9 @@
 export const runtime = "nodejs"; // ✅ REQUIRED
 
-import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { v2 as cloudinary } from "cloudinary";
+import { NextResponse } from "next/server";
+
 import type { CloudinaryUploadResult } from "@/types/upload";
 
 cloudinary.config({

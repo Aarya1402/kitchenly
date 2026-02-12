@@ -1,25 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
-import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { SelectableRecipeCard } from "./selectable-recipe-card";
-import { RecipeDetailsModal } from "./recipe-details-modal";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+
 import { RecipeSearchWithFilters } from "@/components/dashboard/recipe-search";
+import { Activity } from "@/components/ui/activity";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Activity } from "@/components/ui/activity";
-import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import type { Recipe } from "@/types/recipe";
-import Error from "next/error";
+
+import { RecipeDetailsModal } from "./recipe-details-modal";
+import { SelectableRecipeCard } from "./selectable-recipe-card";
 
 type ShoppingList = {
   id: string;
@@ -28,7 +29,6 @@ type ShoppingList = {
 
 type Props = {
   recipes: Recipe[];
-  loadRecipes: (page: number) => void;
   onDelete: (recipe: Recipe) => Promise<void>;
   setRecipes: React.Dispatch<React.SetStateAction<Recipe[]>>;
   setIsSearch: React.Dispatch<React.SetStateAction<boolean>>;
@@ -36,7 +36,6 @@ type Props = {
 
 export function MyRecipesGrid({
   recipes,
-  loadRecipes,
   onDelete,
   setRecipes,
   setIsSearch,
@@ -52,7 +51,6 @@ export function MyRecipesGrid({
   const [query, setQuery] = useState("");
   const [lastSearchedLength, setLastSearchedLength] = useState(0);
   const [servingsUsed, setServingsUsed] = useState<number>(1);
-  const [loading, setLoading] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const [availableCuisines, setAvailableCuisines] = useState<string[]>([]);
@@ -73,7 +71,6 @@ export function MyRecipesGrid({
 
   const fetchRecipes = async (search?: string, cuisines?: string[]) => {
     try {
-      setLoading(true);
       const isSearch: boolean =
         !!(search && search.length > 0) || !!(cuisines && cuisines.length > 0);
       setIsSearch(isSearch);
@@ -96,7 +93,7 @@ export function MyRecipesGrid({
       const res = await axios.get(url, { params });
       setRecipes(res.data?.data ?? []);
     } finally {
-      setLoading(false);
+      //
     }
   };
 
@@ -186,7 +183,7 @@ export function MyRecipesGrid({
       setListModalOpen(false);
       setSelectedIds([]);
       router.push(`/shopping-lists/${listId}`);
-    } catch (err: Error | any) {
+    } catch (err: unknown) {
       const axiosErr = err as { response?: { status?: number } };
       if (axiosErr.response?.status === 409) {
         toast.error("Recipe already added to this list");

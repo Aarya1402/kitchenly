@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
-import FormData from "form-data";
 import { v2 as cloudinary } from "cloudinary";
+import FormData from "form-data";
+import { NextRequest, NextResponse } from "next/server";
+
+import { ALLOWED_TYPES } from "@/constants/allowed_file_types";
 import { CATEGORIES } from "@/constants/categories";
 import { MAX_FILE_SIZE } from "@/constants/max-file-size";
-import { ALLOWED_TYPES } from "@/constants/allowed_file_types";
 import { geminiModel } from "@/lib/gemini";
 
 const EXTRACTOR_BASE_URL = process.env.EXTRACTOR_BASE_URL;
@@ -182,11 +183,10 @@ Rules (STRICT):
     };
 
     return NextResponse.json({ recipe });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
-    return NextResponse.json(
-      { error: error.message || "Something went wrong" },
-      { status: 500 }
-    );
+    const errorMessage =
+      error instanceof Error ? error.message : "Something went wrong";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

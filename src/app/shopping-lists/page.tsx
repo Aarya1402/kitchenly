@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ShoppingListsSkeleton } from "@/components/ui/page-skeletons";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ShoppingListsSkeleton } from "@/components/ui/page-skeletons";
 import { ShoppingListSummary } from "@/types/shoppingListSummary";
 
 export default function ShoppingListsPage() {
@@ -20,7 +21,7 @@ export default function ShoppingListsPage() {
         const res = await axios.get("/api/shopping-lists");
 
         setLists(res.data.lists || []);
-      } catch (error) {
+      } catch {
         alert("Failed to load shopping lists");
       } finally {
         setLoading(false);

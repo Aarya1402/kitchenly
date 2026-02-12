@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import axios from "axios";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+
 import { RecipeEditor } from "@/components/recipes/recipe-editor";
 import { MyRecipesFormSkeleton } from "@/components/ui/page-skeletons";
 import type { Recipe } from "@/types/recipe";

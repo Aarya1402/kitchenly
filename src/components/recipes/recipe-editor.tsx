@@ -1,16 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { StepSource } from "./steps/step-source-select";
-import { RecipeBasicsCard } from "./steps/recipe-basics-card";
-import { IngredientsCard } from "./steps/ingredients-card";
-import { StepsCard } from "./steps/steps-card";
-import { RecipePreview } from "./steps/recipe-preview";
-import { StepFooter } from "./steps/steps-footer";
-import { Ingredient } from "@/types/ingredient";
-import type { ParsedStep } from "@/lib/recipe-parser";
-import type { Recipe, RecipeStep } from "@/types/recipe";
 import axios from "axios";
+import { useEffect, useState } from "react";
+
+import type { ParsedStep } from "@/lib/recipe-parser";
+import { Ingredient } from "@/types/ingredient";
+import type { Recipe, RecipeStep } from "@/types/recipe";
+
+import { IngredientsCard } from "./steps/ingredients-card";
+import { RecipeBasicsCard } from "./steps/recipe-basics-card";
+import { RecipePreview } from "./steps/recipe-preview";
+import { StepSource } from "./steps/step-source-select";
+import { StepsCard } from "./steps/steps-card";
+import { StepFooter } from "./steps/steps-footer";
 
 type Props = {
   mode: "create" | "edit";
@@ -66,7 +68,7 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
     try {
       const res = await axios.post("/api/upload", formData);
       return res.data.imageUrl;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
       throw new Error("Image upload failed");
     }
@@ -95,7 +97,7 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
     const method = mode === "create" ? "POST" : "PUT";
 
     try {
-      const res = await axios({
+      await axios({
         method, // GET, POST, PUT, etc.
         url, // the endpoint URL
         data: payload, // axios uses "data" instead of "body" for POST requests

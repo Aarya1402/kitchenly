@@ -1,18 +1,17 @@
 "use client";
 
+import axios from "axios";
 import { useState } from "react";
 
-import { StepSource } from "@/components/recipes/steps/step-source-select";
-import { RecipeBasicsCard } from "@/components/recipes/steps/recipe-basics-card";
-import { IngredientsCard } from "@/components/recipes/steps/ingredients-card";
-import { StepsCard } from "@/components/recipes/steps/steps-card";
-import { RecipePreview } from "@/components/recipes/steps/recipe-preview";
-import { Button } from "@/components/ui/button";
-import { Ingredient } from "@/types/ingredient";
-import type { ParsedRecipe, ParsedStep } from "@/lib/recipe-parser";
-import { StepFooter } from "@/components/recipes/steps/steps-footer";
 import { RecipeProgress } from "@/components/recipes/recipe-progress";
-import axios from "axios";
+import { IngredientsCard } from "@/components/recipes/steps/ingredients-card";
+import { RecipeBasicsCard } from "@/components/recipes/steps/recipe-basics-card";
+import { RecipePreview } from "@/components/recipes/steps/recipe-preview";
+import { StepSource } from "@/components/recipes/steps/step-source-select";
+import { StepsCard } from "@/components/recipes/steps/steps-card";
+import { StepFooter } from "@/components/recipes/steps/steps-footer";
+import type { ParsedRecipe, ParsedStep } from "@/lib/recipe-parser";
+import { Ingredient } from "@/types/ingredient";
 
 export default function NewRecipePage() {
   const [step, setStep] = useState(1);
@@ -68,7 +67,7 @@ export default function NewRecipePage() {
       const res = await axios.post("/api/upload", formData);
 
       return res.data.imageUrl;
-    } catch (error) {
+    } catch {
       throw new Error("Image upload failed");
     }
   }
@@ -82,7 +81,7 @@ export default function NewRecipePage() {
       setImageUrl(finalImageUrl); // keep UI in sync (optional)
     }
     try {
-      const res = await axios.post(
+      await axios.post(
         "/api/recipes",
         {
           title,

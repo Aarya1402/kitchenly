@@ -7,7 +7,16 @@
     "build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
     "lint": "eslint",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx,css,md}": [
+      "prettier --write"
+    ],
+    "*.{js,ts,tsx}": [
+      "eslint --fix"
+    ]
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.7",
@@ -32,7 +41,6 @@
     "cloudinary": "^2.9.0",
     "clsx": "^2.1.1",
     "embla-carousel-react": "^8.6.0",
-    "husky": "^9.1.7",
     "lucide-react": "^0.562.0",
     "next": "16.1.1",
     "next-themes": "^0.4.6",
@@ -55,8 +63,13 @@
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9.39.2",
     "eslint-config-next": "16.1.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-unused-imports": "^4.4.1",
     "globals": "^17.3.0",
+    "husky": "^9.1.7",
     "jiti": "^2.6.1",
+    "lint-staged": "^16.2.7",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "prisma": "^6.19.1",

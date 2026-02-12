@@ -1,9 +1,10 @@
 "use client";
 
+import { Plus, X } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Plus, X } from "lucide-react";
 import { Ingredient } from "@/types/ingredient";
 
 type Props = {

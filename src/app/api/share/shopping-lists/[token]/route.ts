@@ -1,6 +1,7 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
+
 import { prisma } from "@/lib/db";
 
 export async function GET(
@@ -89,10 +90,15 @@ export async function GET(
   }
 
   /* group by category */
-  const groups: Record<
-    string,
-    typeof aggregated extends Map<any, infer V> ? V[] : never
-  > = {};
+  type AggregatedItem = {
+    name: string;
+    quantity: number;
+    unit: string;
+    category: string;
+    isChecked: boolean;
+  };
+
+  const groups: Record<string, AggregatedItem[]> = {};
   for (const item of aggregated.values()) {
     if (!groups[item.category]) groups[item.category] = [];
     groups[item.category].push(item);

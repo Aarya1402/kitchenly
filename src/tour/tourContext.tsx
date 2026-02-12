@@ -1,15 +1,16 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { TourContextType } from "@/types/tourContextType";
+
+import type { RootState } from "@/store";
 import {
   markTourDone,
   markTourStarted,
   type TourState,
 } from "@/store/slices/tourSlice";
-import type { RootState } from "@/store";
+import { TourContextType } from "@/types/tourContextType";
 
 const TourContext = createContext<TourContextType | null>(null);
 

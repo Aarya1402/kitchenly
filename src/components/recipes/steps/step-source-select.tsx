@@ -1,11 +1,12 @@
 "use client";
 
+import axios from "axios";
 import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { ParsedRecipe } from "@/lib/recipe-parser";
-import axios from "axios";
 import { MyRecipesFormSkeleton } from "@/components/ui/page-skeletons";
+import type { ParsedRecipe } from "@/lib/recipe-parser";
 
 type Props = {
   onManual: () => void;

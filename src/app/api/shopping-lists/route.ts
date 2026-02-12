@@ -1,11 +1,12 @@
-import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { prisma } from "@/lib/db";
-import { DEFAULT_CATEGORY } from "@/constants/default-category";
+import { NextResponse } from "next/server";
+
 import { CATEGORY_MAP } from "@/constants/category-map";
+import { DEFAULT_CATEGORY } from "@/constants/default-category";
+import { prisma } from "@/lib/db";
 import type {
-  RecipeInListCreateInput,
   ManualItemCreateInput,
+  RecipeInListCreateInput,
 } from "@/types/shoppingListApi";
 
 function inferCategory(ingredientName: string): string {

@@ -1,6 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import NextImage from "next/image";
+
 import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Ingredient } from "@/types/ingredient";
 
 type Props = {
@@ -32,10 +33,11 @@ export function RecipePreview({
         {/* Image */}
         {imageUrl && (
           <div className="bg-muted relative aspect-[16/9] w-full overflow-hidden rounded-lg">
-            <img
+            <NextImage
               src={imageUrl}
               alt={title}
-              className="h-full w-full object-cover"
+              fill
+              className="object-cover"
             />
           </div>
         )}

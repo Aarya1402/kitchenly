@@ -1,20 +1,22 @@
 "use client";
 
+import "../components/recipes/scrollbar-hide.css";
+
+import axios from "axios";
+import { Copy, FileDown, Link2, Unlink } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useEffect } from "react";
+import { toast } from "sonner";
+
+import { Activity } from "@/components/ui/activity";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Activity } from "@/components/ui/activity";
-import { Button } from "@/components/ui/button";
-import { Copy, FileDown, Link2, Unlink } from "lucide-react";
-import { toast } from "sonner";
-import { useMemo, useState } from "react";
-import { useEffect } from "react";
-import axios from "axios";
-import "../components/recipes/scrollbar-hide.css";
 
 type Props = {
   listId: string;
@@ -28,7 +30,7 @@ export function ShareExportModal({
   listId,
   open,
   onClose,
-  isShared,
+  // isShared,
   shareToken,
 }: Props) {
   const [loading, setLoading] = useState(false);

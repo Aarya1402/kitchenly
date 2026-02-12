@@ -1,18 +1,19 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
-import { ShareExportModal } from "@/components/export-modal";
-import { ShoppingListDetailSkeleton } from "@/components/ui/page-skeletons";
 import axios from "axios";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+
+import { ShareExportModal } from "@/components/export-modal";
+import { SearchAndFilterBar } from "@/components/search-and-filter";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { ShoppingListDetailSkeleton } from "@/components/ui/page-skeletons";
+import { Progress } from "@/components/ui/progress";
+import { CATEGORIES } from "@/constants/categories";
 import { AggregatedItem as Item } from "@/types/aggregatedItems";
 import { RecipeInList } from "@/types/recipeInList";
-import { CATEGORIES } from "@/constants/categories";
-import { SearchAndFilterBar } from "@/components/search-and-filter";
 /* ───────── Page ───────── */
 
 export default function ShoppingListPage() {
@@ -70,7 +71,7 @@ export default function ShoppingListPage() {
         setDraftRecipes(structuredClone(json.recipes));
 
         setLoading(false);
-      } catch (error) {
+      } catch {
         alert("Failed to load shopping list");
         router.back();
       }
@@ -94,12 +95,6 @@ export default function ShoppingListPage() {
 
     setFilteredGroups(res.data.groups);
   };
-
-  useEffect(() => {
-    if (editMode) return;
-
-    fetchFilteredResults(search, categories);
-  }, [categories]);
 
   /* ───────── Toggle isChecked (shopping mode) ───────── */
 
@@ -345,7 +340,7 @@ export default function ShoppingListPage() {
                 setGroups(draftGroups);
                 setRecipes(draftRecipes);
                 setEditMode(false);
-              } catch (error) {
+              } catch {
                 alert("Failed to save");
               }
             }}

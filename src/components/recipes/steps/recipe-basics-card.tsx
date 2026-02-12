@@ -1,12 +1,13 @@
 "use client";
 
+import { useState } from "react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { DIETARY_PREFERENCES as PRESET_TAGS } from "@/constants/dietary-preferences";
-import { useState } from "react";
 type Props = {
   title: string;
   setTitle: (v: string) => void;

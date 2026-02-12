@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { geminiModel } from "@/lib/gemini";
 import type { Ingredient } from "@/types/ingredient";
 

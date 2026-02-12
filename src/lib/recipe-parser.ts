@@ -1,9 +1,10 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
-import { geminiModel } from "@/lib/gemini";
+
 import { DIETARY_PREFERENCES } from "@/constants/dietary-preferences";
-import type { ParsedRecipeInput } from "@/types/parsedRecipeInput";
+import { geminiModel } from "@/lib/gemini";
 import type { JsonLdInstructionStep } from "@/types/jsonLd";
+import type { ParsedRecipeInput } from "@/types/parsedRecipeInput";
 
 /* =======================
    Types (Prisma-aligned)

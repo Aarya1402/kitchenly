@@ -1,9 +1,10 @@
 "use client";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import Joyride, { CallBackProps, EVENTS } from "react-joyride";
-import { useEffect, useState, useRef } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { useTour } from "./tourContext";
+
 import { TOUR_STEPS } from "./steps";
+import { useTour } from "./tourContext";
 
 export default function TourController() {
   const { run, stepIndex, setStepIndex, stopTour } = useTour();
@@ -14,6 +15,7 @@ export default function TourController() {
   const [targetReady, setTargetReady] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -45,6 +47,7 @@ export default function TourController() {
   const waitingRef = useRef<number | null>(null);
   useEffect(() => {
     if (!mounted || !run || stepIndex >= TOUR_STEPS.length) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTargetReady(false);
       return;
     }

@@ -1,15 +1,17 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { Search, Filter } from "lucide-react";
+import "../recipes/scrollbar-hide.css";
+
+import { Filter, Search } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
-  PopoverTrigger,
   PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover";
-import "../recipes/scrollbar-hide.css";
 
 type Props = {
   /* existing search props */

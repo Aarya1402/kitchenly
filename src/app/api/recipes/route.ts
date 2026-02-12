@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { prisma } from "@/lib/db";
-import { v2 as cloudinary } from "cloudinary";
-import { normalizeIngredient } from "@/lib/ingredient-normalizer";
 import axios from "axios";
+import { v2 as cloudinary } from "cloudinary";
+import { NextResponse } from "next/server";
+
+import { prisma } from "@/lib/db";
+import { normalizeIngredient } from "@/lib/ingredient-normalizer";
 export async function GET(req: Request) {
   const { userId } = await auth();
 
@@ -76,14 +77,16 @@ async function uploadExtractedImageToCloudinary(
   const buffer = Buffer.from(res.data);
 
   // Upload buffer to Cloudinary
-  const uploadResult: any = await new Promise((resolve, reject) => {
-    cloudinary.uploader
-      .upload_stream({ folder: "recipes" }, (error, result) => {
-        if (error) reject(error);
-        else resolve(result);
-      })
-      .end(buffer);
-  });
+  const uploadResult: { secure_url: string } = await new Promise(
+    (resolve, reject) => {
+      cloudinary.uploader
+        .upload_stream({ folder: "recipes" }, (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        })
+        .end(buffer);
+    }
+  );
 
   return uploadResult.secure_url;
 }

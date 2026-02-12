@@ -1,26 +1,28 @@
 "use client";
 
+import "./scrollbar-hide.css";
+
+import axios from "axios";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import { Activity } from "@/components/ui/activity";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Activity } from "@/components/ui/activity";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import type { Recipe } from "@/types/recipe";
 import { Input } from "@/components/ui/input";
-import { TastePreview } from "@/types/tastePreview";
+import { Skeleton } from "@/components/ui/skeleton";
 import { INGREDIENTS_PREVIEW_COUNT } from "@/constants/ingredients-preview-count";
 import { STEPS_PREVIEW_COUNT } from "@/constants/steps-preview-count";
-import "./scrollbar-hide.css";
-import axios from "axios";
+import type { Recipe } from "@/types/recipe";
+import { TastePreview } from "@/types/tastePreview";
 type Props = {
   recipe: Recipe | null;
   open: boolean;

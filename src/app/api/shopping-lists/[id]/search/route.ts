@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+
+import { prisma } from "@/lib/db";
 import type { AggregatedItem } from "@/types/aggregatedItems";
 
 /* ───────── Helpers ───────── */

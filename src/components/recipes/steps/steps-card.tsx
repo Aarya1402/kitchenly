@@ -1,21 +1,18 @@
 "use client";
 
-import { useState } from "react";
-
 import {
-  DndContext,
   closestCenter,
+  defaultDropAnimationSideEffects,
+  DndContext,
+  type DragEndEvent,
+  type DragOverEvent,
+  DragOverlay,
+  type DragStartEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragOverlay,
-  defaultDropAnimationSideEffects,
-  type DragEndEvent,
-  type DragStartEvent,
-  type DragOverEvent,
 } from "@dnd-kit/core";
-
 import {
   arrayMove,
   SortableContext,
@@ -23,13 +20,13 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-
 import { CSS } from "@dnd-kit/utilities";
+import { GripVertical, Plus, X } from "lucide-react";
+import { useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { GripVertical, Plus, X } from "lucide-react";
 
 type Props = {
   steps: string[];

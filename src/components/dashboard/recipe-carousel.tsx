@@ -1,5 +1,6 @@
 "use client";
 
+import { RecipeCard } from "@/components/recipes/recipe-card";
 import {
   Carousel,
   CarouselContent,
@@ -7,7 +8,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { RecipeCard } from "@/components/recipes/recipe-card";
 import type { Recipe } from "@/types/recipe";
 
 type Props = {

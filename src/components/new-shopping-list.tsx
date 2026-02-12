@@ -1,9 +1,13 @@
 "use client";
 
+import axios from "axios";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ShoppingListNewSkeleton } from "@/components/ui/page-skeletons";
 import {
   Select,
   SelectContent,
@@ -11,10 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import { ShoppingListNewSkeleton } from "@/components/ui/page-skeletons";
 import { CATEGORIES } from "@/constants/categories";
-import axios from "axios";
 import { AggregatedItem as PreviewItem } from "@/types/aggregatedItems";
 
 type RecipePreview = {
@@ -35,9 +36,11 @@ export default function NewShoppingListPage() {
   const [title, setTitle] = useState("Shopping List");
   const [groups, setGroups] = useState<Record<string, PreviewItem[]>>({});
   const [recipes, setRecipes] = useState<RecipePreview[]>([]);
-  const [loading, setLoading] = useState(true);
-
   /* ───────── Load preview ───────── */
+
+  const [loading, setLoading] = useState(() => {
+    return recipeIds.length > 0;
+  });
 
   useEffect(() => {
     async function loadPreview() {
@@ -51,17 +54,14 @@ export default function NewShoppingListPage() {
         setGroups(json.groups || {});
         setRecipes(json.recipes || []);
         setLoading(false);
-      } catch (error) {
+      } catch {
         alert("Failed to load preview");
         router.back();
       }
     }
 
-    if (recipeIds.length > 0) {
-      loadPreview();
-    } else {
-      setLoading(false);
-    }
+    loadPreview();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recipesParam, router]);
 
   /* ───────── Category reassignment (UI only) ───────── */
@@ -90,7 +90,7 @@ export default function NewShoppingListPage() {
       });
 
       router.push(`/shopping-lists/${res.data.id}`);
-    } catch (error) {
+    } catch {
       alert("Failed to save shopping list");
     }
   };

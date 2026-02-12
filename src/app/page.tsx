@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
-import dynamic from "next/dynamic";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
-import type { Recipe } from "@/types/recipe";
+import dynamic from "next/dynamic";
+import { Suspense, useEffect, useState } from "react";
+
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
-import { RecipeSearchWithFilters } from "@/components/dashboard/recipe-search";
 import { RecipeCarousel } from "@/components/dashboard/recipe-carousel";
+import { RecipeSearchWithFilters } from "@/components/dashboard/recipe-search";
+import { Activity } from "@/components/ui/activity";
 import { PageLoadingFallback } from "@/components/ui/page-loading";
 import { RecipeCarouselSkeleton } from "@/components/ui/page-skeletons";
-import { Activity } from "@/components/ui/activity";
+import type { Recipe } from "@/types/recipe";
 
 const RecipeDetailsModal = dynamic(
   () =>
