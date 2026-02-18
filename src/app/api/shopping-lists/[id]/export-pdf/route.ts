@@ -145,7 +145,7 @@ export async function GET(
     y -= 18;
 
     for (const i of items) {
-      const line = `${i.isChecked ? "✅" : "⬜"} ${i.quantity.toFixed(2)} ${
+      const line = `${i.isChecked ? "[x]" : "[ ]"} ${i.quantity.toFixed(2)} ${
         i.unit
       } ${i.name}`;
 

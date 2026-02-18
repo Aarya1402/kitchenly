@@ -2,12 +2,15 @@
 
 import "../components/recipes/scrollbar-hide.css";
 
-import axios from "axios";
 import { Copy, FileDown, Link2, Unlink } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
+import {
+  shareShoppingList,
+  unshareShoppingList,
+} from "@/app/shopping-lists/actions";
 import { Activity } from "@/components/ui/activity";
 import { Button } from "@/components/ui/button";
 import {
@@ -76,13 +79,15 @@ export function ShareExportModal({
     try {
       setLoading(true);
 
-      const res = await axios.post(`/api/shopping-lists/${listId}/share`);
+      const res = await shareShoppingList(listId);
 
-      const newToken = res.data?.token;
+      const newToken = res.token;
       setToken(newToken);
 
-      if (typeof window !== "undefined" && newToken) {
-        const url = `${window.location.origin}/shopping-lists/share/${newToken}`;
+      if (newToken) {
+        // Construct the URL safely
+        const origin = window.location.origin;
+        const url = `${origin}/shopping-lists/share/${newToken}`;
         await copyToClipboard(url);
       } else {
         toast.success("Share link generated");
@@ -101,7 +106,7 @@ export function ShareExportModal({
     try {
       setLoading(true);
 
-      await axios.delete(`/api/shopping-lists/${listId}/share`);
+      await unshareShoppingList(listId);
 
       setToken(null);
       toast.success("Sharing disabled");

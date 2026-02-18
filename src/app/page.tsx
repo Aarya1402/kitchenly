@@ -1,10 +1,11 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import axios from "axios";
 import dynamic from "next/dynamic";
 import { Suspense, useEffect, useState } from "react";
+import { toast } from "sonner";
 
+import { deleteRecipe, getCuisines, getRecipes } from "@/app/recipes/actions";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { RecipeCarousel } from "@/components/dashboard/recipe-carousel";
 import { RecipeSearchWithFilters } from "@/components/dashboard/recipe-search";
@@ -22,7 +23,6 @@ const RecipeDetailsModal = dynamic(
 );
 
 export default function DashboardPage() {
-  // Force rebuild for CSS fix
   const { user } = useUser();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [query, setQuery] = useState("");
@@ -41,24 +41,16 @@ export default function DashboardPage() {
         (search && search.length > 0) || (cuisines && cuisines.length > 0)
       );
 
-      const url = isSearch ? "/api/recipes/search" : "/api/recipes";
-
-      const params: { limit: number; q?: string; cuisine?: string } = {
+      const result = await getRecipes({
+        page: 1,
         limit: isSearch ? 12 : 8,
-      };
+        query: search,
+        cuisines: cuisines,
+      });
 
-      // 🔍 search param (only for search route)
-      if (isSearch) {
-        params.q = search;
-      }
-
-      // 🎛️ cuisine filter (comma-separated)
-      if (cuisines && cuisines.length > 0) {
-        params.cuisine = cuisines.join(",");
-      }
-
-      const res = await axios.get(url, { params });
-      setRecipes(res.data?.data ?? []);
+      setRecipes(result.data as Recipe[]);
+    } catch {
+      toast.error("Failed to load recipes");
     } finally {
       setLoading(false);
     }
@@ -66,8 +58,8 @@ export default function DashboardPage() {
 
   const fetchAvailableCuisines = async () => {
     try {
-      const res = await axios.get("/api/recipes/cuisines");
-      setAvailableCuisines(res.data?.cuisines ?? []);
+      const data = await getCuisines();
+      setAvailableCuisines(data);
     } catch (e) {
       console.error("Failed to load cuisines", e);
     }
@@ -77,6 +69,7 @@ export default function DashboardPage() {
     fetchRecipes();
     fetchAvailableCuisines();
   }, []);
+
   const handleChange = (value: string) => {
     setQuery(value);
 
@@ -95,6 +88,7 @@ export default function DashboardPage() {
       fetchRecipes(value, selectedCuisines);
     }
   };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       setLastSearchedLength(query.length);
@@ -104,9 +98,24 @@ export default function DashboardPage() {
 
   const handleCuisineChange = (cuisines: string[]) => {
     setSelectedCuisines(cuisines);
-
     // re-fetch using current search query + new cuisines
     fetchRecipes(query.length >= 3 ? query : undefined, cuisines);
+  };
+
+  const handleDelete = async (recipe: Recipe) => {
+    // Optimistic update
+    setRecipes((prev) => prev.filter((r) => r.id !== recipe.id));
+    setOpen(false);
+    setSelectedRecipe(null);
+    toast("Recipe deleted", { description: `"${recipe.title}" removed` });
+
+    try {
+      await deleteRecipe(recipe.id);
+    } catch {
+      // Revert if failed (requires refetching or complex state management, here we just notify)
+      toast.error("Failed to delete recipe. Please try again.");
+      fetchRecipes(query, selectedCuisines); // simplest revert
+    }
   };
 
   return (
@@ -153,11 +162,7 @@ export default function DashboardPage() {
               recipe={selectedRecipe}
               open={open}
               onClose={() => setOpen(false)}
-              onDeleted={(recipe) => {
-                setRecipes((prev) => prev.filter((r) => r.id !== recipe.id));
-                setOpen(false);
-                setSelectedRecipe(null);
-              }}
+              onDeleted={handleDelete}
               currentUserId={user?.id}
             />
           </Suspense>

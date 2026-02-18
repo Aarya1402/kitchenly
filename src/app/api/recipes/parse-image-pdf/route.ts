@@ -120,6 +120,21 @@ Your task is to infer and return ONLY valid JSON with the following fields:
    - name: string (ingredient name only, no quantity)
    - quantity: string (e.g. "200g", "1 tsp", "2 cups")
    - category: string (MUST be one of the allowed categories)
+   Example Json object:
+   {
+  "title": string,
+  "description": string | null,
+  "imageUrl": string | null,
+  "servings": number,
+  "dietaryTags": string[],
+  "cuisine": string | null,
+  "ingredients": [
+    { "name": string, "quantity": string }
+  ],
+  "steps": [
+    { "stepNo": number, "content": string }
+  ]
+}
 
 Allowed categories (choose EXACTLY one per ingredient):
 ${CATEGORIES.map((c) => `- ${c}`).join("\n")}

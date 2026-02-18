@@ -1,12 +1,16 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import axios from "axios";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { deleteRecipe, getCuisines, getRecipes } from "@/app/recipes/actions";
+import {
+  addRecipeToShoppingList,
+  getShoppingLists,
+} from "@/app/shopping-lists/actions";
 import { RecipeSearchWithFilters } from "@/components/dashboard/recipe-search";
 import { Activity } from "@/components/ui/activity";
 import { Button } from "@/components/ui/button";
@@ -27,117 +31,152 @@ type ShoppingList = {
   title: string;
 };
 
-type Props = {
-  recipes: Recipe[];
-  onDelete: (recipe: Recipe) => Promise<void>;
-  setRecipes: React.Dispatch<React.SetStateAction<Recipe[]>>;
-  setIsSearch: React.Dispatch<React.SetStateAction<boolean>>;
+type InitialData = {
+  data: Recipe[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasMore: boolean;
 };
 
-export function MyRecipesGrid({
-  recipes,
-  onDelete,
-  setRecipes,
-  setIsSearch,
-}: Props) {
+type Props = {
+  initialData: InitialData;
+};
+
+export function MyRecipesGrid({ initialData }: Props) {
   const router = useRouter();
   const { user } = useUser();
 
+  /* ───────── State ───────── */
+
+  // Grid state
+  const [recipes, setRecipes] = useState<Recipe[]>(initialData.data);
+  const [page, setPage] = useState(initialData.page);
+  const [hasMore, setHasMore] = useState(initialData.hasMore);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  // Search state
+  const [query, setQuery] = useState("");
+  const [lastSearchedLength, setLastSearchedLength] = useState(0);
+  const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
+  const [availableCuisines, setAvailableCuisines] = useState<string[]>([]);
+
+  // Modal / Selection state
   const [open, setOpen] = useState(false);
   const [selectedRecipeModal, setSelectedRecipeModal] = useState<Recipe | null>(
     null
   );
-
-  const [query, setQuery] = useState("");
-  const [lastSearchedLength, setLastSearchedLength] = useState(0);
-  const [servingsUsed, setServingsUsed] = useState<number>(1);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
-  const [availableCuisines, setAvailableCuisines] = useState<string[]>([]);
-
-  /* ───────── Shopping list modal state ───────── */
-
+  const [servingsUsed, setServingsUsed] = useState<number>(1);
   const [listModalOpen, setListModalOpen] = useState(false);
   const [lists, setLists] = useState<ShoppingList[]>([]);
+
   const singleSelectedRecipe =
     selectedIds.length === 1
       ? (recipes.find((r) => r.id === selectedIds[0]) ?? null)
       : null;
 
+  /* ───────── Effects ───────── */
+
   useEffect(() => {
-    fetchAvailableCuisines();
+    // Load available cuisines
+    getCuisines().then((data) => setAvailableCuisines(data));
   }, []);
-  /* ───────── Search ───────── */
 
-  const fetchRecipes = async (search?: string, cuisines?: string[]) => {
+  /* ───────── Data Fetching ───────── */
+
+  const loadRecipes = async (
+    searchQuery: string,
+    cuisines: string[],
+    pageToLoad: number,
+    append: boolean
+  ) => {
     try {
-      const isSearch: boolean =
-        !!(search && search.length > 0) || !!(cuisines && cuisines.length > 0);
-      setIsSearch(isSearch);
-      const url = isSearch ? "/api/recipes/search" : "/api/recipes";
+      const result = await getRecipes({
+        page: pageToLoad,
+        limit: 12,
+        query: searchQuery,
+        cuisines: cuisines,
+      });
 
-      const params: { limit: number; q?: string; cuisine?: string } = {
-        limit: isSearch ? 12 : 8,
-      };
-
-      // 🔍 search param (only for search route)
-      if (isSearch) {
-        params.q = search;
+      if (append) {
+        setRecipes((prev) => [...prev, ...(result.data as Recipe[])]);
+      } else {
+        setRecipes(result.data as Recipe[]);
       }
 
-      // 🎛️ cuisine filter (comma-separated)
-      if (cuisines && cuisines.length > 0) {
-        params.cuisine = cuisines.join(",");
-      }
-
-      const res = await axios.get(url, { params });
-      setRecipes(res.data?.data ?? []);
-    } finally {
-      //
-    }
-  };
-
-  const fetchAvailableCuisines = async () => {
-    try {
-      const res = await axios.get("/api/recipes/cuisines");
-      setAvailableCuisines(res.data?.cuisines ?? []);
+      setHasMore(result.hasMore);
+      setPage(result.page);
     } catch (e) {
-      console.error("Failed to load cuisines", e);
+      console.error(e);
+      toast.error("Failed to load recipes");
     }
   };
+
+  /* ───────── Search / Filter Handlers ───────── */
+
   const handleChange = (value: string) => {
     setQuery(value);
 
+    // If cleared, reset
     if (value.length === 0) {
       setLastSearchedLength(0);
-      fetchRecipes(undefined, selectedCuisines);
+      loadRecipes("", selectedCuisines, 1, false);
       return;
     }
 
+    // Debounce-ish logic from original code
     if (
       value.length >= 3 &&
       value.length % 3 === 0 &&
       value.length !== lastSearchedLength
     ) {
       setLastSearchedLength(value.length);
-      fetchRecipes(value, selectedCuisines);
+      loadRecipes(value, selectedCuisines, 1, false);
     }
   };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       setLastSearchedLength(query.length);
-      fetchRecipes(query, selectedCuisines);
+      loadRecipes(query, selectedCuisines, 1, false);
     }
   };
 
   const handleCuisineChange = (cuisines: string[]) => {
     setSelectedCuisines(cuisines);
-
-    // re-fetch using current search query + new cuisines
-    fetchRecipes(query.length >= 3 ? query : undefined, cuisines);
+    loadRecipes(query.length >= 3 ? query : "", cuisines, 1, false);
   };
 
-  /* ───────── Selection ───────── */
+  const handleLoadMore = async () => {
+    setLoadingMore(true);
+    await loadRecipes(query, selectedCuisines, page + 1, true);
+    setLoadingMore(false);
+  };
+
+  /* ───────── Actions ───────── */
+
+  const handleDelete = async (recipe: Recipe) => {
+    const previousRecipes = recipes;
+    // Optimistic
+    setRecipes((prev) => prev.filter((r) => r.id !== recipe.id));
+    toast("Recipe deleted", { description: `"${recipe.title}" removed` });
+
+    try {
+      await deleteRecipe(recipe.id);
+    } catch {
+      setRecipes(previousRecipes);
+      toast.error("Failed to delete recipe", {
+        description: "Something went wrong. Recipe restored.",
+      });
+    }
+
+    if (selectedRecipeModal?.id === recipe.id) {
+      setOpen(false);
+      setSelectedRecipeModal(null);
+    }
+  };
 
   const toggleRecipe = (recipeId: string, checked: boolean) => {
     setSelectedIds((prev) =>
@@ -145,25 +184,23 @@ export function MyRecipesGrid({
     );
   };
 
-  /* ───────── Actions ───────── */
-
   const handleCreateClick = async () => {
     if (selectedIds.length === 0) return;
 
-    // multiple recipes → existing flow
     if (selectedIds.length > 1) {
       router.push(`/shopping-lists/new?recipes=${selectedIds.join(",")}`);
       return;
     }
 
-    // single recipe → show list picker
+    // single recipe → show list picker (keep axios for now as shopping lists are not migrated)
     try {
-      const res = await axios.get("/api/shopping-lists");
-      setLists(res.data.lists ?? []);
+      const lists = await getShoppingLists();
+      // map to simple type
+      setLists(lists.map((l) => ({ id: l.id, title: l.title })));
+
       if (singleSelectedRecipe) {
         setServingsUsed(singleSelectedRecipe.servings);
       }
-
       setListModalOpen(true);
     } catch {
       toast.error("Failed to load shopping lists");
@@ -174,18 +211,19 @@ export function MyRecipesGrid({
     if (!singleSelectedRecipe) return;
 
     try {
-      await axios.put(`/api/shopping-lists/${listId}`, {
-        recipeId: singleSelectedRecipe.id,
-        servingsUsed,
-      });
+      await addRecipeToShoppingList(
+        listId,
+        singleSelectedRecipe.id,
+        servingsUsed
+      );
 
       toast.success("Recipe added to shopping list");
       setListModalOpen(false);
       setSelectedIds([]);
       router.push(`/shopping-lists/${listId}`);
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { status?: number } };
-      if (axiosErr.response?.status === 409) {
+      // generic error handling as server actions throw
+      if (err instanceof Error && err.message.includes("already added")) {
         toast.error("Recipe already added to this list");
       } else {
         toast.error("Failed to add recipe");
@@ -199,8 +237,7 @@ export function MyRecipesGrid({
     <section className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">My Recipes</h1>
-
+        <h1 className="text-2xl font-semibold">All Recipes</h1>
         <Button
           onClick={() => router.push("/recipes/new")}
           data-tour="add-recipe-button"
@@ -219,11 +256,12 @@ export function MyRecipesGrid({
         availableCuisines={availableCuisines}
         onCuisineChange={handleCuisineChange}
       />
+
       {/* Grid */}
       <div data-tour="recipe-card">
         {recipes.length === 0 ? (
           <div className="text-muted-foreground rounded-lg border border-dashed p-12 text-center text-sm">
-            You haven’t added any recipes yet.
+            No recipes found.
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -244,6 +282,14 @@ export function MyRecipesGrid({
         )}
       </div>
 
+      {hasMore && (
+        <div className="flex justify-center pt-4">
+          <Button onClick={handleLoadMore} disabled={loadingMore}>
+            {loadingMore ? "Loading..." : "Load more"}
+          </Button>
+        </div>
+      )}
+
       {/* Recipe details modal */}
       {selectedRecipeModal && (
         <Activity visible={open} name="recipe-details-modal">
@@ -251,11 +297,7 @@ export function MyRecipesGrid({
             recipe={selectedRecipeModal}
             open={open}
             onClose={() => setOpen(false)}
-            onDeleted={async (recipe) => {
-              await onDelete(recipe);
-              setOpen(false);
-              setSelectedRecipeModal(null);
-            }}
+            onDeleted={handleDelete}
             currentUserId={user?.id}
           />
         </Activity>
@@ -276,7 +318,6 @@ export function MyRecipesGrid({
       )}
 
       {/* Existing list picker */}
-
       <Dialog open={listModalOpen} onOpenChange={setListModalOpen}>
         <Activity visible={listModalOpen} name="list-picker-modal">
           <DialogContent>
@@ -288,12 +329,10 @@ export function MyRecipesGrid({
                 <div className="text-sm font-medium">
                   {singleSelectedRecipe.title}
                 </div>
-
                 <div className="flex items-center gap-3">
                   <label className="text-muted-foreground text-sm">
                     Servings
                   </label>
-
                   <Input
                     type="number"
                     min={1}
@@ -303,7 +342,6 @@ export function MyRecipesGrid({
                     }
                     className="w-24"
                   />
-
                   <span className="text-muted-foreground text-xs">
                     (original: {singleSelectedRecipe.servings})
                   </span>

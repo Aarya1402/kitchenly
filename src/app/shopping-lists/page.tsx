@@ -1,48 +1,27 @@
-"use client";
+import { auth } from "@clerk/nextjs/server";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
-import axios from "axios";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-
+import { getShoppingLists } from "@/app/shopping-lists/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShoppingListsSkeleton } from "@/components/ui/page-skeletons";
-import { ShoppingListSummary } from "@/types/shoppingListSummary";
 
-export default function ShoppingListsPage() {
-  const router = useRouter();
-
-  const [lists, setLists] = useState<ShoppingListSummary[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await axios.get("/api/shopping-lists");
-
-        setLists(res.data.lists || []);
-      } catch {
-        alert("Failed to load shopping lists");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    load();
-  }, []);
-
-  if (loading) {
-    return <ShoppingListsSkeleton />;
+export default async function ShoppingListsPage() {
+  const { userId } = await auth();
+  if (!userId) {
+    redirect("/sign-in");
   }
+
+  const lists = await getShoppingLists();
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Shopping Lists</h1>
         <div data-tour="add-list-button">
-          <Button variant="outline" onClick={() => router.push("/recipes")}>
-            New from Recipes
-          </Button>
+          <Link href="/recipes">
+            <Button variant="outline">New from Recipes</Button>
+          </Link>
         </div>
       </div>
 
@@ -52,23 +31,27 @@ export default function ShoppingListsPage() {
 
       <div className="space-y-4">
         {lists.map((list) => (
-          <Card
+          <Link
             key={list.id}
-            className="hover:bg-muted/50 cursor-pointer"
-            onClick={() => router.push(`/shopping-lists/${list.id}`)}
-            data-tour="list-card"
-            data-list-id={list.id}
+            href={`/shopping-lists/${list.id}`}
+            className="block"
           >
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                {list.title}
-              </CardTitle>
-            </CardHeader>
+            <Card
+              className="hover:bg-muted/50 cursor-pointer transition-colors"
+              data-tour="list-card"
+              data-list-id={list.id}
+            >
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  {list.title}
+                </CardTitle>
+              </CardHeader>
 
-            <CardContent className="text-muted-foreground text-sm">
-              Created on {new Date(list.createdAt).toLocaleDateString()}
-            </CardContent>
-          </Card>
+              <CardContent className="text-muted-foreground text-sm">
+                Created on {new Date(list.createdAt).toLocaleDateString()}
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
     </div>

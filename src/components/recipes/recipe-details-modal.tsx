@@ -2,11 +2,11 @@
 
 import "./scrollbar-hide.css";
 
-import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { getTastePreview } from "@/app/recipes/actions";
 import { Activity } from "@/components/ui/activity";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -87,13 +87,13 @@ export function RecipeDetailsModal({
     setTasteResult(null);
 
     try {
-      const res = await axios.post("/api/recipes/taste-preview", {
+      const result = await getTastePreview({
         title: recipe.title,
         ingredients: recipe.ingredients,
         steps: recipe.steps.map((s) => s.content),
       });
 
-      setTasteResult(res.data.tastePreview);
+      setTasteResult(result);
     } catch (err) {
       console.error("Taste preview error:", err);
       setTasteResult(null);

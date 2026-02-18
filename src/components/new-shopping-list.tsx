@@ -1,9 +1,13 @@
 "use client";
 
-import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
+import {
+  createShoppingList,
+  previewShoppingList,
+} from "@/app/shopping-lists/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -45,17 +49,13 @@ export default function NewShoppingListPage() {
   useEffect(() => {
     async function loadPreview() {
       try {
-        const res = await axios.post("/api/shopping-lists/preview", {
-          recipeIds,
-        });
+        const res = await previewShoppingList(recipeIds);
 
-        const json = res.data;
-
-        setGroups(json.groups || {});
-        setRecipes(json.recipes || []);
+        setGroups(res.groups || {});
+        setRecipes(res.recipes || []);
         setLoading(false);
       } catch {
-        alert("Failed to load preview");
+        toast.error("Failed to load preview");
         router.back();
       }
     }
@@ -83,15 +83,15 @@ export default function NewShoppingListPage() {
 
   const saveList = async () => {
     try {
-      const res = await axios.post("/api/shopping-lists", {
+      const res = await createShoppingList({
         title,
         recipes,
         manualItems: [],
       });
 
-      router.push(`/shopping-lists/${res.data.id}`);
+      router.push(`/shopping-lists/${res.id}`);
     } catch {
-      alert("Failed to save shopping list");
+      toast.error("Failed to save shopping list");
     }
   };
 

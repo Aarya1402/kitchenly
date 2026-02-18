@@ -1,9 +1,13 @@
 "use client";
 
-import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
+import { createRecipe, updateRecipe } from "@/app/recipes/actions";
+import { RecipeProgress } from "@/components/recipes/recipe-progress";
 import type { ParsedStep } from "@/lib/recipe-parser";
+import { uploadImage } from "@/lib/upload";
 import { Ingredient } from "@/types/ingredient";
 import type { Recipe, RecipeStep } from "@/types/recipe";
 
@@ -21,6 +25,9 @@ type Props = {
 };
 
 export function RecipeEditor({ mode, initialData, recipeId }: Props) {
+  /* ───────── Routing ───────── */
+  const router = useRouter();
+
   const [step, setStep] = useState(mode === "edit" ? 2 : 1);
   const [saving, setSaving] = useState(false);
 
@@ -61,54 +68,41 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
     }
   }, [mode, initialData]);
 
-  async function uploadImage(file: File): Promise<string> {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const res = await axios.post("/api/upload", formData);
-      return res.data.imageUrl;
-    } catch (error: unknown) {
-      console.error(error);
-      throw new Error("Image upload failed");
-    }
-  }
   /* ───────── Save ───────── */
 
-  const saveRecipe = async () => {
+  const handleSave = async () => {
     setSaving(true);
-    let imageUrl: string | null = null;
-    if (imageFile) {
-      imageUrl = await uploadImage(imageFile);
-    }
-    const payload = {
-      title,
-      description,
-      servings,
-      dietaryTags,
-      ingredients,
-      steps: stepsData,
-      imageUrl,
-      cuisine,
-    };
-
-    const url = mode === "create" ? "/api/recipes" : `/api/recipes/${recipeId}`;
-
-    const method = mode === "create" ? "POST" : "PUT";
+    let finalImageUrl: string | null = imageUrl;
 
     try {
-      await axios({
-        method, // GET, POST, PUT, etc.
-        url, // the endpoint URL
-        data: payload, // axios uses "data" instead of "body" for POST requests
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      if (imageFile) {
+        finalImageUrl = await uploadImage(imageFile);
+      }
 
-      window.location.href = "/recipes";
-    } catch {
-      alert("Failed to save recipe");
+      const payload = {
+        title,
+        description,
+        servings,
+        dietaryTags,
+        ingredients,
+        steps: stepsData,
+        imageUrl: finalImageUrl,
+        cuisine,
+      };
+
+      if (mode === "create") {
+        await createRecipe(payload);
+        toast.success("Recipe created!");
+      } else {
+        if (!recipeId) throw new Error("No recipe ID");
+        await updateRecipe(recipeId, payload);
+        toast.success("Recipe updated!");
+      }
+
+      router.push("/recipes");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to save recipe");
     } finally {
       setSaving(false);
     }
@@ -118,6 +112,7 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
+      <RecipeProgress total={5} step={step} />
       {/* STEP 1 – Source (create only) */}
       {step === 1 && mode === "create" && (
         <StepSource
@@ -193,7 +188,7 @@ export function RecipeEditor({ mode, initialData, recipeId }: Props) {
           />
           <StepFooter
             onBack={() => setStep(4)}
-            onNext={saveRecipe}
+            onNext={handleSave}
             nextLabel={mode === "edit" ? "Update Recipe" : "Save Recipe"}
             loading={saving}
           />

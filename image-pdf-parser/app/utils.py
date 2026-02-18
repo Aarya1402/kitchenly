@@ -26,10 +26,19 @@ Extract recipe information from the text provided below.
 Your goal is to return a valid JSON object. Do not include any conversational text before or after the JSON.
 
 Expected JSON Structure:
-- title: The name of the recipe.
-- description: A brief summary or intro (1-2 sentences).
-- ingredients: A list of strings containing items and their quantities.
-- steps: A clean list of preparation/cooking instructions.
+{
+  "title": string,
+  "description": string | null,
+  "servings": number,
+  "dietaryTags": string[],
+  "cuisine": string | null,
+  "ingredients": [
+    { "name": string, "quantity": string }
+  ],
+  "steps": [
+    { "stepNo": number, "content": string }
+  ]
+}
 
 Text to process:
 ---

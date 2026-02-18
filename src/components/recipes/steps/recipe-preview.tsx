@@ -1,4 +1,4 @@
-import NextImage from "next/image";
+import Image from "next/image";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,12 +33,7 @@ export function RecipePreview({
         {/* Image */}
         {imageUrl && (
           <div className="bg-muted relative aspect-[16/9] w-full overflow-hidden rounded-lg">
-            <NextImage
-              src={imageUrl}
-              alt={title}
-              fill
-              className="object-cover"
-            />
+            <Image src={imageUrl} alt={title} fill className="object-cover" />
           </div>
         )}
 

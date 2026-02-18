@@ -1,40 +1,16 @@
-// src/app/share/[token]/share-client.tsx
 "use client";
-
-import axios from "axios";
-import { useEffect, useState } from "react";
 
 import { ShareListSkeleton } from "@/components/ui/page-skeletons";
 import { AggregatedItem as Item } from "@/types/aggregatedItems";
 
-export default function ShareClient({ token }: { token: string }) {
-  const [data, setData] = useState<{
+type Props = {
+  data: {
     title: string;
     groups: Record<string, Item[]>;
-  } | null>(null);
+  };
+};
 
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!token) return;
-
-    axios
-      .get(`/api/share/shopping-lists/${token}`)
-      .then((response) => {
-        setData(response.data);
-      })
-
-      .catch((e) => setError(e.message));
-  }, [token]);
-
-  if (!token) {
-    return <div className="p-8">Invalid share link</div>;
-  }
-
-  if (error) {
-    return <div className="p-8 text-red-600">{error}</div>;
-  }
-
+export default function ShareClient({ data }: Props) {
   if (!data) {
     return <ShareListSkeleton />;
   }

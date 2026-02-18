@@ -1,7 +1,6 @@
 "use client";
 
 import { UserProfile, useUser } from "@clerk/nextjs";
-import axios from "axios";
 import { Sliders } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -11,6 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DIETARY_PREFERENCES } from "@/constants/dietary-preferences";
+
+import { getUserPreferences, updateUserPreferences } from "../actions";
 
 export default function SettingsPage() {
   const { isLoaded } = useUser();
@@ -27,10 +28,10 @@ export default function SettingsPage() {
 
     const loadPreferences = async () => {
       try {
-        const response = await axios.get("/api/user/preferences");
-        const data = response.data;
-        setDefaultServings(data.defaultServings);
-        setDietaryPreferences(data.dietaryPreferences);
+        const data = await getUserPreferences();
+        // Check types if necessary, but server action guarantees return shape
+        setDefaultServings(data.defaultServings as number);
+        setDietaryPreferences(data.dietaryPreferences as string[]);
       } catch {
         // Handle error if needed
       }
@@ -51,10 +52,7 @@ export default function SettingsPage() {
     setError(null);
 
     try {
-      await axios.post("/api/user/preferences", {
-        defaultServings,
-        dietaryPreferences,
-      });
+      await updateUserPreferences(defaultServings, dietaryPreferences);
 
       setSaved(true);
     } catch {

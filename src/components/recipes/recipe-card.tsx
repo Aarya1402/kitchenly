@@ -53,7 +53,7 @@ export function RecipeCard({
       {/* Content - min-h-0 allows flex shrink; spacer pushes Added by to bottom */}
       <CardContent className="flex min-h-0 flex-1 flex-col p-5">
         <div className="min-w-0 flex-shrink-0 space-y-1">
-          <h3 className="group-hover:text-primary line-clamp-2 text-lg leading-tight font-bold tracking-tight transition-colors">
+          <h3 className="group-hover:text-primary line-clamp-2 text-lg leading-tight font-bold tracking-tight lowercase transition-colors first-letter:capitalize">
             {recipe.title}
           </h3>
           <p className="text-muted-foreground text-sm font-medium">
