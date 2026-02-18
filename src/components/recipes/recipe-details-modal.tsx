@@ -29,6 +29,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { INGREDIENTS_PREVIEW_COUNT } from "@/constants/ingredients-preview-count";
 import { STEPS_PREVIEW_COUNT } from "@/constants/steps-preview-count";
+import { SUPPORTED_LANGUAGES } from "@/constants/supported-languages";
 import type { Recipe } from "@/types/recipe";
 import { TastePreview } from "@/types/tastePreview";
 type Props = {
@@ -38,17 +39,6 @@ type Props = {
   onDeleted: (recipe: Recipe) => void;
   currentUserId?: string | null;
 };
-
-const SUPPORTED_LANGUAGES = [
-  { code: "English", label: "English" },
-  { code: "Spanish", label: "Español" },
-  { code: "French", label: "Français" },
-  { code: "German", label: "Deutsch" },
-  { code: "Italian", label: "Italiano" },
-  { code: "Hindi", label: "हिन्दी" },
-  { code: "Japanese", label: "日本語" },
-  { code: "Chinese", label: "中文" },
-];
 
 export function RecipeDetailsModal({
   recipe,

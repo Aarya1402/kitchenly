@@ -1,4 +1,4 @@
-"use server";
+import "server-only";
 
 import { auth, clerkClient } from "@clerk/nextjs/server";
 
