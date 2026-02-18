@@ -1,9 +1,10 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
+import gsap from "gsap";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect,useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { deleteRecipe, getCuisines, getRecipes } from "@/app/recipes/actions";
@@ -76,6 +77,29 @@ export function MyRecipesGrid({ initialData }: Props) {
     selectedIds.length === 1
       ? (recipes.find((r) => r.id === selectedIds[0]) ?? null)
       : null;
+
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (!gridRef.current) return;
+
+    // Kill any existing tweens to avoid conflicts
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        ".recipe-card-item",
+        { y: 50, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.5,
+          stagger: 0.05,
+          ease: "power2.out",
+        }
+      );
+    }, gridRef);
+
+    return () => ctx.revert();
+  }, [recipes]);
 
   /* ───────── Effects ───────── */
 
@@ -258,7 +282,7 @@ export function MyRecipesGrid({ initialData }: Props) {
       />
 
       {/* Grid */}
-      <div data-tour="recipe-card">
+      <div data-tour="recipe-card" ref={gridRef}>
         {recipes.length === 0 ? (
           <div className="text-muted-foreground rounded-lg border border-dashed p-12 text-center text-sm">
             No recipes found.
@@ -266,17 +290,18 @@ export function MyRecipesGrid({ initialData }: Props) {
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {recipes.map((recipe) => (
-              <SelectableRecipeCard
-                key={recipe.id}
-                recipe={recipe}
-                currentUserId={user?.id}
-                selected={selectedIds.includes(recipe.id)}
-                onSelect={(checked) => toggleRecipe(recipe.id, checked)}
-                onCardClick={(recipe) => {
-                  setSelectedRecipeModal(recipe);
-                  setOpen(true);
-                }}
-              />
+              <div key={recipe.id} className="recipe-card-item opacity-0">
+                <SelectableRecipeCard
+                  recipe={recipe}
+                  currentUserId={user?.id}
+                  selected={selectedIds.includes(recipe.id)}
+                  onSelect={(checked) => toggleRecipe(recipe.id, checked)}
+                  onCardClick={(recipe) => {
+                    setSelectedRecipeModal(recipe);
+                    setOpen(true);
+                  }}
+                />
+              </div>
             ))}
           </div>
         )}

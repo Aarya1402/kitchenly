@@ -1,4 +1,6 @@
+import gsap from "gsap";
 import Image from "next/image";
+import { useRef } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,6 +26,48 @@ export function RecipeCard({
   onClick,
   size = "default",
 }: RecipeCardProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
+
+  const handleMouseEnter = () => {
+    if (cardRef.current) {
+      gsap.to(cardRef.current, {
+        y: -10,
+        scale: 1.02,
+        boxShadow:
+          "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+        duration: 0.4,
+        ease: "power2.out",
+      });
+    }
+    if (imageRef.current) {
+      gsap.to(imageRef.current, {
+        scale: 1.1,
+        duration: 0.6,
+        ease: "power2.out",
+      });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (cardRef.current) {
+      gsap.to(cardRef.current, {
+        y: 0,
+        scale: 1,
+        boxShadow: "none",
+        duration: 0.4,
+        ease: "power2.out",
+      });
+    }
+    if (imageRef.current) {
+      gsap.to(imageRef.current, {
+        scale: 1,
+        duration: 0.6,
+        ease: "power2.out",
+      });
+    }
+  };
+
   const addedByLabel =
     recipe.userId && recipe.userId === currentUserId
       ? "Added by me"
@@ -35,8 +79,11 @@ export function RecipeCard({
 
   return (
     <Card
-      className={`group hover:shadow-primary/5 flex cursor-pointer flex-col overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${size === "large" ? "h-[460px]" : "h-[400px]"}`}
+      className={`group flex cursor-pointer flex-col overflow-hidden rounded-2xl ${size === "large" ? "h-[460px]" : "h-[400px]"}`}
       onClick={onClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      ref={cardRef}
       data-tour="recipe-card"
     >
       {/* Image */}
@@ -45,7 +92,8 @@ export function RecipeCard({
           src={recipe.imageUrl ?? "/images/recipe-placeholder.png"}
           alt={recipe.title}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          ref={imageRef}
+          className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       </div>

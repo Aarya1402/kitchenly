@@ -1,8 +1,12 @@
 "use client";
 
+import gsap from "gsap";
+import { Flip } from "gsap/Flip";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useLayoutEffect,useRef, useState } from "react";
 import { toast } from "sonner";
+
+gsap.registerPlugin(Flip);
 
 import {
   regenerateShoppingList,
@@ -78,6 +82,70 @@ export default function ShoppingListDetail({
   const [prevInitialGroups, setPrevInitialGroups] = useState(initialGroups);
   const [prevInitialRecipes, setPrevInitialRecipes] = useState(initialRecipes);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const pendingFlipState = useRef<Flip.FlipState | null>(null);
+
+  useLayoutEffect(() => {
+    if (pendingFlipState.current && containerRef.current) {
+      Flip.from(pendingFlipState.current, {
+        targets: ".shopping-item",
+        duration: 0.4,
+        ease: "power1.inOut",
+        scale: true,
+        onEnter: (elements) => {
+          return gsap.fromTo(
+            elements,
+            { opacity: 0, scale: 0 },
+            { opacity: 1, scale: 1, duration: 0.3 }
+          );
+        },
+        onLeave: (elements) => {
+          return gsap.to(elements, { opacity: 0, scale: 0, duration: 0.3 });
+        },
+      });
+      pendingFlipState.current = null;
+    }
+  }, [groups]);
+
+  useLayoutEffect(() => {
+    if (!containerRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline();
+
+      tl.from(".progress-container", {
+        scaleY: 0,
+        opacity: 0,
+        duration: 0.5,
+        ease: "back.out(1.7)",
+      })
+        .from(
+          ".shopping-list-group",
+          {
+            y: 20,
+            opacity: 0,
+            duration: 0.4,
+            stagger: 0.1,
+            ease: "power2.out",
+          },
+          "-=0.3"
+        )
+        .from(
+          ".shopping-item",
+          {
+            x: -10,
+            opacity: 0,
+            duration: 0.3,
+            stagger: 0.02,
+            ease: "power1.out",
+          },
+          "-=0.2"
+        );
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
+
   if (
     initialTitle !== prevInitialTitle ||
     initialGroups !== prevInitialGroups ||
@@ -114,6 +182,9 @@ export default function ShoppingListDetail({
 
   /* ───────── Toggle isChecked ───────── */
   async function handleToggleItem(ingredientKey: string, isChecked: boolean) {
+    // Capture state for Flip animation
+    const state = Flip.getState(".shopping-item");
+
     // Optimistic update
     setGroups((prev) => {
       const copy = structuredClone(prev);
@@ -127,6 +198,11 @@ export default function ShoppingListDetail({
       return copy;
     });
 
+    // Schedule Flip animation to run after render
+    // Use requestAnimationFrame to ensure DOM issues are settled, or rely on a useEffect watching groups.
+    // We'll use a specific useEffect for Flip below.
+    pendingFlipState.current = state;
+
     try {
       await toggleItem(listId, ingredientKey, isChecked);
     } catch {
@@ -136,7 +212,7 @@ export default function ShoppingListDetail({
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 p-6">
+    <div ref={containerRef} className="mx-auto max-w-2xl space-y-6 p-6">
       {/* ───────── Header Row ───────── */}
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-xl font-semibold">
@@ -196,7 +272,7 @@ export default function ShoppingListDetail({
       )}
 
       {!editMode && (
-        <div className="space-y-2">
+        <div className="progress-container space-y-2">
           <div className="text-muted-foreground flex items-center justify-between text-sm">
             <span>
               {completed} of {total} items completed
@@ -282,12 +358,16 @@ export default function ShoppingListDetail({
 
       {/* ───────── Ingredients ───────── */}
       {Object.entries(activeGroups).map(([category, items]) => (
-        <div key={category}>
+        <div key={category} className="shopping-list-group">
           <h2 className="mb-2 font-medium">{category}</h2>
 
           <div className="space-y-2">
             {items.map((item, index) => (
-              <div key={item.ingredientKey} className="flex items-center gap-2">
+              <div
+                key={item.ingredientKey}
+                data-flip-id={item.ingredientKey}
+                className="shopping-item flex items-center gap-2"
+              >
                 {!editMode && (
                   <Checkbox
                     checked={item.isChecked}
@@ -324,8 +404,10 @@ export default function ShoppingListDetail({
                   </>
                 ) : (
                   <span
-                    className={`flex-1 ${
-                      item.isChecked ? "text-muted-foreground line-through" : ""
+                    className={`flex-1 transition-all duration-300 ${
+                      item.isChecked
+                        ? "text-muted-foreground line-through opacity-50"
+                        : "opacity-100"
                     }`}
                   >
                     {item.quantity.toFixed(2)} {item.unit} {item.name}

@@ -1,9 +1,11 @@
 "use client";
 
 import { SignOutButton, useUser } from "@clerk/nextjs";
+import gsap from "gsap";
 import { LogOut, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useLayoutEffect,useRef } from "react";
 
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,13 +25,45 @@ export function Navbar() {
   const isListsActive = pathname.startsWith("/shopping-lists");
   const isDashboardActive = pathname === "/";
 
+  const navRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      const timeline = gsap.timeline();
+
+      timeline
+        .from(".nav-logo", {
+          x: -20,
+          opacity: 0,
+          duration: 0.5,
+          ease: "power2.out",
+        })
+        .from(
+          ".nav-item",
+          {
+            y: -10,
+            opacity: 0,
+            duration: 0.4,
+            stagger: 0.1,
+            ease: "power2.out",
+          },
+          "-=0.2"
+        );
+    }, navRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <header className="bg-background/80 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur-md">
+    <header
+      ref={navRef}
+      className="bg-background/80 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur-md"
+    >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         {/* Left: App name / logo */}
         <Link
           href="/"
-          className="text-primary text-xl font-bold tracking-tight transition-opacity hover:opacity-90"
+          className="nav-logo text-primary text-xl font-bold tracking-tight transition-opacity hover:opacity-90"
         >
           Kitchenly
         </Link>
@@ -42,9 +76,10 @@ export function Navbar() {
                 asChild
                 variant="ghost"
                 className={
-                  isDashboardActive
+                  (isDashboardActive
                     ? "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary font-semibold"
-                    : "text-muted-foreground hover:text-primary hover:bg-primary/5"
+                    : "text-muted-foreground hover:text-primary hover:bg-primary/5") +
+                  " nav-item"
                 }
               >
                 <Link href="/">Home</Link>
@@ -54,9 +89,10 @@ export function Navbar() {
                 asChild
                 variant="ghost"
                 className={
-                  isRecipesActive
+                  (isRecipesActive
                     ? "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary font-semibold"
-                    : "text-muted-foreground hover:text-primary hover:bg-primary/5"
+                    : "text-muted-foreground hover:text-primary hover:bg-primary/5") +
+                  " nav-item"
                 }
               >
                 <Link href="/recipes">Recipes</Link>
@@ -67,9 +103,10 @@ export function Navbar() {
                 asChild
                 variant="ghost"
                 className={
-                  isListsActive
+                  (isListsActive
                     ? "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary font-semibold"
-                    : "text-muted-foreground hover:text-primary hover:bg-primary/5"
+                    : "text-muted-foreground hover:text-primary hover:bg-primary/5") +
+                  " nav-item"
                 }
                 data-tour="navbar-lists"
               >
@@ -77,7 +114,7 @@ export function Navbar() {
               </Button>
             </nav>
 
-            <div className="flex items-center gap-2">
+            <div className="nav-item flex items-center gap-2">
               <ThemeToggle />
               {/* User menu */}
               <DropdownMenu>

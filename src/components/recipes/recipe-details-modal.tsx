@@ -2,9 +2,10 @@
 
 import "./scrollbar-hide.css";
 
+import gsap from "gsap";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect,useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { getTastePreview, translateRecipe } from "@/app/recipes/actions";
@@ -70,12 +71,64 @@ export function RecipeDetailsModal({
   const [servings, setServings] = useState(originalServings);
 
   // reset servings and language when modal opens/closes
+  // reset servings and language when modal opens/closes
   useEffect(() => {
     if (open && recipe) {
       setServings(recipe.servings);
       setLanguage("English");
       setTranslatedData(null);
     }
+  }, [open, recipe]);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (!open || !containerRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline();
+
+      tl.from(".detail-image", {
+        scale: 0.95,
+        opacity: 0,
+        duration: 0.5,
+        ease: "back.out(1.2)",
+      })
+        .from(
+          ".detail-meta",
+          {
+            y: 10,
+            opacity: 0,
+            duration: 0.4,
+            ease: "power2.out",
+          },
+          "-=0.3"
+        )
+        .from(
+          ".detail-section-title",
+          {
+            x: -10,
+            opacity: 0,
+            duration: 0.3,
+            stagger: 0.1,
+            ease: "power1.out",
+          },
+          "-=0.2"
+        )
+        .from(
+          ".detail-item",
+          {
+            x: -10,
+            opacity: 0,
+            duration: 0.3,
+            stagger: 0.03,
+            ease: "power1.out",
+          },
+          "-=0.4"
+        );
+    }, containerRef);
+
+    return () => ctx.revert();
   }, [open, recipe]);
 
   const handleLanguageChange = async (val: string) => {
@@ -215,11 +268,14 @@ export function RecipeDetailsModal({
             </DialogHeader>
 
             {/* SCROLLABLE BODY */}
-            <div className="scrollbar-hide flex-1 space-y-6 overflow-y-auto pr-4">
+            <div
+              ref={containerRef}
+              className="scrollbar-hide flex-1 space-y-6 overflow-y-auto pr-4"
+            >
               <div className="from-background pointer-events-none sticky top-0 h-4 bg-gradient-to-b to-transparent" />
               {/* Image */}
               {recipe.imageUrl && (
-                <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
+                <div className="detail-image relative aspect-[16/9] overflow-hidden rounded-lg">
                   <Image
                     src={recipe.imageUrl}
                     alt={recipe.title}
@@ -230,7 +286,7 @@ export function RecipeDetailsModal({
               )}
 
               {/* Meta */}
-              <div className="flex flex-wrap items-center gap-4">
+              <div className="detail-meta flex flex-wrap items-center gap-4">
                 <Badge>{displayCuisine}</Badge>
                 <Badge>Original: {originalServings} servings</Badge>
 
@@ -255,15 +311,17 @@ export function RecipeDetailsModal({
                 ))}
               </div>
               <div>
-                <p className="text-sm">{displayDescription}</p>
+                <p className="detail-meta text-sm">{displayDescription}</p>
               </div>
 
               {/* Ingredients */}
               <div>
-                <h3 className="mb-1 font-medium">Ingredients</h3>
+                <h3 className="detail-section-title mb-1 font-medium">
+                  Ingredients
+                </h3>
                 <ul className="list-disc space-y-1 pl-5 text-sm">
                   {ingredientsToShow.map((i, index) => (
-                    <li key={`ingredient-${index}`}>
+                    <li key={`ingredient-${index}`} className="detail-item">
                       {scaleQuantity(i.quantity, scaleFactor)} {i.name}
                     </li>
                   ))}
@@ -282,10 +340,12 @@ export function RecipeDetailsModal({
 
               {/* Steps */}
               <div>
-                <h3 className="mb-1 font-medium">Steps</h3>
+                <h3 className="detail-section-title mb-1 font-medium">Steps</h3>
                 <ol className="list-decimal space-y-1 pl-5 text-sm">
                   {stepsToShow.map((s) => (
-                    <li key={s.stepNo}>{s.content}</li>
+                    <li key={s.stepNo} className="detail-item">
+                      {s.content}
+                    </li>
                   ))}
                 </ol>
 
