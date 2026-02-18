@@ -5,8 +5,9 @@ import "./scrollbar-hide.css";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
-import { getTastePreview } from "@/app/recipes/actions";
+import { getTastePreview, translateRecipe } from "@/app/recipes/actions";
 import { Activity } from "@/components/ui/activity";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { INGREDIENTS_PREVIEW_COUNT } from "@/constants/ingredients-preview-count";
 import { STEPS_PREVIEW_COUNT } from "@/constants/steps-preview-count";
@@ -31,6 +39,17 @@ type Props = {
   currentUserId?: string | null;
 };
 
+const SUPPORTED_LANGUAGES = [
+  { code: "English", label: "English" },
+  { code: "Spanish", label: "Español" },
+  { code: "French", label: "Français" },
+  { code: "German", label: "Deutsch" },
+  { code: "Italian", label: "Italiano" },
+  { code: "Hindi", label: "हिन्दी" },
+  { code: "Japanese", label: "日本語" },
+  { code: "Chinese", label: "中文" },
+];
+
 export function RecipeDetailsModal({
   recipe,
   open,
@@ -39,6 +58,17 @@ export function RecipeDetailsModal({
   currentUserId,
 }: Props) {
   const router = useRouter();
+
+  const [language, setLanguage] = useState("English");
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translatedData, setTranslatedData] = useState<{
+    title: string;
+    description: string | null;
+    ingredients: { name: string; quantity: string }[];
+    steps: string[];
+    cuisine: string | null;
+    language: string;
+  } | null>(null);
 
   const [showAllIngredients, setShowAllIngredients] = useState(false);
   const [showAllSteps, setShowAllSteps] = useState(false);
@@ -49,12 +79,44 @@ export function RecipeDetailsModal({
   const originalServings = recipe?.servings ?? 1;
   const [servings, setServings] = useState(originalServings);
 
-  // reset servings when modal opens/closes
+  // reset servings and language when modal opens/closes
   useEffect(() => {
     if (open && recipe) {
       setServings(recipe.servings);
+      setLanguage("English");
+      setTranslatedData(null);
     }
   }, [open, recipe]);
+
+  const handleLanguageChange = async (val: string) => {
+    if (!recipe) return;
+    if (val === "English") {
+      setLanguage("English");
+      return;
+    }
+
+    setLanguage(val);
+
+    if (translatedData?.language === val) return;
+
+    setIsTranslating(true);
+    try {
+      const result = await translateRecipe({
+        title: recipe.title,
+        description: recipe.description,
+        ingredients: recipe.ingredients,
+        steps: recipe.steps,
+        cuisine: recipe.cuisine,
+        language: val,
+      });
+      setTranslatedData({ ...result, language: val });
+    } catch {
+      toast.error("Translation failed");
+      setLanguage("English");
+    } finally {
+      setIsTranslating(false);
+    }
+  };
 
   if (!recipe) return null;
 
@@ -64,13 +126,32 @@ export function RecipeDetailsModal({
     await onDeleted(recipe);
   };
 
+  const isTranslated =
+    language !== "English" && translatedData?.language === language;
+
+  const displayTitle = isTranslated ? translatedData!.title : recipe.title;
+  const displayDescription = isTranslated
+    ? translatedData!.description
+    : recipe.description;
+  const displayCuisine = isTranslated
+    ? translatedData!.cuisine
+    : recipe.cuisine;
+
+  const ingredientsSource = isTranslated
+    ? translatedData!.ingredients
+    : recipe.ingredients;
+
   const ingredientsToShow = showAllIngredients
-    ? recipe.ingredients
-    : recipe.ingredients.slice(0, INGREDIENTS_PREVIEW_COUNT);
+    ? ingredientsSource
+    : ingredientsSource.slice(0, INGREDIENTS_PREVIEW_COUNT);
+
+  const stepsSource = isTranslated
+    ? translatedData!.steps.map((s, i) => ({ stepNo: i + 1, content: s }))
+    : recipe.steps;
 
   const stepsToShow = showAllSteps
-    ? recipe.steps
-    : recipe.steps.slice(0, STEPS_PREVIEW_COUNT);
+    ? stepsSource
+    : stepsSource.slice(0, STEPS_PREVIEW_COUNT);
 
   function parseQuantity(input: string) {
     const match = input.trim().match(/^([\d.]+)\s*(.*)$/);
@@ -122,7 +203,25 @@ export function RecipeDetailsModal({
           <DialogContent className="flex h-[85vh] max-w-3xl flex-col">
             {/* HEADER (fixed) */}
             <DialogHeader>
-              <DialogTitle>{recipe.title}</DialogTitle>
+              <div className="flex items-start justify-between gap-4">
+                <DialogTitle className="flex-1">{displayTitle}</DialogTitle>
+                <Select
+                  value={language}
+                  onValueChange={handleLanguageChange}
+                  disabled={isTranslating}
+                >
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue placeholder="Language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SUPPORTED_LANGUAGES.map((lang) => (
+                      <SelectItem key={lang.code} value={lang.code}>
+                        {lang.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </DialogHeader>
 
             {/* SCROLLABLE BODY */}
@@ -142,7 +241,7 @@ export function RecipeDetailsModal({
 
               {/* Meta */}
               <div className="flex flex-wrap items-center gap-4">
-                <Badge>{recipe.cuisine}</Badge>
+                <Badge>{displayCuisine}</Badge>
                 <Badge>Original: {originalServings} servings</Badge>
 
                 <div className="flex items-center gap-2">
@@ -166,7 +265,7 @@ export function RecipeDetailsModal({
                 ))}
               </div>
               <div>
-                <p className="text-sm">{recipe.description}</p>
+                <p className="text-sm">{displayDescription}</p>
               </div>
 
               {/* Ingredients */}
@@ -180,7 +279,7 @@ export function RecipeDetailsModal({
                   ))}
                 </ul>
 
-                {recipe.ingredients.length > INGREDIENTS_PREVIEW_COUNT && (
+                {ingredientsSource.length > INGREDIENTS_PREVIEW_COUNT && (
                   <Button
                     variant="link"
                     className="mt-1 px-0 font-bold"
@@ -200,7 +299,7 @@ export function RecipeDetailsModal({
                   ))}
                 </ol>
 
-                {recipe.steps.length > STEPS_PREVIEW_COUNT && (
+                {stepsSource.length > STEPS_PREVIEW_COUNT && (
                   <Button
                     variant="link"
                     className="mt-1 px-0 font-bold"

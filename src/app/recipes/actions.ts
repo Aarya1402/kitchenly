@@ -405,3 +405,64 @@ export async function uploadImageAction(formData: FormData) {
     return { success: false, error: "Failed to upload image" };
   }
 }
+
+export async function translateRecipe(data: {
+  title: string;
+  description: string | null;
+  ingredients: { name: string; quantity: string }[];
+  steps: { content: string }[];
+  cuisine: string | null;
+  language: string;
+}) {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+
+  const { title, description, ingredients, steps, cuisine, language } = data;
+  const { geminiModel } = await import("@/lib/gemini");
+
+  const prompt = `
+You are a professional translator and chef.
+Translate the following recipe details into ${language}.
+Return ONLY valid JSON (no markdown, no explanations).
+
+JSON Structure:
+{
+  "title": string,
+  "description": string | null,
+  "ingredients": [
+    { "name": string, "quantity": string }
+  ],
+  "steps": string[],
+  "cuisine": string | null
+}
+
+Original Recipe:
+Title: ${title}
+Description: ${description || ""}
+Cuisine: ${cuisine || ""}
+Ingredients:
+${ingredients.map((i) => `- ${i.quantity} ${i.name}`).join("\n")}
+Steps:
+${steps.map((s, i) => `${i + 1}. ${s.content}`).join("\n")}
+`;
+
+  try {
+    const result = await geminiModel.generateContent(prompt);
+    const rawText = result.response.text();
+
+    const jsonStart = rawText.indexOf("{");
+    const jsonEnd = rawText.lastIndexOf("}");
+
+    if (jsonStart === -1 || jsonEnd === -1) {
+      throw new Error("Invalid response from AI");
+    }
+
+    const parsed = JSON.parse(rawText.slice(jsonStart, jsonEnd + 1));
+    return parsed;
+  } catch (error) {
+    console.error("Translation error:", error);
+    throw new Error("Failed to translate recipe");
+  }
+}
